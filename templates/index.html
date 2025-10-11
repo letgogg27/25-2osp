@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Ewha Market {% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <link rel="stylesheet" href="../static/style.css" />
+  </head>
+  <body>
+    <nav>
+      <div class="navbar_logo">
+        <a href="">Ewha Market</a>
+      </div>
+      <div class="navbar_menu">
+        <div>
+          <a href="/"><i class="fa-solid fa-house"></i> 홈</a>
+        </div>
+        <div>
+          <a href="/review"
+            ><img
+              src="../static/images/icons/star-rating.png"
+              alt="star-rating"
+              class="review-icon"
+            />
+            리뷰</a
+          >
+        </div>
+        <div>
+          <a href="/reg_items"
+            ><i class="fa-solid fa-circle-plus"></i> 상품등록</a
+          >
+        </div>
+        <div>
+          <a href="/reg_review"
+            ><i class="fa-solid fa-pen-to-square"></i> 리뷰작성</a
+          >
+        </div>
+        <div>
+          <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> 장바구니</a>
+        </div>
+        <div>
+          <a href="/user"><i class="fa-regular fa-circle-user"></i>user_name</a>
+        </div>
+      </div>
+    </nav>
+    {% block content %} {% endblock %}
+  </body>
+  <footer class="footer">
+    <div class="footer-links">
+      <a href="#">About</a>
+      <a href="#">Contact</a>
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+    </div>
+    <p class="footer-copy">©2025 Ewha Market. All rights reserved.</p>
+  </footer>
+</html>
