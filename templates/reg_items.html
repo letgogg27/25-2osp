@@ -3,35 +3,64 @@
 
 <h2>Register Items</h2>
 
-<form action="/submit_item" method="get" enctype="multipart/form-data" style="max-width:400px;">
+<form
+  action="/submit_item_post"
+  method="post"
+  enctype="multipart/form-data"
+  style="max-width: 400px"
+>
   <!-- 상품명 -->
-  <div style="margin-bottom: 20px;">
-    <label for="item_name">Item name</label><br>
-    <input type="text" name="item_name" id="item_name" required style="width:100%; padding:8px;">
+  <div style="margin-bottom: 20px">
+    <label for="item_name">Item name</label><br />
+    <input
+      type="text"
+      name="item_name"
+      id="item_name"
+      required
+      style="width: 100%; padding: 8px"
+    />
   </div>
 
   <!-- 판매자 ID -->
-  <div style="margin-bottom: 20px;">
-    <label for="seller_id">Seller ID</label><br>
-    <input type="text" name="seller_id" id="seller_id" required style="width:100%; padding:8px;">
+  <div style="margin-bottom: 20px">
+    <label for="seller_id">Seller ID</label><br />
+    <input
+      type="text"
+      name="seller_id"
+      id="seller_id"
+      required
+      style="width: 100%; padding: 8px"
+    />
   </div>
 
   <!-- 주소 -->
-  <div style="margin-bottom: 20px;">
-    <label for="address">Address</label><br>
-    <input type="text" name="address" id="address" required style="width:100%; padding:8px;">
+  <div style="margin-bottom: 20px">
+    <label for="address">Address</label><br />
+    <input
+      type="text"
+      name="address"
+      id="address"
+      required
+      style="width: 100%; padding: 8px"
+    />
   </div>
 
   <!-- 이메일 -->
-  <div style="margin-bottom: 20px;">
-    <label for="email">Email</label><br>
-    <input type="text" name="email" id="email" required style="width:100%; padding:8px;">
+  <div style="margin-bottom: 20px">
+    <label for="email">Email</label><br />
+    <input
+      type="text"
+      name="email"
+      id="email"
+      required
+      style="width: 100%; padding: 8px"
+    />
   </div>
 
   <!-- 카테고리 -->
-  <div style="margin-bottom: 20px;">
-    <label for="category">Category</label><br>
-    <select id="category" name="category" style="width:100%; padding:8px;">
+  <div style="margin-bottom: 20px">
+    <label for="category">Category</label><br />
+    <select id="category" name="category" style="width: 100%; padding: 8px">
       <option value="Clothes" selected>Clothes</option>
       <option value="Beauty">Beauty</option>
       <option value="Books">Books</option>
@@ -42,18 +71,22 @@
   </div>
 
   <!-- 카드 결제 여부 -->
-  <div style="margin-bottom: 20px;">
-    <label for="credit_card">Credit Card?</label><br>
-    <select id="credit_card" name="credit_card" style="width:100%; padding:8px;">
+  <div style="margin-bottom: 20px">
+    <label for="credit_card">Credit Card?</label><br />
+    <select
+      id="credit_card"
+      name="credit_card"
+      style="width: 100%; padding: 8px"
+    >
       <option value="Y" selected>Yes</option>
       <option value="N">No</option>
     </select>
   </div>
 
   <!-- 상품 상태 -->
-  <div style="margin-bottom: 20px;">
-    <label for="status">Status</label><br>
-    <select id="status" name="status" style="width:100%; padding:8px;">
+  <div style="margin-bottom: 20px">
+    <label for="status">Status</label><br />
+    <select id="status" name="status" style="width: 100%; padding: 8px">
       <option value="new" selected>New</option>
       <option value="lnew">Likely New</option>
       <option value="used">Used</option>
@@ -61,23 +94,36 @@
   </div>
 
   <!-- 전화번호 -->
-  <div style="margin-bottom: 20px;">
-    <label for="phone">Phone</label><br>
-    <input type="text" name="phone" id="phone" style="width:100%; padding:8px;">
+  <div style="margin-bottom: 20px">
+    <label for="phone">Phone</label><br />
+    <input
+      type="text"
+      name="phone"
+      id="phone"
+      style="width: 100%; padding: 8px"
+    />
   </div>
 
   <!-- 이미지 첨부 -->
-  <div style="margin-bottom: 20px;">
-    <label for="file">Representative Image Upload</label><br>
+  <div style="margin-bottom: 20px">
+    <label for="file">Representative Image Upload</label><br />
     <!--  <label for="file" class="file-btn">Choose File</label>   버튼을 Choose File로 바꿀 시 -->
-    <input type="file" name="file" id="file" accept="image/*" style="width:100%; padding:8px;">
+    <input
+      type="file"
+      name="file"
+      id="file"
+      accept="image/*"
+      style="width: 100%; padding: 8px"
+    />
   </div>
-
-
 
   <!-- 제출 버튼 -->
   <div>
-    <input type="submit" value="Submit!" style="padding:10px 20px; font-size:16px; cursor:pointer;">
+    <input
+      type="submit"
+      value="Submit!"
+      style="padding: 10px 20px; font-size: 16px; cursor: pointer"
+    />
   </div>
 </form>
 

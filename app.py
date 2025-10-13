@@ -53,6 +53,12 @@ def register_items():
 def register_reviews():
     return render_template('reg_reviews.html')
 
+@app.route("/submit_item_post", methods=['POST'], strict_slashes=False)
+def reg_item_submit_post():
+    image_file = request.files['file']
+    image_file.save("static/images/{}".format(image_file.filename))
+    data = request.form
+    return render_template('submit_item_result.html', data = data, img_path = "static/images/{}".format(image_file.filename))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
