@@ -1,5 +1,10 @@
 /*** Navbar ***/
 
+body {
+  padding-top: 100px;
+  padding-bottom: 60px;
+  margin: 0;
+}
 nav {
   background-color: #00462a;
   display: flex;
@@ -16,10 +21,6 @@ nav {
   right: 0;
   z-index: 1000;
   margin: 0px;
-}
-
-body {
-  padding-top: 100px;
 }
 
 .navbar_logo a {
@@ -79,10 +80,6 @@ body {
   .navbar_logo {
     margin-bottom: 10px;
   }
-}
-/*** Content ***/
-body {
-  padding-bottom: 1000px;
 }
 
 /*** footer ***/
@@ -496,11 +493,10 @@ textarea {
 }
 
 /**** List page CSS ****/
-/* PAGE-ONLY SAFE RULES (doesn't touch nav/footer/body) */
 .list-container {
   max-width: 1100px;
-  margin: 24px auto 0; /* small breathing room under the nav */
-  padding: 0 20px 160px; /* bottom padding so fixed footer won't overlap */
+  margin: 24px auto 0;
+  padding: 0 20px 160px;
 }
 
 /* search */
@@ -604,7 +600,7 @@ textarea {
   color: #00462a;
 }
 
-/* --- Pagination clean fix (white background above green footer) --- */
+/* --- Pagination--- */
 .list-pagination {
   display: flex;
   justify-content: center;
@@ -613,7 +609,7 @@ textarea {
   margin-top: 32px;
   margin-bottom: 80px;
   padding: 16px 0;
-  background: transparent; /* remove extra green bar */
+  background: transparent;
 }
 
 .list-pagination a {

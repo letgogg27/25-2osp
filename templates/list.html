@@ -51,7 +51,7 @@ block content %}
     {% endif %}
   </div>
 
-  <nav class="list-pagination" aria-label="페이지네이션">
+  <div class="list-pagination" aria-label="페이지네이션">
     {% if page > 1 %}
     <a href="?page={{ page-1 }}" aria-label="이전">&laquo;</a>
     {% endif %} {% for p in range(1, total_pages+1) %}
@@ -61,7 +61,7 @@ block content %}
     {% endfor %} {% if page < total_pages %}
     <a href="?page={{ page+1 }}" aria-label="다음">&raquo;</a>
     {% endif %}
-  </nav>
+  </div>
 </section>
 
 {% endblock %}
