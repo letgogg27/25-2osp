@@ -40,5 +40,19 @@ def home():
 def product_list():
     return render_list()
 
+@app.route("/review", methods=['GET','POST'], strict_slashes=False)
+def review():
+    return render_template("review.html")
+
+
+@app.route("/register_items", methods=['GET','POST'], strict_slashes=False)
+def register_items():
+    return render_template('reg_items.html')
+
+@app.route("/register_reviews", methods=['GET','POST'], strict_slashes=False)
+def register_reviews():
+    return render_template('reg_reviews.html')
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
