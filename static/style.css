@@ -121,11 +121,13 @@ nav {
   color: #36ae92;
 }
 /**** Button ****/
-button {
+button,
+.reg-form-submit-btn {
   cursor: pointer;
   transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
 }
-button:hover {
+button:hover,
+.reg-form-submit-btn:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
 }
@@ -290,6 +292,12 @@ textarea {
 .material-icons {
   font-size: 18px;
   color: black;
+}
+
+/**** Register form ****/
+.reg-form-container {
+  padding-bottom: 60px;
+  padding-left: 40px;
 }
 
 /***Review List CSS ***/
