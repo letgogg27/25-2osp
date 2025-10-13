@@ -1,26 +1,16 @@
-{% extends "index.html" %}
-{% block title %}Ewha Market - List{% endblock %}
-{% block content %}
-
-<!-- 리스트 전용 스타일 -->
-<link rel="stylesheet" href="{{ url_for('static', filename='style_list.css') }}" />
-<!-- CDN 보조(일부 환경에서 첫 CDN 차단시 보완) -->
-<link rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"/>
+{% extends "index.html" %} {% block title %}Ewha Market - List{% endblock %} {%
+block content %}
 
 <section class="list-container">
-
-  <!-- 검색(요청대로 살짝 아래) -->
   <div class="list-search">
-    <input type="text" placeholder="검색어를 입력하세요" aria-label="검색어 입력" />
-    <button type="button" aria-label="검색">
-      <i class="fa-solid fa-magnifying-glass"></i>
-    </button>
+    <input
+      type="text"
+      placeholder="검색어를 입력하세요"
+      aria-label="검색어 입력"
+    />
+    <button type="button" aria-label="검색">검색</button>
   </div>
 
-  <!-- ✅ 배너 제거 -->
-
-  <!-- 필터/정렬 -->
   <div class="list-toolbar">
     <select aria-label="필터">
       <option>필터</option>
@@ -38,81 +28,40 @@
     </select>
   </div>
 
-  <!-- 카드 그리드 -->
   <div class="list-grid">
     {% for p in products %}
     <a href="/detail/{{ p.id }}" class="list-card">
       <div class="list-thumb">
-        <img src="{{ url_for('static', filename='images/' ~ p.img) }}" alt="{{ p.name }}" />
+        <img
+          src="{{ url_for('static', filename='images/icons/' ~ p.img) }}"
+          alt="{{ p.name|e }}"
+          loading="lazy"
+        />
         <button class="list-wish" type="button" aria-label="찜하기">♡</button>
       </div>
       <div class="list-info">
-        <p class="list-name">{{ p.name }}</p>
+        <p class="list-name">{{ p.name|e }}</p>
         <p class="list-price">{{ "{:,.0f}".format(p.price) }}원</p>
       </div>
     </a>
-    {% endfor %}
-    {% if not products %}
-      <p style="grid-column:1/-1;text-align:center;color:#666">표시할 상품이 없습니다.</p>
+    {% endfor %} {% if not products %}
+    <p style="grid-column: 1/-1; text-align: center; color: #666">
+      표시할 상품이 없습니다.
+    </p>
     {% endif %}
   </div>
 
-  <!-- 페이지네이션 -->
   <nav class="list-pagination" aria-label="페이지네이션">
     {% if page > 1 %}
-      <a href="?page={{ page-1 }}" aria-label="이전">&laquo;</a>
-    {% endif %}
-    {% for p in range(1, total_pages+1) %}
-      <a href="?page={{ p }}" class="{{ 'active' if p==page else '' }}">{{ p }}</a>
-    {% endfor %}
-    {% if page < total_pages %}
-      <a href="?page={{ page+1 }}" aria-label="다음">&raquo;</a>
+    <a href="?page={{ page-1 }}" aria-label="이전">&laquo;</a>
+    {% endif %} {% for p in range(1, total_pages+1) %}
+    <a href="?page={{ p }}" class="{{ 'active' if p==page else '' }}"
+      >{{ p }}</a
+    >
+    {% endfor %} {% if page < total_pages %}
+    <a href="?page={{ page+1 }}" aria-label="다음">&raquo;</a>
     {% endif %}
   </nav>
 </section>
-
-<!-- ✅ index.html은 수정하지 않고, nav가 비어 있으면 여기서 동적으로 채워 넣기 -->
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-  // 0) 맨 위에 떠다니는 텍스트 노드(예: '1') 싹 제거
-  const body = document.body;
-  while (body.firstChild && body.firstChild.nodeType === Node.TEXT_NODE) {
-    if (body.firstChild.textContent.trim() !== '') {
-      // console.log('remove stray text:', body.firstChild.textContent);
-    }
-    body.removeChild(body.firstChild);
-  }
-
-  // 1) 기존 nav는 숨김 (index.html은 손대지 않음)
-  const nativeNav = document.querySelector('nav');
-  if (nativeNav) {
-    nativeNav.style.display = 'none';
-  }
-
-  // 2) 새 상단바 주입 (index와 무관하게 항상 보임)
-  if (!document.getElementById('injected-nav')) {
-    const bar = document.createElement('div');
-    bar.id = 'injected-nav';
-    bar.innerHTML = `
-      <div class="inav-logo"><a href="/">Ewha Market</a></div>
-      <div class="inav-menu">
-        <a href="/"><i class="fa-solid fa-house"></i><span>홈</span></a>
-        <a href="#"><i class="fa-solid fa-star"></i><span>리뷰</span></a>
-        <a href="#"><i class="fa-solid fa-circle-plus"></i><span>상품등록</span></a>
-        <a href="#"><i class="fa-solid fa-pen-to-square"></i><span>리뷰작성</span></a>
-        <a href="#"><i class="fa-solid fa-cart-shopping"></i><span>장바구니</span></a>
-        <a href="#"><i class="fa-regular fa-circle-user"></i><span>user_name</span></a>
-      </div>
-    `;
-    document.body.prepend(bar);
-  }
-
-  // 3) 상단바 높이만큼 본문 밀어주기 (겹침 방지)
-  const padTop = parseInt(getComputedStyle(document.body).paddingTop || '0', 10);
-  if (padTop < 120) {
-    document.body.style.paddingTop = '120px';
-  }
-});
-</script>
 
 {% endblock %}
