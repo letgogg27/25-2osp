@@ -1,0 +1,90 @@
+{% extends "index.html" %}
+{% block title %} 회원가입 {%endblock %}
+{%block content %}
+
+<main class="container">
+    <h1 class="title">회원가입</h1>
+    <hr class="divider">
+
+    <form id="signupForm" novalidate>
+        <!--아이디-->
+        <div class="field">
+            <label for="userID" class="fieldLabel">아이디 <span class="required">(필수)</span></label>
+            <div class="fieldControlIcon">
+                <input id="userID" name="userID" type="text" autocomplete="username"
+                placeholder="영문 및 숫자 혼용, 최소 5자" required />
+                <span class="icon" id="userIcon" aria-hidden="true"></span>
+            </div>
+            <p id="userIdHelp" class="help" aria-live="polite"></p>
+        </div>
+
+        <!--비밀번호-->
+        <div class="field">
+            <label for="password" class="fieldLabel">비밀번호<span class="required"></span></label>
+            <div class="fieldControlIcon password">
+                <input id="password" name="password" type="password" autocomplete="new-password"
+                placeholder="8~16자의 영문, 숫자, 특수기호" aria-describedby="pwHelp" required/>
+                <button type="button" class="iconbtn" id="pwToggle" aria-label="비밀번호 보기/숨기기"></button>
+            </div>
+            <p id="pwHelp" class="help" aria-live="polite"></p>
+        </div>
+
+        <!--이메일-->
+        <div class="field">
+            <label for="email" class="fieldLabel">이메일<span class="required"></span></label>
+            <div class="email-row">
+                <div class="fieldControlIcon email">
+                    <input id="email" name="email" type="text" autocomplete="email"
+                    placeholder="" aria-describedby="emailHelp" required />
+                    <select id="emailDomain" class="email-domain" aria-label="이메일 도메인 선택">
+                        <option value="ewha.ac.kr">@ewha.ac.kr</option>
+                        <option value="ewhain.net">@ewhain.net</option>
+                    </select>
+                    <span class="icon" id="emailFormatIcon" title="형식 확인" aria-hidden="true"></span>
+                    <span class="icon second" id="emailVerifiedIcon" title="인증 확인" aria-hidden="true"></span>
+                </div>
+
+            </div>
+        </div>
+
+        <!--전번 (선택)-->
+        <div class="field">
+            <label class="fieldLabel">전화번호 <span class="optionial">(선택)</span></label>
+            <div class="phonenumber-row">
+                <input type="text" id="tel1" inputmode="numeric" maxlength="3" placeholder="010" />
+                <span class="dash">-</span>
+                <input type="text" id="tel2" inputmode="numeric" maxlength="4" />
+                <span class="dash">-</span>
+                <input type="text" id="tel3" inputmode="numeric" maxlength="4" />
+            </div>
+        </div>
+
+        <!--약관 동의-->
+        <fieldset class="agreements">
+            <legend class="agree">약관 동의</legend>
+
+            <label class="check">
+                <input type="checkbox" id="agreeAll"  />
+                <span class="checkui"></span>
+                전체약관 동의
+            </label>
+
+            <label class="check indent">
+                <input type="checkbox" id="agreePrivacy" required />
+                <span class="checkui"></span>
+                (필수) 개인정보 수집 및 이용 동의
+            </label>
+
+            <label class="check indent">
+                <input type="checkbox" id="agreeMarketing" />
+                <span class="checkui"></span>
+                (선택) 마켓팅 정보 수신 동의
+            </label>
+        </fieldset>
+
+        <!--제출-->
+        <div class="actions">
+            <button type="submit" id="submitBtn" class="btn primary" disabled>회원 가입</button>
+        </div>
+    </form>
+</main>
