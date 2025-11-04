@@ -1,6 +1,12 @@
 ﻿{% extends "index.html" %}
 {% block content %}
 
+{% with mesg = get_flashed_messages() %}
+{% if mesg !=[] %}
+    <script> alert("{{ mesg[0] }}")</script>
+{% endif %}
+{% endwith %} 
+
 <div class="centered-content-wrapper">
     <div class="container login-container">
         <h2 class="login-title">로그인</h2>
@@ -112,3 +118,4 @@
 </style>
 
 {% endblock %}
+
