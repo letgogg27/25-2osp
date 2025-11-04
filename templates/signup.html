@@ -1,90 +1,268 @@
 {% extends "index.html" %}
-{% block title %} 회원가입 {%endblock %}
-{%block content %}
+{% block content %}
 
-<main class="container">
-    <h1 class="title">회원가입</h1>
-    <hr class="divider">
+<div class="centered-content-wrapper">
+  <div class="container signup-container">
+    <h2 class="signup-title">회원가입</h2>
 
-    <form id="signupForm" novalidate>
-        <!--아이디-->
-        <div class="field">
-            <label for="userID" class="fieldLabel">아이디 <span class="required">(필수)</span></label>
-            <div class="fieldControlIcon">
-                <input id="userID" name="userID" type="text" autocomplete="username"
-                placeholder="영문 및 숫자 혼용, 최소 5자" required />
-                <span class="icon" id="userIcon" aria-hidden="true"></span>
-            </div>
-            <p id="userIdHelp" class="help" aria-live="polite"></p>
+    <form id="signupForm" class="signup-form" method="post" action="/signup_confirm" novalidate>
+      <!-- 아이디 -->
+      <div class="form-group compact">
+        <label for="userID">아이디 <span class="required">(필수)</span></label>
+        <div class="fieldControlIcon">
+          <input id="userID" name="userID" type="text" autocomplete="username"
+          placeholder="영문 및 숫자 혼용, 최소 5자" required/>
+          <span class="icon icon-check" id="userIcon" aria-hidden="true">
+            <i class="fa-solid fa-check"></i>
+          </span>
         </div>
+      </div>
 
-        <!--비밀번호-->
-        <div class="field">
-            <label for="password" class="fieldLabel">비밀번호<span class="required"></span></label>
-            <div class="fieldControlIcon password">
-                <input id="password" name="password" type="password" autocomplete="new-password"
-                placeholder="8~16자의 영문, 숫자, 특수기호" aria-describedby="pwHelp" required/>
-                <button type="button" class="iconbtn" id="pwToggle" aria-label="비밀번호 보기/숨기기"></button>
-            </div>
-            <p id="pwHelp" class="help" aria-live="polite"></p>
+      <!-- 비밀번호 -->
+      <div class="form-group compact">
+        <label for="password">비밀번호 <span class="required">(필수)</span></label>
+        <div class="fieldControlIcon password">
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            placeholder="8~16자의 영문, 숫자, 특수기호"
+            aria-describedby="pwHelp"
+            required/>
         </div>
+      </div>
 
-        <!--이메일-->
-        <div class="field">
-            <label for="email" class="fieldLabel">이메일<span class="required"></span></label>
-            <div class="email-row">
-                <div class="fieldControlIcon email">
-                    <input id="email" name="email" type="text" autocomplete="email"
-                    placeholder="" aria-describedby="emailHelp" required />
-                    <select id="emailDomain" class="email-domain" aria-label="이메일 도메인 선택">
-                        <option value="ewha.ac.kr">@ewha.ac.kr</option>
-                        <option value="ewhain.net">@ewhain.net</option>
-                    </select>
-                    <span class="icon" id="emailFormatIcon" title="형식 확인" aria-hidden="true"></span>
-                    <span class="icon second" id="emailVerifiedIcon" title="인증 확인" aria-hidden="true"></span>
-                </div>
-
-            </div>
+      <!-- 비밀번호 확인 -->
+      <div class="form-group compact">
+        <label for="passwordConfirm" class="fieldLabel">비밀번호 확인<span class="required">(필수)</span></label>
+        <div class="fieldControlIcon passwordcheck">
+          <input
+            id="passwordConfirm"
+            name="passwordConfirm"
+            type="password"
+            autocomplete="new-password"
+            placeholder="비밀번호를 다시 입력하세요"
+            aria-describedby="pwConfirmHelp"
+            required
+          />
+          <span class="icon icon-check" id="pwConfirmIcon" aria-hidden="true">
+            <i class="fa-solid fa-check"></i>
+          </span>
         </div>
+      </div>
 
-        <!--전번 (선택)-->
-        <div class="field">
-            <label class="fieldLabel">전화번호 <span class="optionial">(선택)</span></label>
-            <div class="phonenumber-row">
-                <input type="text" id="tel1" inputmode="numeric" maxlength="3" placeholder="010" />
-                <span class="dash">-</span>
-                <input type="text" id="tel2" inputmode="numeric" maxlength="4" />
-                <span class="dash">-</span>
-                <input type="text" id="tel3" inputmode="numeric" maxlength="4" />
-            </div>
+      <!-- 이메일 -->
+      <div class="form-group">
+        <label for="email">이메일 <span class="required">(필수)</span></label>
+        <div class="email-row">
+          <div class="fieldControlIcon email">
+            <input
+              id="email"
+              name="email"
+              type="text"
+              autocomplete="email"
+              placeholder=""
+              aria-describedby="emailHelp"
+              required
+            />
+            <select id="emailDomain" class="email-domain" aria-label="이메일 도메인 선택">
+              <option value="ewha.ac.kr">@ewha.ac.kr</option>
+              <option value="ewhain.net">@ewhain.net</option>
+            </select>
+            <span class="icon" id="emailFormatIcon" title="형식 확인" aria-hidden="true"></span>
+            <span class="icon second" id="emailVerifiedIcon" title="인증 확인" aria-hidden="true"></span>
+          </div>
         </div>
+        <p id="emailHelp" class="help" aria-live="polite"></p>
+      </div>
 
-        <!--약관 동의-->
-        <fieldset class="agreements">
-            <legend class="agree">약관 동의</legend>
-
-            <label class="check">
-                <input type="checkbox" id="agreeAll"  />
-                <span class="checkui"></span>
-                전체약관 동의
-            </label>
-
-            <label class="check indent">
-                <input type="checkbox" id="agreePrivacy" required />
-                <span class="checkui"></span>
-                (필수) 개인정보 수집 및 이용 동의
-            </label>
-
-            <label class="check indent">
-                <input type="checkbox" id="agreeMarketing" />
-                <span class="checkui"></span>
-                (선택) 마켓팅 정보 수신 동의
-            </label>
-        </fieldset>
-
-        <!--제출-->
-        <div class="actions">
-            <button type="submit" id="submitBtn" class="btn primary" disabled>회원 가입</button>
+      <!-- 전화번호 (선택) -->
+      <div class="form-group">
+        <label>전화번호 <span class="optional">(선택)</span></label>
+        <div class="phonenumber-row">
+          <input
+            type="text"
+            id="tel1"
+            name="tel1"
+            inputmode="numeric"
+            maxlength="3"
+            placeholder="010"
+          />
+          <span class="dash">-</span>
+          <input
+            type="text"
+            id="tel2"
+            name="tel2"
+            inputmode="numeric"
+            maxlength="4"
+          />
+          <span class="dash">-</span>
+          <input
+            type="text"
+            id="tel3"
+            name="tel3"
+            inputmode="numeric"
+            maxlength="4"
+          />
         </div>
+      </div>
+
+      <!-- 약관 동의 -->
+      <fieldset class="agreements">
+        <legend class="agree">약관 동의</legend>
+
+        <label class="check">
+          <input type="checkbox" id="agreeAll" />
+          <span class="checkui"></span>
+          전체약관 동의
+        </label>
+
+        <label class="check indent">
+          <input type="checkbox" id="agreePrivacy" name="agreePrivacy" required />
+          <span class="checkui"></span>
+          (필수) 개인정보 수집 및 이용 동의
+        </label>
+
+        <label class="check indent">
+          <input type="checkbox" id="agreeMarketing" name="agreeMarketing" />
+          <span class="checkui"></span>
+          (선택) 마케팅 정보 수신 동의
+        </label>
+      </fieldset>
+
+      <!-- 제출 -->
+      <button type="submit" id="submitBtn" class="btn primary" disabled>회원 가입</button>
     </form>
-</main>
+
+    <div class="signup-footer">
+      <p>이미 계정이 있나요? <a href="{{ url_for('login') }}">로그인</a></p>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* 화면 정중앙 배치 */
+  .centered-content-wrapper {
+    min-height: calc(100vh - 120px); 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  /* 카드 컨테이너 */
+  .signup-container {
+    width: 100%;
+    max-width: 560px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 40px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .signup-title {
+    text-align: center;
+    margin-bottom: 24px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #00462a;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+  }
+
+  /* 공통 폼 스타일 */
+  .form-group { margin-bottom: 12px; }
+  .form-group label { font-weight: 600; margin-bottom: 6px; display: block; }
+
+  input[type="text"],
+  input[type="password"],
+  select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f7f7f7;
+    font-size: 14px;
+  }
+
+  input[type="text"]:focus,
+  input[type="password"]:focus,
+  select:focus {
+    border-color: #36ae92;
+    background-color: #fff;
+    outline: none;
+  }
+
+  .form-group.compact { margin-bottom: 0; }
+
+  /* 아이콘 포함 입력영역 가이드 (네이밍 유지) */
+  .fieldControlIcon { display: flex; align-items: center; }
+  .fieldControlIcon.password { display: flex; align-items: center; }
+  .fieldControlIcon.passwordcheck { display: flex; align-items: center; }
+  .fieldControlIcon.email { grid-template-columns: 1fr 200px auto auto; column-gap:12px; align-items: flex-start; }
+  .fieldControlIcon .icon,
+  .fieldControlIcon .icon.second { width: 18px; height: 18px; }
+  .icon-check{
+    width: 20px;
+    height: 20px;
+    margin-left: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color:#00462a;
+  }
+  .icon-check i {
+    font-size: 16px;
+    line-height: 1;
+    transform: translateY(-2px); 
+  }
+
+  /* 이메일 행 */
+  .email-row { width: 100%; }
+  .email-domain { width: 100%; }
+
+  /* 전화번호 행 */
+  .phonenumber-row { display: flex; gap: 8px; align-items: center; }
+  .phonenumber-row input { flex: 1 1 0; text-align: center; }
+  .dash { color: #666; }
+
+  /* 약관 */
+  .agreements { border: 0; padding: 0; margin: 8px 0 4px; }
+  .agree { font-weight: 700; margin-bottom: 8px; }
+  .check { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
+  .check.indent { padding-left: 22px; }
+
+  /* 버튼 */
+  .btn.primary,
+  .signup-form button[type="submit"] {
+    width: 100%;
+    background-color: #00462a;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-top: 10px;
+    cursor: pointer;
+  }
+
+  .btn.primary:hover { background-color: #03603a; }
+
+  .signup-footer {
+    text-align: center;
+    margin-top: 18px;
+    font-size: 14px;
+  }
+
+  .signup-footer a { color: #00462a; font-weight: 600; text-decoration: none; }
+  .signup-footer a:hover { text-decoration: underline; }
+
+  /* 작은 화면 대응 */
+  @media (max-width: 420px) {
+    .fieldControlIcon.email { grid-template-columns: 1fr; }
+  }
+</style>
+
+{% endblock %}
