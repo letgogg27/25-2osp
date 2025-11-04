@@ -210,7 +210,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color:#00462a;
+    color:#aaaaaa;
+  }
+  .icon-check.valid{
+    color: #00462a;
   }
   .icon-check i {
     font-size: 16px;
@@ -264,5 +267,88 @@
     .fieldControlIcon.email { grid-template-columns: 1fr; }
   }
 </style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // ===== 입력 & 아이콘 =====
+    const userIDInput   = document.getElementById("userID");
+    const userIcon      = document.getElementById("userIcon");
+
+    const pwInput       = document.getElementById("password");
+    const pwConfirm     = document.getElementById("passwordConfirm");
+    const pwConfirmIcon = document.getElementById("pwConfirmIcon");
+
+    // ===== 약관 체크박스 =====
+    const agreeAll       = document.getElementById("agreeAll");
+    const agreePrivacy   = document.getElementById("agreePrivacy");   // (필수)
+    const agreeMarketing = document.getElementById("agreeMarketing"); // (선택)
+
+    // ===== 제출 버튼 =====
+    const submitBtn = document.getElementById("submitBtn");
+
+    // 아이디 유효성: 영문 + 숫자 포함, 5자 이상
+    const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
+
+    // 아이디 아이콘 색 업데이트
+    function updateUserIcon() {
+      const valid = idRegex.test(userIDInput.value);
+      userIcon.classList.toggle("valid", valid);
+      updateSubmitState();
+    }
+
+    // 비밀번호 확인 아이콘 색 업데이트
+    function updatePwConfirmIcon() {
+      const valid =
+        pwConfirm.value.length > 0 && pwConfirm.value === pwInput.value;
+      pwConfirmIcon.classList.toggle("valid", valid);
+      updateSubmitState();
+    }
+
+    // 전체 동의 체크 시: 나머지 둘 상태 동기화
+    function handleAgreeAllChange() {
+      const checked = agreeAll.checked;
+      agreePrivacy.checked   = checked;
+      agreeMarketing.checked = checked;
+      updateSubmitState();
+    }
+
+    // 개별 체크박스 바뀔 때 전체 동의 상태 맞추기
+    function handleIndividualAgreeChange() {
+      // 두 개 다 체크되면 전체 동의 자동 체크, 아니면 해제
+      if (agreePrivacy.checked && agreeMarketing.checked) {
+        agreeAll.checked = true;
+      } else {
+        agreeAll.checked = false;
+      }
+      updateSubmitState();
+    }
+
+    // 제출 버튼 활성/비활성 조건
+    function updateSubmitState() {
+      const idValid   = idRegex.test(userIDInput.value);
+      const pwValid   = pwConfirm.value.length > 0 && pwConfirm.value === pwInput.value;
+      const requiredOk = agreePrivacy.checked;  // 필수 약관 동의
+
+      // 세 조건 모두 만족해야 버튼 활성
+      submitBtn.disabled = !(idValid && pwValid && requiredOk);
+    }
+
+    // ===== 이벤트 바인딩 =====
+    userIDInput.addEventListener("input", updateUserIcon);
+    pwInput.addEventListener("input", updatePwConfirmIcon);
+    pwConfirm.addEventListener("input", updatePwConfirmIcon);
+
+    agreeAll.addEventListener("change", handleAgreeAllChange);
+    agreePrivacy.addEventListener("change", handleIndividualAgreeChange);
+    agreeMarketing.addEventListener("change", handleIndividualAgreeChange);
+
+    // 페이지 로드 시 초기 상태 한 번 반영
+    updateUserIcon();
+    updatePwConfirmIcon();
+    updateSubmitState();
+  });
+</script>
+
+
 
 {% endblock %}
