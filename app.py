@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
@@ -56,6 +56,10 @@ def register_reviews():
 @app.route("/login")
 def login():
     return render_template("login.html")
+
+@app.route("/signup",methods=['GET','POST'], strict_slashes=False)
+def signup():
+    return render_template("signup.html")
 
 @app.route("/submit_item_post", methods=['POST'], strict_slashes=False)
 def reg_item_submit_post():
