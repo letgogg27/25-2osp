@@ -1,146 +1,77 @@
-{% extends "index.html" %} {% block title %} Ewha Market-List {%endblock %}
-{%block content %}
+{% extends "index.html" %}
+{% block title %}Ewha Market - Review List{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>이화마켓 리뷰 전체화면</title>
 
-<div class="review-page">
-  <h1 class="review-title">이화마켓 리뷰 전체화면</h1>
+</head>
 
-  <!-- 검색/정렬 -->
-  <form class="review-toolbar" action="/review" method="get">
-    <div class="search-area">
-      <label for="q">검색</label>
-      <input id="q" name="q" type="text" placeholder="검색어를 입력하세요" />
-    </div>
+<body>
+  <div class="review-page">
+    <h1 class="review-title">이화마켓 리뷰 전체화면</h1>
 
-    <div class="sort-area">
-      <label for="sort">정렬</label>
-      <select id="sort" name="sort">
-        <option value="new" selected>최신순</option>
-        <option value="high">평점높은순</option>
-        <option value="low">평점낮은순</option>
+    <!-- 검색 + 정렬 -->
+    <form class="search-toolbar" action="#" method="get">
+      <input class="search-input" type="text" placeholder="판매자명 또는 상품명 검색" />
+      <select class="sort-select" name="sort">
+        <option value="new" selected>정렬: 최신순</option>
+        <option value="high">정렬: 평점높은순</option>
+        <option value="low">정렬: 평점낮은순</option>
       </select>
+      <button class="search-btn" type="submit">검색</button>
+    </form>
+
+    <!-- 카드 -->
+    <ul class="card-list">
+      <li class="card">
+        <div>
+          <div class="review-header">
+            <div class="profile-pic">
+              <img src="/static/images/fake_profile.png" alt="프로필 이미지" />
+            </div>
+            <div>
+              <div class="review-user">@ewha123</div>
+              <div class="review-rating">⭐️⭐️⭐️⭐️⭐️ <span>5.0</span></div>
+            </div>
+          </div>
+
+          <div class="review-content">
+            <strong>“판매자님이 정말 친절하세요!”</strong>
+            <p>판매자님이 정말 친절하시고 상품 상태도 최상이었습니다! 약속시간도 잘 지켜주셨어요...</p>
+          </div>
+
+          <a href="review_detail.html" class="thumb">
+            <img src="/static/images/fake_image.png" alt="리뷰 이미지" />
+          </a>
+
+          <div class="hashtags">
+            <span>#친절해요</span>
+            <span>#시간 약속을 잘 지켜요</span>
+          </div>
+        </div>
+
+        <div class="review-footer">
+          <div class="helpful">도움이 되었어요 5</div>
+          <div class="review-date">2024.05.20</div>
+        </div>
+      </li>
+    </ul>
+
+    <!-- 페이지네이션 -->
+    <div class="pager">
+      <a href="#" class="page-ctrl">&laquo;</a>
+      <ol class="page-list">
+        <li class="on"><a href="#">1</a></li>
+        <li><a href="#">2</a></li>
+        <li><a href="#">3</a></li>
+      </ol>
+      <a href="#" class="page-ctrl">&raquo;</a>
     </div>
-  </form>
-
-  <!-- 카드 그리드 -->
-  <ul class="card-list">
-    <!-- 카드 1 -->
-    <li class="card">
-      <a href="#" class="thumb">
-        <img src="../static/images/icons/tshirt.png" alt="하늘색 반팔 티셔츠" />
-      </a>
-      <div class="card-text">
-        <p><strong>상품명 :</strong> 이화 로고 자수 반팔 티셔츠</p>
-        <p><strong>옵션 :</strong> 하늘색 · S(55-66)</p>
-        <p>색이 상품페이지에서 본 것 보다 살짝 …</p>
-      </div>
-      <a class="plus" href="#">+</a>
-    </li>
-
-    <!-- 카드 2 -->
-    <li class="card">
-      <a href="#" class="thumb">
-        <!--사진변경해야함-->
-        <img src="../static/images/icons/tshirt.png" alt="초록 반팔 티셔츠" />
-      </a>
-      <div class="card-text">
-        <p><strong>상품명 :</strong> 이화 로고 자수 반팔 티셔츠</p>
-        <p><strong>옵션 :</strong> 초록색 · M(66-77)</p>
-        <p>촉감이 보들보들해서 손이 자주 갈 것 …</p>
-      </div>
-      <a class="plus" href="#">+</a>
-    </li>
-
-    <!-- 카드 3 -->
-    <li class="card">
-      <a href="#" class="thumb">
-        <img src="../static/images/icons/bandana.png" alt="반다나" />
-      </a>
-      <div class="card-text">
-        <p><strong>상품명 :</strong> 반다나</p>
-        <p><strong>옵션 :</strong> 남색</p>
-        <p>두건으로 쓰려고 샀는데 사이즈가 딱 …</p>
-      </div>
-      <a class="plus" href="#">+</a>
-    </li>
-
-    <!-- 카드 4 -->
-    <li class="card">
-      <a href="#" class="thumb">
-        <img src="../static/images/icons/hat.png" alt="피그먼트 캡모자" />
-      </a>
-      <div class="card-text">
-        <p><strong>상품명 :</strong> 피그먼트 캡모자</p>
-        <p><strong>옵션 :</strong> Blue · Free</p>
-        <p>겨울에 악세 피그먼트 캡모자 새로 …</p>
-      </div>
-      <a class="plus" href="#">+</a>
-    </li>
-
-    <!-- 카드 5 -->
-    <li class="card">
-      <a href="#" class="thumb">
-        <img src="../static/images/icons/postit.png" alt="이화 PP 포스트잇" />
-      </a>
-      <div class="card-text">
-        <p><strong>상품명 :</strong> 이화 PP 포스트잇</p>
-        <p><strong>옵션 :</strong> none</p>
-        <p>굿즈 포스트잇이 너무 예뻐서 …</p>
-      </div>
-      <a class="plus" href="#">+</a>
-    </li>
-
-    <!-- 카드 6 -->
-    <li class="card">
-      <a href="#" class="thumb">
-        <img src="../static/images/icons/tumbler.png" alt="텀블러" />
-      </a>
-      <div class="card-text">
-        <p><strong>상품명 :</strong> 텀블러</p>
-        <p><strong>옵션 :</strong> white</p>
-        <p>팀플러 급하게 필요해서 하나 사봤는 …</p>
-      </div>
-      <a class="plus" href="#">+</a>
-    </li>
-    <!-- 카드 7 -->
-    <li class="card">
-      <a href="#" class="thumb">
-        <img src="../static/images/icons/postit.png" alt="이화 PP 포스트잇" />
-      </a>
-      <div class="card-text">
-        <p><strong>상품명 :</strong> 이화 PP 포스트잇</p>
-        <p><strong>옵션 :</strong> none</p>
-        <p>굿즈 포스트잇이 너무 예뻐서 …</p>
-      </div>
-      <a class="plus" href="#">+</a>
-    </li>
-    <!-- 카드 8 -->
-    <li class="card">
-      <a href="#" class="thumb">
-        <img src="../static/images/icons/tumbler.png" alt="텀블러" />
-      </a>
-      <div class="card-text">
-        <p><strong>상품명 :</strong> 텀블러</p>
-        <p><strong>옵션 :</strong> white</p>
-        <p>팀플러 급하게 필요해서 하나 사봤는 …</p>
-      </div>
-      <a class="plus" href="#">+</a>
-    </li>
-  </ul>
-
-  <!-- 페이지네이션: List + 링크만 사용 -->
-  <div class="pager">
-    <a href="#" class="page-ctrl" title="맨앞">&laquo;</a>
-    <a href="#" class="page-ctrl" title="이전">&lsaquo;</a>
-    <ol class="page-list">
-      <li class="on"><a href="#">1</a></li>
-      <li><a href="#">2</a></li>
-      <li><a href="#">3</a></li>
-      <li><a href="#">4</a></li>
-      <li><a href="#">5</a></li>
-    </ol>
-    <a href="#" class="page-ctrl" title="다음">&rsaquo;</a>
-    <a href="#" class="page-ctrl" title="맨뒤">&raquo;</a>
   </div>
-</div>
-
-{%endblock%}
+</body>
+</html>
+{% endblock %}
