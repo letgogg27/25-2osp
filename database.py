@@ -64,25 +64,25 @@ class DBhandler:
         print(f"✅ 사용 가능한 ID: {id_string}")
         return True
 
-    # -------------------------------
-    # [과제2] 회원 등록 함수
-    # -------------------------------
-    def insert_user(self, data, pw):
-        """
-        회원가입 정보(ID, 해시된 PW, 닉네임)를
-        Firebase DB의 'user' 노드에 push()로 저장
-        """
-        user_info = {
-            "id": data['id'],
-            "pw": pw,  # app.py에서 SHA-256으로 해시된 값이 전달됨
-            "nickname": data['nickname']
-        }
+   # ------------------------------
+# [과제2] 회원 등록 함수 (닉네임 제외 버전)
+# ------------------------------
+def insert_user(self, data, pw):
+    """
+    회원가입 정보(ID, 해시된 PW)를
+    Firebase DB의 'user' 노드에 push()로 저장
+    """
+    user_info = {
+        "id": data['id'],
+        "pw": pw  # app.py에서 SHA-256으로 해시된 값이 전달됨
+    }
 
-        # 중복체크 후 저장
-        if self.user_duplicate_check(data['id']):
-            self.db.child("user").push(user_info)
-            print(f"✅ 회원가입 완료: {data['id']}")
-            return True
-        else:
-            print(f"❌ 회원가입 실패 (중복 ID): {data['id']}")
-            return False
+    # 중복체크 후 저장
+    if self.user_duplicate_check(data['id']):
+        self.db.child("user").push(user_info)
+        print(f"✅ 회원가입 완료: {data['id']}")
+        return True
+    else:
+        print(f"❌ 회원가입 실패 (중복 ID): {data['id']}")
+        return False
+
