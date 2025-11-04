@@ -68,5 +68,11 @@ def reg_item_submit_post():
     data = request.form
     return render_template('submit_item_result.html', data = data, img_path = "static/images/{}".format(image_file.filename))
 
+# just to check item_detait.html page
+
+@app.route("/item_detail", strict_slashes=False)
+def item_detail():
+    return render_template("item_detail.html")
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
