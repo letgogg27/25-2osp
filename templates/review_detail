@@ -1,0 +1,58 @@
+{% extends "index.html" %}
+{% block title %}Ewha Market - Review detail{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<div class="review-detail">
+  <h1 class="review-title">이화마켓 리뷰 상세화면</h1>
+
+  <!-- 판매자 정보 -->
+  <div class="seller-box box">
+    <div class="seller-info">
+      <div class="profile-pic">
+        <img src="/static/images/fake_profile.png" alt="판매자 프로필">
+      </div>
+      <div class="seller-meta">
+        <strong>@ewha_seller</strong><br>
+        <span class="location-box"><i class="fa-solid fa-location-dot"></i> 신촌</span> 총 거래 횟수: 20회<br>
+        평점: <span class="stars">⭐⭐⭐⭐⭐</span> 5.0
+      </div>
+      <div class="product-name">거래 제품명: 레드 겨울 자켓</div>
+    </div>
+    <div class="divider"></div>
+    <div class="hashtags">
+      <span>#친절해요</span><span>#시간 약속을 잘 지켜요</span>
+    </div>
+  </div>
+
+  <!-- 리뷰 본문 -->
+  <div class="review-container box">
+    <div class="review-header">
+      <div class="user-info">
+        <img src="/static/images/fake_profile.png" alt="작성자 프로필">
+        <div>
+          <div class="review-user">@ewha123</div>
+          <div class="review-rating">⭐⭐⭐⭐⭐ <span>별점: 5.0</span></div>
+        </div>
+      </div>
+      <div class="review-meta">2024.05.20</div>
+    </div>
+
+    <div class="review-images">
+      <img src="/static/images/fake_image.png" alt="리뷰 이미지">
+      <img src="/static/images/fake_image.png" alt="리뷰 이미지">
+      <img src="/static/images/fake_image.png" alt="리뷰 이미지">
+    </div>
+
+    <div class="review-content-box">
+      <strong>판매자님이 정말 친절하세요!</strong>
+      <p>판매자님이 매우 친절하시고 상품 상태도 최상이었습니다. 약속 시간도 잘 지켜주셔서 신뢰가 갔어요!</p>
+    </div>
+
+    <div class="helpful-section">
+      <button>👍</button>
+      <span>리뷰가 도움이 되었어요</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
