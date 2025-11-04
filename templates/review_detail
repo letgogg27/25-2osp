@@ -1,0 +1,178 @@
+{% extends "index.html" %}
+{% block title %}Ewha Market - Review detail{% endblock %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+  body {
+    color: #0f2e23;
+    background: #fff;
+    padding: 60px 0 120px;
+    margin: 0;
+  }
+
+  .review-detail {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  h1.review-title {
+    text-align: center;
+    font-size: 22px;
+    font-weight: 700;
+    color: #1e4e32;
+    margin-bottom: 40px;
+  }
+
+  /* 공통 박스 스타일 */
+  .box {
+    border: 1px solid #eee;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+  }
+
+  /* 프로필 공통 */
+  .profile-pic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #e0e0e0;
+    overflow: hidden;
+  }
+
+  .profile-pic img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* 판매자 정보 */
+  .seller-box { margin-bottom: 32px; }
+  .seller-info { display: flex; align-items: center; gap: 10px; }
+  .seller-meta { font-size: 14px; color: #333; }
+  .seller-meta strong { font-weight: 600; }
+  .stars { color: #f4b400; }
+  .product-name { font-size: 14px; font-weight: 500; color: #333; text-align: right; white-space: nowrap; margin-left: auto;}
+  .divider { height: 1px; background: #ddd; margin: 12px 0; }
+
+  .location-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e0e0e0;
+    color: #333;
+    font-size: 12px;
+    border-radius: 8px;
+    padding: 2px 8px;
+  }
+
+  /* 해시태그 */
+  .hashtags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .hashtags span {
+    font-size: 12px;
+    color: #00462a;
+    background: #e8f5f1;
+    border-radius: 12px;
+    padding: 3px 8px;
+  }
+
+  /* 리뷰 영역 */
+  .review-container { margin-top: 16px; }
+  .review-header {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 10px;
+  }
+  .user-info { display: flex; align-items: center; gap: 10px; }
+  .user-info img { width: 36px; height: 36px; border-radius: 50%; background: #e0e0e0; }
+  .review-user { font-weight: 600; font-size: 14px; }
+  .review-rating { color: #f4b400; font-size: 13px; }
+  .review-rating span { color: #333; margin-left: 4px; }
+
+  .review-meta { font-size: 13px; color: #666; }
+
+  .review-images {
+    display: flex; gap: 10px; margin: 16px 0; justify-content: center;
+  }
+  .review-images img {
+    width: 100%; max-width: 240px; height: 240px;
+    border-radius: 8px; background: #f0f0f0;
+    object-fit: cover; transition: transform 0.2s;
+  }
+  .review-images img:hover { transform: scale(1.03); }
+
+  .review-content-box {
+    background: #f7f7f7;
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+
+  .review-content-box strong {
+    display: block; font-size: 14px; font-weight: 700; color: #222; margin-bottom: 6px;
+  }
+  .review-content-box p { font-size: 13px; color: #333; margin: 0; line-height: 1.6; }
+
+  .helpful-section {
+    display: flex; justify-content: flex-end; align-items: center;
+    gap: 8px; margin-top: 16px; font-size: 13px; color: #555;
+  }
+  .helpful-section button {
+    background: none; border: none; cursor: pointer; font-size: 15px;
+  }
+</style>
+
+<div class="review-detail">
+  <h1 class="review-title">이화마켓 리뷰 상세화면</h1>
+
+  <!-- 판매자 정보 -->
+  <div class="seller-box box">
+    <div class="seller-info">
+      <div class="profile-pic">
+        <img src="/static/images/fake_profile.png" alt="판매자 프로필">
+      </div>
+      <div class="seller-meta">
+        <strong>@ewha_seller</strong><br>
+        <span class="location-box"><i class="fa-solid fa-location-dot"></i> 신촌</span> 총 거래 횟수: 20회<br>
+        평점: <span class="stars">⭐⭐⭐⭐⭐</span> 5.0
+      </div>
+      <div class="product-name">거래 제품명: 레드 겨울 자켓</div>
+    </div>
+    <div class="divider"></div>
+    <div class="hashtags">
+      <span>#친절해요</span><span>#시간 약속을 잘 지켜요</span>
+    </div>
+  </div>
+
+  <!-- 리뷰 본문 -->
+  <div class="review-container box">
+    <div class="review-header">
+      <div class="user-info">
+        <img src="/static/images/fake_profile.png" alt="작성자 프로필">
+        <div>
+          <div class="review-user">@ewha123</div>
+          <div class="review-rating">⭐⭐⭐⭐⭐ <span>별점: 5.0</span></div>
+        </div>
+      </div>
+      <div class="review-meta">2024.05.20</div>
+    </div>
+
+    <div class="review-images">
+      <img src="/static/images/fake_image.png" alt="리뷰 이미지">
+      <img src="/static/images/fake_image.png" alt="리뷰 이미지">
+      <img src="/static/images/fake_image.png" alt="리뷰 이미지">
+    </div>
+
+    <div class="review-content-box">
+      <strong>판매자님이 정말 친절하세요!</strong>
+      <p>판매자님이 매우 친절하시고 상품 상태도 최상이었습니다. 약속 시간도 잘 지켜주셔서 신뢰가 갔어요!</p>
+    </div>
+
+    <div class="helpful-section">
+      <button>👍</button>
+      <span>리뷰가 도움이 되었어요</span>
+    </div>
+  </div>
+</div>
+{% endblock %}
