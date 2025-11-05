@@ -14,7 +14,11 @@
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="../static/style.css" />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
   </head>
   <body>
     <nav>
@@ -54,14 +58,15 @@
       </div>
     </nav>
     {% block content %} {% endblock %}
+    <footer class="footer">
+      <div class="footer-links">
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <p class="footer-copy">©2025 Ewha Market. All rights reserved.</p>
+    </footer>
+    <script src="../static/main.js"></script>
   </body>
-  <footer class="footer">
-    <div class="footer-links">
-      <a href="#">About</a>
-      <a href="#">Contact</a>
-      <a href="#">Privacy Policy</a>
-      <a href="#">Terms of Service</a>
-    </div>
-    <p class="footer-copy">©2025 Ewha Market. All rights reserved.</p>
-  </footer>
 </html>
