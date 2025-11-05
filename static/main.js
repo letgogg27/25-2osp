@@ -2,11 +2,13 @@
 
 document.addEventListener("DOMContentLoaded", () => {
   initImageUploadFeature();
+  initStarRating();
+  initChips();
   initChatFeature();
 });
 
 /* =========================
-   1. IMAGE UPLOAD + PREVIEW
+    IMAGE UPLOAD + PREVIEW
    ========================= */
 
 function initImageUploadFeature() {
@@ -95,9 +97,84 @@ function initImageUploadFeature() {
     renderPreviews();
   }
 }
+/* =========================
+    STAR RATING INTERACTION
+   ========================= */
+
+function initStarRating() {
+  const starContainer = document.getElementById("stars");
+  const hiddenInput = document.getElementById("rating");
+  const starButtons = starContainer
+    ? starContainer.querySelectorAll(".star-btn")
+    : [];
+
+  if (!starContainer || !hiddenInput || starButtons.length === 0) {
+    return;
+  }
+
+  // Function to handle the actual selection logic
+  function handleStarClick(clickedValue) {
+    hiddenInput.value = clickedValue;
+
+    starButtons.forEach((button) => {
+      const buttonValue = parseInt(button.dataset.value);
+
+      if (buttonValue <= clickedValue) {
+        button.setAttribute("aria-pressed", "true");
+      } else {
+        button.setAttribute("aria-pressed", "false");
+      }
+    });
+  }
+
+  // Attach click listeners to all star buttons
+  starButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const value = parseInt(button.dataset.value);
+      handleStarClick(value);
+    });
+  });
+
+  // starContainer.addEventListener("mouseout", () => {
+  // });
+}
+/* =========================
+    Chip RATING INTERACTION
+   ========================= */
+function initChips() {
+  const chipGroup = document.getElementById("chipGroup");
+  const chips = chipGroup ? chipGroup.querySelectorAll(".chip") : [];
+  const hiddenInput = document.getElementById("pros");
+
+  if (!chipGroup || !hiddenInput || chips.length === 0) return;
+
+  chips.forEach((chip) => {
+    chip.addEventListener("click", () => {
+      const isSelected = chip.getAttribute("aria-checked") === "true";
+      // toggle selection
+      chip.setAttribute("aria-checked", !isSelected);
+      updateHiddenInput();
+    });
+
+    // keyboard support (Enter/Space)
+    chip.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        chip.click();
+      }
+    });
+  });
+
+  function updateHiddenInput() {
+    const selected = Array.from(chips)
+      .filter((chip) => chip.getAttribute("aria-checked") === "true")
+      .map((chip) => chip.textContent.trim());
+    hiddenInput.value = selected.join(", ");
+  }
+}
 
 //* ==============
-//   2. CHAT MODAL
+//   CHAT MODAL
 //============== *//
 
 function initChatFeature() {
