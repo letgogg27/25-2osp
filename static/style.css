@@ -142,6 +142,7 @@ button:hover,
   flex-direction: column;
   padding-top: 30px;
   gap: 30px;
+  margin-top: 40px;
 }
 
 .item-summary-box {
@@ -460,6 +461,7 @@ button:hover,
   padding-top: 0px;
   padding-bottom: 40px;
   flex-direction: column;
+  margin-top: 30px;
 }
 .reg-review-container h2 {
   text-align: center;
