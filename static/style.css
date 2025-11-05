@@ -1,7 +1,7 @@
 /*** Navbar ***/
 
 body {
-  padding-top: 100px;
+  padding-top: 120px;
   padding-bottom: 60px;
   margin: 0;
 }
@@ -148,7 +148,7 @@ button:hover,
   align-items: center;
   padding-bottom: 40px;
   flex-direction: column;
-  padding-top: 30px;
+  margin-top: 60px;
   gap: 30px;
   margin-top: 40px;
 }
@@ -646,7 +646,7 @@ button:hover,
   outline: none;
   font-size: 14px;
 }
-.chat-input {
+.chat-input-container .chat-input {
   flex: 1;
   border: none;
   background: transparent;
@@ -727,7 +727,6 @@ body.no-scroll {
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 120px);
-  padding-top: 0px;
   padding-bottom: 40px;
   flex-direction: column;
   margin-top: 30px;
@@ -880,9 +879,10 @@ legend i {
     background-color 0.2s ease, box-shadow 0.2s ease;
 }
 .star-btn:hover,
-.star-btn.active {
+.star-btn[aria-pressed="true"] {
   color: #ffcc00;
 }
+
 .star-btn:hover,
 .star-btn.active,
 .star-btn:focus,
@@ -980,8 +980,11 @@ legend i {
   color: #404040;
 }
 .chip[aria-checked="true"] {
-  background: #e0f0ea;
-  color: #404040;
+  background: #c3ebdd;
+  color: #00462a;
+  /* background: #00462a;
+  color: #ffffff; */
+
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
 }
 /*리뷰 이미지 업로드*/
@@ -1756,7 +1759,7 @@ h1.review-title {
   margin: 40px auto;
   padding: 40px;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   gap: 30px;
 }
@@ -1854,10 +1857,9 @@ textarea {
 
 .primary-btn,
 .outline-btn {
-  width: 180px; 
+  width: 180px;
   text-align: center; /* 가운데 정렬 */
 }
-
 
 /* 상품 리스트 페이지 */
 .search-bar {
@@ -1902,7 +1904,7 @@ textarea {
   padding-bottom: 10px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: 0.3s;
 }
 
@@ -1917,7 +1919,6 @@ textarea {
   border-radius: 10px 10px 0 0;
   display: block;
 }
-
 
 /* 찜(하트) 버튼 */
 .like-btn {
