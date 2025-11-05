@@ -47,11 +47,14 @@
         >
           E
         </div>
-        <div class="seller-info">
-          <p class="seller-id" style="font-size: 18px; font-weight: 700">
+        <div class="item-detail-seller-info">
+          <p
+            class="item-detail-seller-id"
+            style="font-size: 18px; font-weight: 700"
+          >
             @ewha_seller
           </p>
-          <small class="seller-address" style="font-size: 14px">
+          <small class="item-detail-seller-address" style="font-size: 14px">
             <i class="fa-solid fa-star" style="color: #ffc700"></i>평점 4.9 |
             <i class="fa-solid fa-location-dot" style="color: darkred"></i> 서울
             특별시 서대문구 연희동</small
@@ -75,7 +78,7 @@
       </div>
 
       <div class="item-actions-box">
-        <button class="btn to-chat">채팅하러 가기</button>
+        <button class="btn to-chat" id="open-chat-btn">채팅하러 가기</button>
         <button class="btn to-wishlist">
           <i class="fa-regular fa-heart"></i>
         </button>
@@ -101,6 +104,77 @@
 택배 배송 시, 배송비는 3000원입니다. 직거래를 원하시면 채팅 주세요.
   </pre>
   </section>
+
+  <!-- Chat modal -->
+  <div id="chat-modal" class="chat-overlay" style="display: none">
+    <div class="chat-window">
+      <!-- Header -->
+      <div class="chat-header">
+        <div class="chat-header-left">
+          <div class="chat-header-avatar">E</div>
+          <div class="chat-header-info">
+            <div class="chat-header-name user-id">@ewha_seller</div>
+            <div class="chat-header-status">현재 활동 중</div>
+          </div>
+        </div>
+        <button id="close-chat-btn" class="chat-header-close">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Messages area -->
+      <div class="chat-body">
+        <div class="chat-messages" id="chat-messages">
+          <!-- Example receiver message -->
+          <div class="message-row receiver">
+            <div class="message-avatar receiver">E</div>
+            <div class="message-bubble receiver">
+              안녕하세요, 티셔츠 아직 구매 가능한가요?
+            </div>
+          </div>
+
+          <!-- Example sender message -->
+          <div class="message-row sender">
+            <div class="message-bubble sender">
+              네, 가능합니다! 언제쯤 거래 원하세요?
+            </div>
+            <div class="message-avatar sender">K</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="chat-footer">
+        <div class="chat-input-wrapper">
+          <button type="button" class="chat-icon-btn" id="photo-btn">
+            <i class="fa-regular fa-image"></i>
+          </button>
+          <input
+            type="file"
+            id="file-input"
+            accept="image/*"
+            style="display: none"
+          />
+          <div class="chat-input-container">
+            <div id="chat-image-preview"></div>
+            <input
+              id="chat-input"
+              type="text"
+              class="chat-input"
+              placeholder="메시지를 입력하세요..."
+            />
+          </div>
+
+          <button type="button" class="chat-icon-btn" id="emoji-btn">
+            <i class="fa-regular fa-face-smile"></i>
+          </button>
+        </div>
+        <button type="button" id="send-btn" class="chat-send-btn">
+          <i class="fa-solid fa-arrow-up"></i>
+        </button>
+      </div>
+    </div>
+  </div>
 </main>
 
 {%endblock%}
