@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initImageUploadFeature();
   initStarRating();
   initChips();
+  initFormReset();
   initChatFeature();
 });
 
@@ -171,6 +172,33 @@ function initChips() {
       .map((chip) => chip.textContent.trim());
     hiddenInput.value = selected.join(", ");
   }
+}
+//* ==============
+//   FORM RESET
+//============== *//
+function initFormReset() {
+  const form = document.querySelector("form");
+  if (!form) return;
+
+  form.addEventListener("reset", () => {
+    // Reset stars
+    const starButtons = document.querySelectorAll(".star-btn");
+    starButtons.forEach((b) => b.setAttribute("aria-pressed", "false"));
+    const ratingInput = document.getElementById("rating");
+    if (ratingInput) ratingInput.value = "0";
+
+    // Reset chips
+    const chips = document.querySelectorAll(".chip");
+    chips.forEach((chip) => chip.setAttribute("aria-checked", "false"));
+    const prosInput = document.getElementById("pros");
+    if (prosInput) prosInput.value = "";
+
+    // Reset image upload
+    const imageInput = document.getElementById("images");
+    const previewContainer = document.getElementById("image-previews");
+    if (imageInput) imageInput.value = "";
+    if (previewContainer) previewContainer.innerHTML = "";
+  });
 }
 
 //* ==============
