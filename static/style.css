@@ -120,6 +120,14 @@ nav {
   font-size: 12px;
   color: #36ae92;
 }
+.centered-content-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center; /* ← 여기 변경 */
+  min-height: calc(100vh - 160px); /* ← 높이 여유 조정 */
+  background-color: #f8f8f8; /* ← 선택사항 */
+}
+
 /**** Button ****/
 button,
 .reg-form-submit-btn {
