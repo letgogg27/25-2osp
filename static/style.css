@@ -150,12 +150,11 @@ button:hover,
   flex-direction: column;
   margin-top: 60px;
   gap: 30px;
-  margin-top: 40px;
 }
 
 .item-summary-box {
   display: flex;
-  gap: 15px;
+  gap: 15px;g
 }
 
 /*item-image-box*/
