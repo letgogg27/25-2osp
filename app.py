@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, url_for, redirect, flash
 import hashlib
 from database import DBhandler
+import sys
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key="some-secret"
@@ -95,6 +96,7 @@ def reg_item_submit_post():
     image_file = request.files['file']
     image_file.save("static/images/{}".format(image_file.filename))
     data = request.form
+    DB.insert_item(data['name'], data, image_file.filename)
     return render_template('submit_item_result.html', data = data, img_path = "static/images/{}".format(image_file.filename))
 
 # just to check item_detait.html page
