@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, url_for
+from flask import Flask, render_template, request, url_for, redirect, flash
+import hashlib
+from database import DBhandler
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 
@@ -61,16 +63,29 @@ def login():
 def signup():
     return render_template("signup.html")
 
+# 회원가입 처리
 @app.route("/signup_post", methods=['POST'])
 def register_user():
-    data=request.form
-    pw=request.form['pw']
-    pw_hash= hashlib.sha256(pw.encode('utf-8')).hexdigest()
-    if DB.insert_user(data,pw_hash):
-        return render_template("login.html")
+    form = request.form
+    user_id = (form.get('userID') or '').strip()      # 폼 name과 맞춤
+    pw      = form.get('password') or ''
+    pw2     = form.get('passwordConfirm') or ''
+
+    if not user_id or not pw:
+        flash("아이디/비밀번호를 입력하세요.")
+        return redirect(url_for("signup"))
+    if pw != pw2:
+        flash("비밀번호가 일치하지 않습니다.")
+        return redirect(url_for("signup"))
+
+    pw_hash = hashlib.sha256(pw.encode('utf-8')).hexdigest()
+
+    if DB.insert_user(form, pw_hash):
+        flash("회원가입이 완료되었습니다. 로그인 해주세요.")
+        return redirect(url_for("login"))
     else:
-        flash("user id already exist!")
-        return render_template("signup.html")
+        flash("이미 존재하는 아이디입니다.")
+        return redirect(url_for("signup"))
 
 @app.route("/submit_item_post", methods=['POST'], strict_slashes=False)
 def reg_item_submit_post():

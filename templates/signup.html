@@ -5,16 +5,15 @@
 
 {% with mesg= get_flashed_messages() %}
 {% if mesg!=[] %}
-<script>alert("{{ mesg[0] }}")</script>
+  <script>alert("{{ mesg[0] }}")</script>
 {% endif %}
 {% endwith%}
-<form method="post" action="/signup_post">
 
 <div class="centered-content-wrapper">
   <div class="container signup-container">
     <h2 class="signup-title">회원가입</h2>
 
-    <form id="signupForm" class="signup-form" method="post" action="/signup_confirm" novalidate>
+    <form id="signupForm" class="signup-form" method="post" action="/signup_post" novalidate>
       <!-- 아이디 -->
       <div class="form-group compact">
         <label for="userID">아이디 <span class="required">(필수)</span></label>
