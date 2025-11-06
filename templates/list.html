@@ -1,67 +1,49 @@
-{% extends "index.html" %} {% block title %}Ewha Market - List{% endblock %} {%
-block content %}
+{% extends "index.html" %}
+{% block title %}상품 목록{% endblock %}
 
-<section class="list-container">
-  <div class="list-search">
-    <input
-      type="text"
-      placeholder="검색어를 입력하세요"
-      aria-label="검색어 입력"
-    />
-    <button type="button" aria-label="검색">검색</button>
-  </div>
+{% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+{% endblock %}
 
-  <div class="list-toolbar">
-    <select aria-label="필터">
-      <option>필터</option>
-      <option>가전</option>
-      <option>의류</option>
-      <option>문구</option>
-      <option>생활</option>
-      <option>잡화</option>
+{% block content %}
+<div class="search-bar">
+  <form class="search-form" method="GET" action="/list">
+    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색">
+    <select name="sort">
+      <option value="">정렬 없음</option>
+      <option value="price_asc">가격 낮은 순</option>
+      <option value="price_desc">가격 높은 순</option>
     </select>
-    <select aria-label="정렬">
-      <option>정렬</option>
-      <option>최신순</option>
-      <option>낮은가격순</option>
-      <option>높은가격순</option>
-    </select>
-  </div>
+    <button type="submit">검색</button>
+  </form>
+</div>
 
-  <div class="list-grid">
-    {% for p in products %}
-    <a href="/detail/{{ p.id }}" class="list-card">
-      <div class="list-thumb">
-        <img
-          src="{{ url_for('static', filename='images/icons/' ~ p.img) }}"
-          alt="{{ p.name|e }}"
-          loading="lazy"
-        />
-        <button class="list-wish" type="button" aria-label="찜하기">♡</button>
-      </div>
-      <div class="list-info">
-        <p class="list-name">{{ p.name|e }}</p>
-        <p class="list-price">{{ "{:,.0f}".format(p.price) }}원</p>
-      </div>
-    </a>
-    {% endfor %} {% if not products %}
-    <p style="grid-column: 1/-1; text-align: center; color: #666">
-      표시할 상품이 없습니다.
-    </p>
+
+
+<div class="item-grid">
+  {% for p in products %}
+  <div class="item-card">
+    <img src="{{ url_for('static', filename='images/' + p.img) }}" alt="{{ p.name }}" onerror="this.src='/static/images/placeholder.png'">
+    <div class="item-info">
+      <h3>{{ p.name }}</h3>
+      <p>{{ "{:,}".format(p.price) }}원</p>
+      <p>{{ p.location }}</p>
+    </div>
+    <span class="like-btn">♡</span>
+  </div>
+  {% endfor %}
+</div>
+
+
+<div class="pagination">
+  <span>«</span>
+  {% for i in range(1, total_pages+1) %}
+    {% if i == page %}
+      <span class="page active">{{ i }}</span>
+    {% else %}
+      <a href="{{ url_for('product_list') }}?page={{ i }}" class="page">{{ i }}</a>
     {% endif %}
-  </div>
-
-  <div class="list-pagination" aria-label="페이지네이션">
-    {% if page > 1 %}
-    <a href="?page={{ page-1 }}" aria-label="이전">&laquo;</a>
-    {% endif %} {% for p in range(1, total_pages+1) %}
-    <a href="?page={{ p }}" class="{{ 'active' if p==page else '' }}"
-      >{{ p }}</a
-    >
-    {% endfor %} {% if page < total_pages %}
-    <a href="?page={{ page+1 }}" aria-label="다음">&raquo;</a>
-    {% endif %}
-  </div>
-</section>
-
+  {% endfor %}
+  <span>»</span>
+</div>
 {% endblock %}
