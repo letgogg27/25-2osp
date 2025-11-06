@@ -733,10 +733,10 @@ body.no-scroll {
 .reg-review-container h2 {
   text-align: center;
   margin-bottom: 20px;
-  font-size: 36px;
+  font-size: 26px;
 }
 
-.info-box,
+.info-box.review,
 .review-box {
   position: relative;
   display: flex;
@@ -755,11 +755,11 @@ body.no-scroll {
   box-sizing: border-box;
 }
 /* Info box of reg review*/
-.info-box p {
+.info-box.review p {
   margin: 0px;
   align-items: center;
 }
-.product-info-box {
+.product-info-box.review {
   display: flex;
   height: 80px;
   align-items: center;
@@ -767,8 +767,8 @@ body.no-scroll {
 
   border-bottom: 1px solid #999999; /* thin divider line */
 }
-.product-info-box,
-.seller-info-box {
+.product-info-box.review,
+.review-seller-info-box{
   width: 85%;
   padding-left: 10px;
   margin-left: 30px;
@@ -777,7 +777,7 @@ body.no-scroll {
   display: flex;
   align-items: center;
 }
-.product-thumb {
+.product-thumb.review {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -786,30 +786,30 @@ body.no-scroll {
   height: 70px;
   border-radius: 8px;
 }
-.product-thumb img {
+.product-thumb.review img {
   width: 60px;
   height: 60px;
   font-size: 14px;
   border-radius: 8px;
 }
-.product-info,
-.seller-info {
+.product-info.review,
+.review-seller-info {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   gap: 5px;
 }
-.product-title {
+.product-title.review {
   font-size: 20px;
   font-weight: 700;
 }
-.product-price {
+.product-price.review {
   font-size: 18px;
   font-weight: 600;
   color: #00462a;
 }
 
-.seller-thumb-avatar {
+.review-seller-thumb-avatar {
   background: #00462a;
   color: #ffffff;
   width: 60px;
@@ -821,16 +821,19 @@ body.no-scroll {
   font-size: 30px;
   font-weight: 700;
 }
-.seller-id {
-  font-size: 20px;
+.review-seller-id{
+  font-size: 18px;
   font-weight: 700;
   /* font-family 정할 필요 */
 }
-.seller-address {
+.review-seller-address{
   font-size: 16px;
   color: #8c8c8c;
 }
-
+.review-seller-id,
+.review-seller-address {
+  text-align: left;
+}
 /* Review Box of RegReview */
 .review-box {
   justify-content: center;
