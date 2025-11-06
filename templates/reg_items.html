@@ -1,41 +1,79 @@
-{% extends "index.html" %}
-{% block title %}상품 등록{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-{% endblock %}
-
+{% extends "index.html" %} {% block title %}상품 등록{% endblock %}
+<!-- {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+{% endblock %}  -->
 {% block content %}
 
 <h2 class="page-title">상품 등록</h2>
 
 <div class="register-card">
-  <form action="/submit_item_post" method="post" enctype="multipart/form-data" class="register-form">
+  <form
+    action="/submit_item_post"
+    method="post"
+    enctype="multipart/form-data"
+    class="register-form"
+  >
     <!-- 왼쪽 -->
     <div class="form-left">
       <label for="item_name">상품 이름</label>
-      <input type="text" id="item_name" name="item_name" placeholder="공기청정기" required />
+      <input
+        type="text"
+        id="item_name"
+        name="item_name"
+        placeholder="공기청정기"
+        required
+      />
 
       <label for="item_price">상품 가격</label>
-      <input type="text" id="item_price" name="item_price" placeholder="99,999원" required />
+      <input
+        type="text"
+        id="item_price"
+        name="item_price"
+        placeholder="99,999원"
+        required
+      />
 
       <label>상품 상태</label>
       <div class="radio-row">
-        <label><input type="radio" name="condition" value="new" checked /> 새상품(미사용)</label>
-        <label><input type="radio" name="condition" value="almost_new" /> 거의 새상품</label>
-        <label><input type="radio" name="condition" value="used" /> 사용감 있음</label>
+        <label
+          ><input type="radio" name="condition" value="new" checked />
+          새상품(미사용)</label
+        >
+        <label
+          ><input type="radio" name="condition" value="almost_new" /> 거의
+          새상품</label
+        >
+        <label
+          ><input type="radio" name="condition" value="used" /> 사용감
+          있음</label
+        >
       </div>
 
       <div class="negotiation-line">
-        <label><input type="checkbox" name="negotiable" value="yes" checked /> 가격 제안</label>
+        <label
+          ><input type="checkbox" name="negotiable" value="yes" checked /> 가격
+          제안</label
+        >
         <p class="hint">구매자가 가격을 제안할 수 있습니다.</p>
       </div>
 
       <label for="seller_id">판매자 아이디</label>
-      <input type="text" id="seller_id" name="seller_id" placeholder="ewha1234" required />
+      <input
+        type="text"
+        id="seller_id"
+        name="seller_id"
+        placeholder="ewha1234"
+        required
+      />
 
       <label for="address">희망 거래 지역</label>
-      <input type="text" id="address" name="address" placeholder="서울특별시 서대문구 연희동" required />
+      <input
+        type="text"
+        id="address"
+        name="address"
+        placeholder="서울특별시 서대문구 연희동"
+        required
+      />
     </div>
 
     <!-- 중간 세로 구분선 -->
@@ -47,11 +85,17 @@
       <input type="file" id="file" name="file" accept="image/*" />
 
       <label for="description">상품 설명</label>
-      <textarea id="description" name="description" placeholder="상품 설명을 입력해주세요. (최소 30자)"></textarea>
+      <textarea
+        id="description"
+        name="description"
+        placeholder="상품 설명을 입력해주세요. (최소 30자)"
+      ></textarea>
 
       <div class="button-row">
         <button type="submit" class="primary-btn">상품 등록하기</button>
-        <button type="button" class="outline-btn" onclick="history.back()">취소</button>
+        <button type="button" class="outline-btn" onclick="history.back()">
+          취소
+        </button>
       </div>
     </div>
   </form>

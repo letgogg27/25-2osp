@@ -1,14 +1,11 @@
-{% extends "index.html" %}
-{% block title %}상품 목록{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-{% endblock %}
-
+{% extends "index.html" %} {% block title %}상품 목록{% endblock %}
+<!-- {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+{% endblock %}  -->
 {% block content %}
 <div class="search-bar">
   <form class="search-form" method="GET" action="/list">
-    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색">
+    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색" />
     <select name="sort">
       <option value="">정렬 없음</option>
       <option value="price_asc">가격 낮은 순</option>
@@ -18,12 +15,14 @@
   </form>
 </div>
 
-
-
 <div class="item-grid">
   {% for p in products %}
   <div class="item-card">
-    <img src="{{ url_for('static', filename='images/' + p.img) }}" alt="{{ p.name }}" onerror="this.src='/static/images/placeholder.png'">
+    <img
+      src="{{ url_for('static', filename='images/icons/' + p.img) }}"
+      alt="{{ p.name }}"
+      onerror="this.src='/static/images/placeholder.png'"
+    />z
     <div class="item-info">
       <h3>{{ p.name }}</h3>
       <p>{{ "{:,}".format(p.price) }}원</p>
@@ -34,16 +33,13 @@
   {% endfor %}
 </div>
 
-
 <div class="pagination">
   <span>«</span>
-  {% for i in range(1, total_pages+1) %}
-    {% if i == page %}
-      <span class="page active">{{ i }}</span>
-    {% else %}
-      <a href="{{ url_for('product_list') }}?page={{ i }}" class="page">{{ i }}</a>
-    {% endif %}
-  {% endfor %}
+  {% for i in range(1, total_pages+1) %} {% if i == page %}
+  <span class="page active">{{ i }}</span>
+  {% else %}
+  <a href="{{ url_for('product_list') }}?page={{ i }}" class="page">{{ i }}</a>
+  {% endif %} {% endfor %}
   <span>»</span>
 </div>
 {% endblock %}
