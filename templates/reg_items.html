@@ -1,141 +1,104 @@
-{% extends "index.html" %} {% block title %} Ewha Market-List {%endblock %}
-{%block content %}
+{% extends "index.html" %} {% block title %}상품 등록{% endblock %}
+<!-- {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+{% endblock %}  -->
+{% block content %}
 
-<h2>Register Items</h2>
+<h2 class="page-title">상품 등록</h2>
 
-<div class="reg-form-container">
+<div class="register-card">
   <form
     action="/submit_item_post"
     method="post"
     enctype="multipart/form-data"
-    style="max-width: 400px"
+    class="register-form"
   >
-    <!-- 상품명 -->
-    <div style="margin-bottom: 20px">
-      <label for="item_name">Item name</label><br />
+    <!-- 왼쪽 -->
+    <div class="form-left">
+      <label for="item_name">상품 이름</label>
       <input
         type="text"
-        name="item_name"
         id="item_name"
+        name="item_name"
+        placeholder="공기청정기"
         required
-        style="width: 100%; padding: 8px"
       />
-    </div>
 
-    <!-- 판매자 ID -->
-    <div style="margin-bottom: 20px">
-      <label for="seller_id">Seller ID</label><br />
+      <label for="item_price">상품 가격</label>
       <input
         type="text"
-        name="seller_id"
+        id="item_price"
+        name="item_price"
+        placeholder="99,999원"
+        required
+      />
+
+      <label>상품 상태</label>
+      <div class="radio-row">
+        <label
+          ><input type="radio" name="condition" value="new" checked />
+          새상품(미사용)</label
+        >
+        <label
+          ><input type="radio" name="condition" value="almost_new" /> 거의
+          새상품</label
+        >
+        <label
+          ><input type="radio" name="condition" value="used" /> 사용감
+          있음</label
+        >
+      </div>
+
+      <div class="negotiation-line">
+        <label
+          ><input type="checkbox" name="negotiable" value="yes" checked /> 가격
+          제안</label
+        >
+        <p class="hint">구매자가 가격을 제안할 수 있습니다.</p>
+      </div>
+
+      <label for="seller_id">판매자 아이디</label>
+      <input
+        type="text"
         id="seller_id"
+        name="seller_id"
+        placeholder="ewha1234"
         required
-        style="width: 100%; padding: 8px"
       />
-    </div>
 
-    <!-- 주소 -->
-    <div style="margin-bottom: 20px">
-      <label for="address">Address</label><br />
+      <label for="address">희망 거래 지역</label>
       <input
         type="text"
-        name="address"
         id="address"
+        name="address"
+        placeholder="서울특별시 서대문구 연희동"
         required
-        style="width: 100%; padding: 8px"
       />
     </div>
 
-    <!-- 이메일 -->
-    <div style="margin-bottom: 20px">
-      <label for="email">Email</label><br />
-      <input
-        type="text"
-        name="email"
-        id="email"
-        required
-        style="width: 100%; padding: 8px"
-      />
-    </div>
+    <!-- 중간 세로 구분선 -->
+    <div class="divider"></div>
 
-    <!-- 카테고리 -->
-    <div style="margin-bottom: 20px">
-      <label for="category">Category</label><br />
-      <select id="category" name="category" style="width: 100%; padding: 8px">
-        <option value="Clothes" selected>Clothes</option>
-        <option value="Beauty">Beauty</option>
-        <option value="Books">Books</option>
-        <option value="Furniture">Furniture</option>
-        <option value="Electronics">Electronics</option>
-        <option value="ETC">ETC</option>
-      </select>
-    </div>
+    <!-- 오른쪽 -->
+    <div class="form-right">
+      <label for="file">대표 사진 업로드</label>
+      <input type="file" id="file" name="file" accept="image/*" />
 
-    <!-- 카드 결제 여부 -->
-    <div style="margin-bottom: 20px">
-      <label for="credit_card">Credit Card?</label><br />
-      <select
-        id="credit_card"
-        name="credit_card"
-        style="width: 100%; padding: 8px"
-      >
-        <option value="Y" selected>Yes</option>
-        <option value="N">No</option>
-      </select>
-    </div>
+      <label for="description">상품 설명</label>
+      <textarea
+        id="description"
+        name="description"
+        placeholder="상품 설명을 입력해주세요. (최소 30자)"
+      ></textarea>
 
-    <!-- 상품 상태 -->
-    <div style="margin-bottom: 20px">
-      <label for="status">Status</label><br />
-      <select id="status" name="status" style="width: 100%; padding: 8px">
-        <option value="new" selected>New</option>
-        <option value="lnew">Likely New</option>
-        <option value="used">Used</option>
-      </select>
-    </div>
-
-    <!-- 전화번호 -->
-    <div style="margin-bottom: 20px">
-      <label for="phone">Phone</label><br />
-      <input
-        type="text"
-        name="phone"
-        id="phone"
-        style="width: 100%; padding: 8px"
-      />
-    </div>
-
-    <!-- 이미지 첨부 -->
-    <div style="margin-bottom: 20px">
-      <label for="file">Representative Image Upload</label><br />
-      <!--  <label for="file" class="file-btn">Choose File</label>   버튼을 Choose File로 바꿀 시 -->
-      <input
-        type="file"
-        name="file"
-        id="file"
-        accept="image/*"
-        style="width: 100%; padding: 8px"
-      />
-    </div>
-
-    <!-- 제출 버튼 -->
-    <div>
-      <input
-        type="submit"
-        value="Submit!"
-        style="
-          padding: 10px 20px;
-          font-size: 16px;
-          background-color: #00462a;
-          border: none;
-          border-radius: 8px;
-          color: #fff;
-          box-shadow: 0 3px 8px gray;
-        "
-        class="reg-form-submit-btn"
-      />
+      <div class="button-row">
+        <button type="submit" class="primary-btn">상품 등록하기</button>
+        <button type="button" class="outline-btn" onclick="history.back()">
+          취소
+        </button>
+      </div>
     </div>
   </form>
 </div>
 
-{%endblock%}
+{% endblock %}

@@ -4,16 +4,16 @@ app = Flask(__name__, template_folder="templates", static_folder="static")
 
 # 더미 상품 (이미지 파일은 static/images/ 에 저장)
 PRODUCTS = [
-    {"id": 1,  "name": "이화 로고 자수 반팔 티셔츠", "price": 19900,  "img": "tshirt.png",  "cat": "의류"},
-    {"id": 2,  "name": "이화 반다나",               "price": 14900,  "img": "bandana.png", "cat": "잡화"},
-    {"id": 3,  "name": "이화 피그먼트 캡",          "price": 24900,  "img": "hat.png",     "cat": "잡화"},
-    {"id": 4,  "name": "진공 청소기",               "price": 99999,  "img": "vacuum.png",  "cat": "가전"},
-    {"id": 5,  "name": "이화 PP 포스트잇",          "price": 4000,   "img": "postit.png",  "cat": "문구"},
-    {"id": 6,  "name": "텀블러",                    "price": 19000,  "img": "tumbler.png", "cat": "생활"},
-    {"id": 7,  "name": "이화 로고 자수 반팔 티(그린)", "price": 19900,  "img": "tshirt.png",  "cat": "의류"},
-    {"id": 8,  "name": "이화 반다나(블랙)",          "price": 14900,  "img": "bandana.png", "cat": "잡화"},
-    {"id": 9,  "name": "이화 피그먼트 캡(블루)",     "price": 25900,  "img": "hat.png",     "cat": "잡화"},
-    {"id": 10, "name": "진공 청소기 Pro",           "price": 129000, "img": "vacuum.png",  "cat": "가전"},
+    {"id": 1,  "name": "이화 로고 자수 반팔 티셔츠", "price": 19900,  "img": "tshirt.png",  "cat": "의류", "location": "서울특별시 서대문구"},
+    {"id": 2,  "name": "이화 반다나",               "price": 14900,  "img": "bandana.png", "cat": "잡화", "location": "서울특별시 마포구"},
+    {"id": 3,  "name": "이화 피그먼트 캡",          "price": 24900,  "img": "hat.png",     "cat": "잡화", "location": "서울특별시 은평구"},
+    {"id": 4,  "name": "진공 청소기",               "price": 99999,  "img": "vacuum.png",  "cat": "가전", "location": "서울특별시 종로구"},
+    {"id": 5,  "name": "이화 PP 포스트잇",          "price": 4000,   "img": "postit.png",  "cat": "문구", "location": "서울특별시 종로구"},
+    {"id": 6,  "name": "텀블러",                    "price": 19000,  "img": "tumbler.png", "cat": "생활", "location": "서울특별시 종로구"},
+    {"id": 7,  "name": "이화 로고 자수 반팔 티(그린)", "price": 19900,  "img": "tshirt.png",  "cat": "의류", "location": "서울특별시 종로구"},
+    {"id": 8,  "name": "이화 반다나(블랙)",          "price": 14900,  "img": "bandana.png", "cat": "잡화", "location": "서울특별시 종로구"},
+    {"id": 9,  "name": "이화 피그먼트 캡(블루)",     "price": 25900,  "img": "hat.png",     "cat": "잡화", "location": "서울특별시 종로구"},
+    {"id": 10, "name": "진공 청소기 Pro",           "price": 129000, "img": "vacuum.png",  "cat": "가전", "location": "서울특별시 종로구"},
 ]
 
 PAGE_SIZE = 8
