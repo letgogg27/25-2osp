@@ -57,9 +57,20 @@ def register_reviews():
 def login():
     return render_template("login.html")
 
-@app.route("/signup",methods=['GET','POST'], strict_slashes=False)
+@app.route("/signup")
 def signup():
     return render_template("signup.html")
+
+@app.route("/signup_post", methods=['POST'])
+def register_user():
+    data=request.form
+    pw=request.form['pw']
+    pw_hash= hashlib.sha256(pw.encode('utf-8')).hexdigest()
+    if DB.insert_user(data,pw_hash):
+        return render_template("login.html")
+    else:
+        flash("user id already exist!")
+        return render_template("signup.html")
 
 @app.route("/submit_item_post", methods=['POST'], strict_slashes=False)
 def reg_item_submit_post():

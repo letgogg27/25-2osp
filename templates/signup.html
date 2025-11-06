@@ -1,6 +1,15 @@
 {% extends "index.html" %}
 {% block content %}
 
+<link rel="stylesheet" href="../static/style.css">
+
+{% with mesg= get_flashed_messages() %}
+{% if mesg!=[] %}
+<script>alert("{{ mesg[0] }}")</script>
+{% endif %}
+{% endwith%}
+<form method="post" action="/signup_post">
+
 <div class="centered-content-wrapper">
   <div class="container signup-container">
     <h2 class="signup-title">회원가입</h2>
@@ -140,133 +149,6 @@
     </div>
   </div>
 </div>
-
-<style>
-  /* 화면 정중앙 배치 */
-  .centered-content-wrapper {
-    min-height: calc(100vh - 120px); 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
-
-  /* 카드 컨테이너 */
-  .signup-container {
-    width: 100%;
-    max-width: 560px;
-    background: #fff;
-    border-radius: 10px;
-    padding: 40px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  }
-
-  .signup-title {
-    text-align: center;
-    margin-bottom: 24px;
-    font-size: 22px;
-    font-weight: 700;
-    color: #00462a;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-  }
-
-  /* 공통 폼 스타일 */
-  .form-group { margin-bottom: 12px; }
-  .form-group label { font-weight: 600; margin-bottom: 6px; display: block; }
-
-  input[type="text"],
-  input[type="password"],
-  select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #f7f7f7;
-    font-size: 14px;
-  }
-
-  input[type="text"]:focus,
-  input[type="password"]:focus,
-  select:focus {
-    border-color: #36ae92;
-    background-color: #fff;
-    outline: none;
-  }
-
-  .form-group.compact { margin-bottom: 0; }
-
-  /* 아이콘 포함 입력영역 가이드 (네이밍 유지) */
-  .fieldControlIcon { display: flex; align-items: center; }
-  .fieldControlIcon.password { display: flex; align-items: center; }
-  .fieldControlIcon.passwordcheck { display: flex; align-items: center; }
-  .fieldControlIcon.email { grid-template-columns: 1fr 200px auto auto; column-gap:12px; align-items: flex-start; }
-  .fieldControlIcon .icon,
-  .fieldControlIcon .icon.second { width: 18px; height: 18px; }
-  .icon-check{
-    width: 20px;
-    height: 20px;
-    margin-left: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color:#aaaaaa;
-  }
-  .icon-check.valid{
-    color: #00462a;
-  }
-  .icon-check i {
-    font-size: 16px;
-    line-height: 1;
-    transform: translateY(-2px); 
-  }
-
-  /* 이메일 행 */
-  .email-row { width: 100%; }
-  .email-domain { width: 100%; }
-
-  /* 전화번호 행 */
-  .phonenumber-row { display: flex; gap: 8px; align-items: center; }
-  .phonenumber-row input { flex: 1 1 0; text-align: center; }
-  .dash { color: #666; }
-
-  /* 약관 */
-  .agreements { border: 0; padding: 0; margin: 8px 0 4px; }
-  .agree { font-weight: 700; margin-bottom: 8px; }
-  .check { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-  .check.indent { padding-left: 22px; }
-
-  /* 버튼 */
-  .btn.primary,
-  .signup-form button[type="submit"] {
-    width: 100%;
-    background-color: #00462a;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 10px;
-    cursor: pointer;
-  }
-
-  .btn.primary:hover { background-color: #03603a; }
-
-  .signup-footer {
-    text-align: center;
-    margin-top: 18px;
-    font-size: 14px;
-  }
-
-  .signup-footer a { color: #00462a; font-weight: 600; text-decoration: none; }
-  .signup-footer a:hover { text-decoration: underline; }
-
-  /* 작은 화면 대응 */
-  @media (max-width: 420px) {
-    .fieldControlIcon.email { grid-template-columns: 1fr; }
-  }
-</style>
 
 <script>
   document.addEventListener("DOMContentLoaded", () => {
