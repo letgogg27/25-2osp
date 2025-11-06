@@ -3,6 +3,9 @@ import hashlib
 from database import DBhandler
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
+app.secret_key="some-secret"
+
+DB=DBhandler()
 
 # 더미 상품 (이미지 파일은 static/images/ 에 저장)
 PRODUCTS = [

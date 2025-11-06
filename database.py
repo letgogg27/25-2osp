@@ -64,13 +64,13 @@ class DBhandler:
         print(f"✅ 사용 가능한 ID: {id_string}")
         return True
 
-   # ------------------------------
-# [과제2] 회원 등록 함수 (닉네임 제외 버전)
-# ------------------------------
-def insert_user(self, form_data, pw_hash):
+    # ------------------------------
+    # [과제2] 회원 등록 함수 (닉네임 제외 버전)
+    # ------------------------------
+    def insert_user(self, form_data, pw_hash):
         """
         form_data: request.form (signup.html의 name 속성 기준)
-          - userID, password, passwordConfirm, email, emailDomain, tel1, tel2, tel3, ...
+        - userID, password, passwordConfirm, email, emailDomain, tel1, tel2, tel3, ...
         pw_hash: app.py에서 SHA-256 등으로 해시된 비밀번호 문자열
         """
         # 폼 명칭과 백엔드 키 맞추기 (userID 사용!)
