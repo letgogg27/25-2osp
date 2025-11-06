@@ -1355,14 +1355,32 @@ legend i {
   padding: 6px 10px;
   border-radius: 6px;
   color: #00462a;
-  text-decoration: none;
+  text-decoration: none; 
   font-size: 14px;
   background: #fff;
-  }
+}
 
 .page-list li:not(.on) a:hover {
-  background:  #00462a; 
-  color: white; 
+  background: #00462a;
+  color: white;
+}
+
+.page-list li.on a {/*현재페이지*/
+  color: #00462a;
+}
+
+.page-ctrl {
+  text-decoration: none; 
+  color: #00462a;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #fff;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.page-ctrl:hover {
+  background: #00462a;
+  color: white;
 }
 
 
