@@ -727,7 +727,7 @@ body.no-scroll {
   font-size: 36px;
 }
 
-.info-box,
+.info-box.review,
 .review-box {
   position: relative;
   display: flex;
@@ -746,11 +746,11 @@ body.no-scroll {
   box-sizing: border-box;
 }
 /* Info box of reg review*/
-.info-box p {
+.info-box.review p {
   margin: 0px;
   align-items: center;
 }
-.product-info-box {
+.product-info-box.review {
   display: flex;
   height: 80px;
   align-items: center;
@@ -758,8 +758,8 @@ body.no-scroll {
 
   border-bottom: 1px solid #999999; /* thin divider line */
 }
-.product-info-box,
-.seller-info-box {
+.product-info-box.review,
+.review-seller-info-box {
   width: 85%;
   padding-left: 10px;
   margin-left: 30px;
@@ -768,7 +768,7 @@ body.no-scroll {
   display: flex;
   align-items: center;
 }
-.product-thumb {
+.product-thumb.review {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -777,30 +777,30 @@ body.no-scroll {
   height: 70px;
   border-radius: 8px;
 }
-.product-thumb img {
+.product-thumb.review img {
   width: 60px;
   height: 60px;
   font-size: 14px;
   border-radius: 8px;
 }
-.product-info,
-.seller-info {
+.product-info.review,
+.review-seller-info {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   gap: 5px;
 }
-.product-title {
+.product-title.review {
   font-size: 20px;
   font-weight: 700;
 }
-.product-price {
+.product-price.review {
   font-size: 18px;
   font-weight: 600;
   color: #00462a;
 }
 
-.seller-thumb-avatar {
+.review-seller-thumb-avatar {
   background: #00462a;
   color: #ffffff;
   width: 60px;
@@ -812,12 +812,12 @@ body.no-scroll {
   font-size: 30px;
   font-weight: 700;
 }
-.seller-id {
+.review-seller-id {
   font-size: 20px;
   font-weight: 700;
   /* font-family 정할 필요 */
 }
-.seller-address {
+.review-seller-address {
   font-size: 16px;
   color: #8c8c8c;
 }
@@ -1732,124 +1732,183 @@ h1.review-title {
 
 /*회원가입 style*/
 /* 화면 정중앙 배치 */
-  .centered-content-wrapper {
-    min-height: calc(100vh - 120px); 
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 24px;
-  }
+.centered-content-wrapper {
+  min-height: calc(100vh - 120px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
 
-  /* 카드 컨테이너 */
-  .signup-container {
-    width: 100%;
-    max-width: 560px;
-    background: #fff;
-    border-radius: 10px;
-    padding: 40px;
-    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-  }
+/* 카드 컨테이너 */
+.signup-container {
+  width: 100%;
+  max-width: 560px;
+  background: #fff;
+  border-radius: 10px;
+  padding: 40px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
 
-  .signup-title {
-    text-align: center;
-    margin-bottom: 24px;
-    font-size: 22px;
-    font-weight: 700;
-    color: #00462a;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-  }
+.signup-title {
+  text-align: center;
+  margin-bottom: 24px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #00462a;
+  border-bottom: 1px solid #ddd;
+  padding-bottom: 10px;
+}
 
-  /* 공통 폼 스타일 */
-  .form-group { margin-bottom: 12px; }
-  .form-group label { font-weight: 600; margin-bottom: 6px; display: block; }
+/* 공통 폼 스타일 */
+.form-group {
+  margin-bottom: 12px;
+}
+.form-group label {
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+}
 
-  input[type="text"],
-  input[type="password"],
-  select {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    background-color: #f7f7f7;
-    font-size: 14px;
-  }
+input[type="text"],
+input[type="password"],
+select {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  background-color: #f7f7f7;
+  font-size: 14px;
+}
 
-  input[type="text"]:focus,
-  input[type="password"]:focus,
-  select:focus {
-    border-color: #36ae92;
-    background-color: #fff;
-    outline: none;
-  }
+input[type="text"]:focus,
+input[type="password"]:focus,
+select:focus {
+  border-color: #36ae92;
+  background-color: #fff;
+  outline: none;
+}
 
-  .form-group.compact { margin-bottom: 0; }
+.form-group.compact {
+  margin-bottom: 0;
+}
 
-  /* 아이콘 포함 입력영역 가이드 (네이밍 유지) */
-  .fieldControlIcon { display: flex; align-items: center; }
-  .fieldControlIcon.password { display: flex; align-items: center; }
-  .fieldControlIcon.passwordcheck { display: flex; align-items: center; }
-  .fieldControlIcon.email { grid-template-columns: 1fr 200px auto auto; column-gap:12px; align-items: flex-start; }
-  .fieldControlIcon .icon,
-  .fieldControlIcon .icon.second { width: 18px; height: 18px; }
-  .icon-check{
-    width: 20px;
-    height: 20px;
-    margin-left: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color:#aaaaaa;
-  }
-  .icon-check.valid{
-    color: #00462a;
-  }
-  .icon-check i {
-    font-size: 16px;
-    line-height: 1;
-    transform: translateY(-2px); 
-  }
+/* 아이콘 포함 입력영역 가이드 (네이밍 유지) */
+.fieldControlIcon {
+  display: flex;
+  align-items: center;
+}
+.fieldControlIcon.password {
+  display: flex;
+  align-items: center;
+}
+.fieldControlIcon.passwordcheck {
+  display: flex;
+  align-items: center;
+}
+.fieldControlIcon.email {
+  grid-template-columns: 1fr 200px auto auto;
+  column-gap: 12px;
+  align-items: flex-start;
+}
+.fieldControlIcon .icon,
+.fieldControlIcon .icon.second {
+  width: 18px;
+  height: 18px;
+}
+.icon-check {
+  width: 20px;
+  height: 20px;
+  margin-left: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #aaaaaa;
+}
+.icon-check.valid {
+  color: #00462a;
+}
+.icon-check i {
+  font-size: 16px;
+  line-height: 1;
+  transform: translateY(-2px);
+}
 
-  /* 이메일 행 */
-  .email-row { width: 100%; }
-  .email-domain { width: 100%; }
+/* 이메일 행 */
+.email-row {
+  width: 100%;
+}
+.email-domain {
+  width: 100%;
+}
 
-  /* 전화번호 행 */
-  .phonenumber-row { display: flex; gap: 8px; align-items: center; }
-  .phonenumber-row input { flex: 1 1 0; text-align: center; }
-  .dash { color: #666; }
+/* 전화번호 행 */
+.phonenumber-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.phonenumber-row input {
+  flex: 1 1 0;
+  text-align: center;
+}
+.dash {
+  color: #666;
+}
 
-  /* 약관 */
-  .agreements { border: 0; padding: 0; margin: 8px 0 4px; }
-  .agree { font-weight: 700; margin-bottom: 8px; }
-  .check { display: flex; align-items: center; gap: 8px; margin: 6px 0; }
-  .check.indent { padding-left: 22px; }
+/* 약관 */
+.agreements {
+  border: 0;
+  padding: 0;
+  margin: 8px 0 4px;
+}
+.agree {
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 6px 0;
+}
+.check.indent {
+  padding-left: 22px;
+}
 
-  /* 버튼 */
-  .btn.primary,
-  .signup-form button[type="submit"] {
-    width: 100%;
-    background-color: #00462a;
-    color: #fff;
-    border: none;
-    border-radius: 6px;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: bold;
-    margin-top: 10px;
-    cursor: pointer;
-  }
+/* 버튼 */
+.btn.primary,
+.signup-form button[type="submit"] {
+  width: 100%;
+  background-color: #00462a;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 16px;
+  font-weight: bold;
+  margin-top: 10px;
+  cursor: pointer;
+}
 
-  .btn.primary:hover { background-color: #03603a; }
+.btn.primary:hover {
+  background-color: #03603a;
+}
 
-  .signup-footer {
-    text-align: center;
-    margin-top: 18px;
-    font-size: 14px;
-  }
+.signup-footer {
+  text-align: center;
+  margin-top: 18px;
+  font-size: 14px;
+}
 
-  .signup-footer a { color: #00462a; font-weight: 600; text-decoration: none; }
-  .signup-footer a:hover { text-decoration: underline; }
+.signup-footer a {
+  color: #00462a;
+  font-weight: 600;
+  text-decoration: none;
+}
+.signup-footer a:hover {
+  text-decoration: underline;
+}
 
 /*** 상품 등록 페이지 ***/
 .page-title {
@@ -1866,7 +1925,7 @@ h1.review-title {
   margin: 40px auto;
   padding: 40px;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   display: flex;
   gap: 30px;
 }
@@ -2010,10 +2069,15 @@ textarea {
   background-color: #333;
 }
 
-.search-form input[type="text"] { flex: 9; }
-.search-form select { flex: 2; }
-.search-form button { flex: 1; }
-
+.search-form input[type="text"] {
+  flex: 9;
+}
+.search-form select {
+  flex: 2;
+}
+.search-form button {
+  flex: 1;
+}
 
 .item-grid {
   display: grid;
@@ -2030,7 +2094,7 @@ textarea {
   padding-bottom: 10px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
   transition: 0.3s;
 }
 
