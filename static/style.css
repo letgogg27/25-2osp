@@ -1863,22 +1863,33 @@ textarea {
 /* 상품 리스트 페이지 */
 .search-bar {
   width: 60%;
-  margin: 40px auto 20px;
+  margin: 60px auto 20px;
+}
+
+.search-form {
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 10px;
 }
 
-.search-bar input {
-  width: 70%;
+.search-form input {
+  flex: 1;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 14px;
 }
 
-.search-bar button {
+.search-form select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  background-color: white;
+}
+
+.search-form button {
   padding: 10px 20px;
   border: none;
   background-color: #000;
@@ -1887,6 +1898,7 @@ textarea {
   cursor: pointer;
   font-weight: bold;
 }
+
 
 .item-grid {
   display: grid;
@@ -1903,7 +1915,7 @@ textarea {
   padding-bottom: 10px;
   position: relative;
   overflow: hidden;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   transition: 0.3s;
 }
 
@@ -1916,7 +1928,6 @@ textarea {
   height: 200px;
   object-fit: cover;
   border-radius: 10px 10px 0 0;
-  display: block;
 }
 
 /* 찜(하트) 버튼 */
