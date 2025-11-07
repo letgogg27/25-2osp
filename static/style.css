@@ -873,10 +873,14 @@ legend i {
 .star-btn.active {
   color: #ffcc00;
 }
+.star-btn[aria-pressed="true"] {
+  color: #ffcc00;
+}
 .star-btn:hover,
 .star-btn.active,
 .star-btn:focus,
-.star-btn:active {
+.star-btn:active,
+.star-btn[aria-pressed="true"] {
   background: none;
   border: none;
   outline: none;
