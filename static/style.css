@@ -374,22 +374,22 @@ button:hover,
 }
 
 /* 하단 버튼 */
-.item-actions-box {
+.item-detail-actions-box {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-top: 8px;
 }
 
-.btn {
+.item-detail-btn {
   border: none;
-  border-radius: 999px;
+  border-radius: 6px;
   height: 44px;
   font-weight: 600;
   cursor: pointer;
 }
 
-.btn.to-chat {
+.item-detail-btn.to-chat {
   flex: 1;
   background: #1e4e32;
   color: #fff;
@@ -399,13 +399,13 @@ button:hover,
   transition: background 0.2s ease;
 }
 
-.btn.to-chat:hover {
+.item-detail-btn.to-chat:hover {
   background: #173b27;
 }
 
-.btn.to-wishlist {
+.item-detail-btn.to-wishlist {
   width: 46px;
-  height: 50px;
+  height: 46px;
   background: #ffffff;
   border-radius: 50%;
   display: flex;
@@ -415,7 +415,7 @@ button:hover,
   border: 2px solid #00462a;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
 }
-.bth .to-wishlist i {
+.item-detail-btn .to-wishlist i {
   border: 1px solid #00462a;
   background: #ffffff;
 }
