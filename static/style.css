@@ -142,7 +142,6 @@ button:hover,
   flex-direction: column;
   padding-top: 30px;
   gap: 30px;
-  margin-top: 40px;
 }
 
 .item-summary-box {
@@ -1075,7 +1074,7 @@ legend i {
   outline: 1px solid #8c8c8c;
 }
 
-.actions {
+.reg-review-btn-actions {
   display: flex;
   justify-content: space-between;
   gap: 12px;
@@ -1084,7 +1083,7 @@ legend i {
   max-width: 450px;
 }
 
-.btn {
+.reg-review-btn {
   width: 215px;
   height: 48px;
   padding: 0 24px;
@@ -1098,14 +1097,14 @@ legend i {
   outline: none;
 }
 
-.btn.secondary {
+.reg-review-btn.secondary {
   background: #ffffff;
   color: #333333;
   border: 1.5px solid #00462a;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
-.btn.primary {
+.reg-review-btn.primary {
   background: #00462a;
   color: #ffffff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
@@ -1131,7 +1130,7 @@ legend i {
   font-size: 24px;
   font-weight: 700;
   color: black;
-  margin: 60px 0 30px; 
+  margin: 60px 0 30px;
 }
 
 .review-page .search-toolbar {
@@ -1145,7 +1144,7 @@ legend i {
 
 /* 검색창 */
 .review-page .search-input {
-  width: 65%;             
+  width: 65%;
   max-width: 800px;
   height: 44px;
   border: 1px solid #ddd;
@@ -1164,7 +1163,7 @@ legend i {
 
 /* 정렬 드롭다운 */
 .review-page .sort-select {
-  width: 130px;           
+  width: 130px;
   height: 44px;
   border: 1px solid #ddd;
   border-radius: 6px;
@@ -1180,7 +1179,7 @@ legend i {
 
 /* 검색 버튼 */
 .review-page .search-btn {
-  width: 90px;            
+  width: 90px;
   height: 44px;
   border-radius: 6px;
   background: #000;
@@ -1194,7 +1193,6 @@ legend i {
 .review-page .search-btn:hover {
   background: #333;
 }
-
 
 /* 카드 리스트 (3×2) */
 .card-list {
@@ -1355,7 +1353,7 @@ legend i {
   padding: 6px 10px;
   border-radius: 6px;
   color: #00462a;
-  text-decoration: none; 
+  text-decoration: none;
   font-size: 14px;
   background: #fff;
 }
@@ -1365,12 +1363,13 @@ legend i {
   color: white;
 }
 
-.page-list li.on a {/*현재페이지*/
+.page-list li.on a {
+  /*현재페이지*/
   color: #00462a;
 }
 
 .page-ctrl {
-  text-decoration: none; 
+  text-decoration: none;
   color: #00462a;
   padding: 6px 10px;
   border-radius: 6px;
@@ -1382,8 +1381,6 @@ legend i {
   background: #00462a;
   color: white;
 }
-
-
 
 /**** Review Detail page CSS****/
 .review-detail body {
