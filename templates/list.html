@@ -17,7 +17,7 @@
 
 <div class="item-grid">
   {% for p in products %}
-  <div class="item-card">
+  <a class="item-card" href="{{ url_for('item_detail') }}">
     <img
       src="{{ url_for('static', filename='images/icons/' + p.img) }}"
       alt="{{ p.name }}"
@@ -29,7 +29,7 @@
       <p>{{ p.location }}</p>
     </div>
     <span class="like-btn">♡</span>
-  </div>
+  </a>
   {% endfor %}
 </div>
 
