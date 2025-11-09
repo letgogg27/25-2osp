@@ -5,6 +5,11 @@ body {
   padding-bottom: 60px;
   margin: 0;
 }
+/*공통 textarea font*/
+textarea,
+textarea::placeholder {
+  font-size: 15px;
+}
 nav {
   background-color: #00462a;
   display: flex;
@@ -1060,7 +1065,6 @@ legend i {
   padding: 12px 16px;
   margin-top: 10px;
 
-  font-size: 14px;
   line-height: 1.5;
   resize: vertical;
 
@@ -1071,13 +1075,17 @@ legend i {
 
 .textarea::placeholder {
   color: #8c8c8c;
+  transition: color 0.2s ease;
 }
-
+.textarea:hover::placeholder,
+.textarea:focus::placeholder,
+.textarea:active::placeholder {
+  color: transparent;
+}
 .textarea:focus,
 .textarea:active {
-  outline: 1px solid #8c8c8c;
+  outline: 1px solid #110e0eff;
 }
-
 .reg-review-btn-actions {
   display: flex;
   justify-content: space-between;
