@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash
+from flask import Flask, render_template, request, url_for, redirect, flash, session
 import hashlib
 from database import DBhandler
 import sys
@@ -70,9 +70,9 @@ def login_user():
     pw_hash=hashlib.sha256(pw.encode('utf-8')).hexdigest()
     if DB.find_user(id_,pw_hash):
         session['id']=id_
-        return redirect(url_for('view_list'))
+        return redirect(url_for('home'))
     else:
-        flash("Wrong ID or PW!")
+        flash("잘못된 아이디 혹은 비밀번호 입니다!")
         return render_template("login.html")
 def find_user(self, id_, pw_):
     users = self.db.child("user").get()
@@ -83,12 +83,10 @@ def find_user(self, id_, pw_):
             return True
     return False
 
-
-
 @app.route("/logout")
 def logout_user():
     session.clear()
-    return redirect(url_for('view_list'))
+    return redirect(url_for('home'))
 
 @app.route("/signup")
 def signup():

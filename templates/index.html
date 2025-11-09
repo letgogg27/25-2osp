@@ -25,6 +25,11 @@
         <a href="{{url_for('home')}}">Ewha Market</a>
       </div>
       <div class="navbar_menu">
+        {% if session['id'] %}
+        <div class="welcome-message">
+            <b>{{ session['id'] }}님 반갑습니다!</b>
+        </div>
+        {% endif %}
         <div>
           <a href="{{url_for('home')}}"><i class="fa-solid fa-house"></i> 홈</a>
         </div>
@@ -51,19 +56,15 @@
         <div>
           <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> 찜 목록</a>
         </div>
-        <!--
-        <div>
-          {% if session['id'] %}
-          <li><a href="/logout"><b>{{session['id']}}님반갑습니다!</b> logout</a></li>
-          {% else %}
-          <li><a href="/login">login</a></li>
-          {% endif %}
-        </div>
 
         <div>
-          <a href="/login"><i class="fa-regular fa-circle-user"></i>로그인</a>
+          {% if session['id'] %}
+          <a href="/logout"><i class="fa-regular fa-circle-user"></i>로그아웃</a>
+          {% else %}
+          <a href="{{url_for('login')}}"><i class="fa-regular fa-circle-user"></i>로그인</a>
+          {% endif %}
         </div>
-      </div>-->
+      </div>
 
     </nav>
     {% block content %} {% endblock %}
