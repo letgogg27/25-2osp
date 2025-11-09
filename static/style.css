@@ -1803,12 +1803,18 @@ legend i {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
+input[type="text"]:focus::placeholder,
+input[type="password"]:focus::placeholder {
+    /* placeholder 색상을 투명하게 만들어 숨깁니다. */
+    color: transparent;
+}
+
 .signup-title {
   text-align: center;
   margin-bottom: 24px;
   font-size: 22px;
   font-weight: 700;
-  color: #00462a;
+  color: #333;
   border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
 }
@@ -2209,4 +2215,8 @@ textarea {
 .pagination a:hover {
   background-color: #004d2c;
   color: white;
+}
+
+.welcome-message{
+  color:#fff;
 }

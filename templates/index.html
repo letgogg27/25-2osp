@@ -4,7 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Ewha Market {% endblock %}</title>
-    <!-- Font Awesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
@@ -26,6 +25,11 @@
         <a href="{{url_for('home')}}">Ewha Market</a>
       </div>
       <div class="navbar_menu">
+        {% if session['id'] %}
+        <div class="welcome-message">
+            <b>{{ session['id'] }}님 반갑습니다!</b>
+        </div>
+        {% endif %}
         <div>
           <a href="{{url_for('home')}}"><i class="fa-solid fa-house"></i> 홈</a>
         </div>
@@ -50,12 +54,18 @@
           >
         </div>
         <div>
-          <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> 장바구니</a>
+          <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> 찜 목록</a>
         </div>
+
         <div>
-          <a href="/login"><i class="fa-regular fa-circle-user"></i>로그인</a>
+          {% if session['id'] %}
+          <a href="/logout"><i class="fa-regular fa-circle-user"></i>로그아웃</a>
+          {% else %}
+          <a href="{{url_for('login')}}"><i class="fa-regular fa-circle-user"></i>로그인</a>
+          {% endif %}
         </div>
       </div>
+
     </nav>
     {% block content %} {% endblock %}
     <footer class="footer">

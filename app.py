@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash
+from flask import Flask, render_template, request, url_for, redirect, flash, session
 import hashlib
 from database import DBhandler
 import sys
@@ -43,7 +43,6 @@ def render_list():
 def home():
     return render_list()
 
-# /list 로 접근해도 동일
 @app.route("/list", strict_slashes=False)
 def product_list():
     return render_list()
@@ -51,7 +50,6 @@ def product_list():
 @app.route("/review", methods=['GET','POST'], strict_slashes=False)
 def review():
     return render_template("review.html")
-
 
 @app.route("/register_items", methods=['GET','POST'], strict_slashes=False)
 def register_items():
@@ -64,6 +62,31 @@ def register_reviews():
 @app.route("/login")
 def login():
     return render_template("login.html")
+
+@app.route("/login_confirm", methods=['POST'])
+def login_user():
+    id_=request.form['id']
+    pw=request.form['pw']
+    pw_hash=hashlib.sha256(pw.encode('utf-8')).hexdigest()
+    if DB.find_user(id_,pw_hash):
+        session['id']=id_
+        return redirect(url_for('home'))
+    else:
+        flash("잘못된 아이디 혹은 비밀번호 입니다!")
+        return render_template("login.html")
+def find_user(self, id_, pw_):
+    users = self.db.child("user").get()
+    target_value=[]
+    for res in users.each():
+        value = res.val()
+        if value['id'] == id_ and value['pw'] == pw_:
+            return True
+    return False
+
+@app.route("/logout")
+def logout_user():
+    session.clear()
+    return redirect(url_for('home'))
 
 @app.route("/signup")
 def signup():
