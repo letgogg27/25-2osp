@@ -6,6 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initChips();
   initFormReset();
   initChatFeature();
+  initAutoResizeTextarea();
 });
 
 /* =========================
@@ -435,4 +436,23 @@ function initChatFeature() {
       chatInput.focus();
     });
   }
+}
+/* =========================
+    TEXTAREA AUTO-RESIZE
+   ========================= */
+
+function initAutoResizeTextarea() {
+  const textareas = document.querySelectorAll(".textarea");
+  if (!textareas.length) return;
+
+  textareas.forEach((textarea) => {
+    textarea.style.overflow = "hidden";
+
+    textarea.style.height = textarea.scrollHeight + "px";
+
+    textarea.addEventListener("input", function () {
+      this.style.height = "auto";
+      this.style.height = this.scrollHeight + "px";
+    });
+  });
 }

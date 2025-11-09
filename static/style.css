@@ -1056,7 +1056,7 @@ legend i {
 .textarea {
   width: 100%;
   max-width: 450px;
-  min-height: 110px;
+  height: 80px;
 
   border: 1px solid #d9d9d9;
   border-radius: 8px;
@@ -1066,8 +1066,9 @@ legend i {
   margin-top: 10px;
 
   line-height: 1.5;
-  resize: vertical;
-
+  /* resize: vertical; */
+  resize: none; /* disable manual resizing */
+  overflow: hidden; /* prevent scrollbar */
   box-sizing: border-box;
 
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
