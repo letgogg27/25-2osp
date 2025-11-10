@@ -1795,18 +1795,12 @@ legend i {
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
 }
 
-input[type="text"]:focus::placeholder,
-input[type="password"]:focus::placeholder {
-    /* placeholder 색상을 투명하게 만들어 숨깁니다. */
-    color: transparent;
-}
-
 .signup-title {
   text-align: center;
   margin-bottom: 24px;
   font-size: 22px;
   font-weight: 700;
-  color: #333;
+  color: #00462a;
   border-bottom: 1px solid #ddd;
   padding-bottom: 10px;
 }
@@ -2201,23 +2195,47 @@ textarea {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 60px;
   gap: 10px;
+  margin-top: 24px;
+  margin-bottom: 60px;
+  list-style: none;
+  padding: 0;
 }
 
 .pagination a {
+  display: inline-block;
   padding: 6px 10px;
-  color: #004d2c;
-  border-radius: 4px;
+  border-radius: 6px;
+  color: #00462a;
+  text-decoration: none;
+  font-size: 14px;
+  background: #fff;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .pagination a:hover {
-  background-color: #004d2c;
+  background: #00462a;
   color: white;
 }
 
-.welcome-message{
-  color:#fff;
+/* 현재 페이지 표시 */
+.pagination .active a {
+  color: #00462a;
+  font-weight: bold;
+}
+
+/* 이전/다음 버튼 */
+.pagination .page-ctrl {
+  text-decoration: none;
+  color: #00462a;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #fff;
+}
+
+.pagination .page-ctrl:hover {
+  background: #00462a;
+  color: white;
 }
 
 ::placeholder {

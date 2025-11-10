@@ -3,6 +3,7 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 {% endblock %}  -->
 {% block content %}
+<h2 class="page-title">Ewha Market</h2>
 <div class="search-bar">
   <form class="search-form" method="GET" action="/list">
     <input type="text" name="q" placeholder="판매자명 또는 상품명 검색" />
@@ -34,12 +35,28 @@
 </div>
 
 <div class="pagination">
-  <span>«</span>
-  {% for i in range(1, total_pages+1) %} {% if i == page %}
-  <span class="page active">{{ i }}</span>
+  <!-- 맨 처음 페이지로 이동 -->
+  {% if page > 1 %}
+  <a href="{{ url_for('product_list') }}?page=1" class="page-ctrl">«</a>
   {% else %}
-  <a href="{{ url_for('product_list') }}?page={{ i }}" class="page">{{ i }}</a>
-  {% endif %} {% endfor %}
-  <span>»</span>
+  <span class="page-ctrl disabled">«</span>
+  {% endif %}
+
+  <!-- 페이지 번호 -->
+  {% for i in range(1, total_pages+1) %}
+    {% if i == page %}
+      <span class="page active">{{ i }}</span>
+    {% else %}
+      <a href="{{ url_for('product_list') }}?page={{ i }}" class="page">{{ i }}</a>
+    {% endif %}
+  {% endfor %}
+
+  <!-- 마지막 페이지로 이동 -->
+  {% if page < total_pages %}
+  <a href="{{ url_for('product_list') }}?page={{ total_pages }}" class="page-ctrl">»</a>
+  {% else %}
+  <span class="page-ctrl disabled">»</span>
+  {% endif %}
 </div>
+
 {% endblock %}

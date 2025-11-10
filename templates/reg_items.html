@@ -82,7 +82,7 @@
     <!-- 오른쪽 -->
     <div class="form-right">
       <label for="file">대표 사진 업로드</label>
-      <input type="file" id="file" name="file" accept="image/*" />
+      <input type="file" id="file" name="file" accept="image/*" multiple required/>
 
       <label for="description">상품 설명</label>
       <textarea
@@ -99,6 +99,17 @@
       </div>
     </div>
   </form>
+  <script>
+  document.querySelectorAll('input, textarea').forEach((el) => {
+    el.addEventListener('focus', () => {
+      el.dataset.placeholder = el.placeholder;
+      el.placeholder = ''; // 포커스 시 placeholder 제거
+    });
+    el.addEventListener('blur', () => {
+      el.placeholder = el.dataset.placeholder; // 포커스 해제 시 복원
+    });
+  });
+  </script>
 </div>
 
 {% endblock %}
