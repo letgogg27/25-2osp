@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Ewha Market {% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <!-- 아이콘용 폰트 (Google Material Icons) -->
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
+  </head>
+  <body>
+    <nav>
+      <div class="navbar_logo">
+        <a href="{{url_for('home')}}">Ewha Market</a>
+      </div>
+      <div class="navbar_menu">
+        {% if session['id'] %}
+        <div class="welcome-message">
+            <b>{{ session['id'] }}님 반갑습니다!</b>
+        </div>
+        {% endif %}
+        <div>
+          <a href="{{url_for('home')}}"><i class="fa-solid fa-house"></i> 홈</a>
+        </div>
+        <div>
+          <a href="{{url_for('review')}}"
+            ><img
+              src="../static/images/icons/star-rating.png"
+              alt="star-rating"
+              class="review-icon"
+            />
+            리뷰</a
+          >
+        </div>
+        <div>
+          <a href="{{url_for('register_items')}}"
+            ><i class="fa-solid fa-circle-plus"></i> 상품등록</a
+          >
+        </div>
+        <div>
+          <a href="{{url_for('register_reviews')}}"
+            ><i class="fa-solid fa-pen-to-square"></i> 리뷰작성</a
+          >
+        </div>
+        <div>
+          <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> 찜 목록</a>
+        </div>
+
+        <div>
+          {% if session['id'] %}
+          <a href="/logout"><i class="fa-regular fa-circle-user"></i>로그아웃</a>
+          {% else %}
+          <a href="{{url_for('login')}}"><i class="fa-regular fa-circle-user"></i>로그인</a>
+          {% endif %}
+        </div>
+      </div>
+
+    </nav>
+    {% block content %} {% endblock %}
+    <footer class="footer">
+      <div class="footer-links">
+        <a href="#">About</a>
+        <a href="#">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+      <p class="footer-copy">©2025 Ewha Market. All rights reserved.</p>
+    </footer>
+    <script src="../static/main.js" defer></script>
+  </body>
+</html>

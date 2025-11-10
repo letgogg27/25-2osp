@@ -1,0 +1,121 @@
+﻿{% extends "index.html" %}
+{% block content %}
+
+{% with mesg = get_flashed_messages() %}
+{% if mesg !=[] %}
+    <script> alert("{{ mesg[0] }}")</script>
+{% endif %}
+{% endwith %} 
+
+<div class="centered-content-wrapper">
+    <div class="container login-container">
+        <h2 class="login-title">로그인</h2>
+
+        <form method="post" action="/login_confirm" class="login-form">
+            <div class="form-group">
+                <label for="id">아이디 입력</label>
+                <input type="text" id="id" name="id" placeholder="아이디를 입력해주세요" required>
+            </div>
+
+            <div class="form-group">
+                <label for="pw">비밀번호 입력</label>
+                <input type="password" id="pw" name="pw" placeholder="비밀번호를 입력해주세요" required>
+            </div>
+
+            <div class="form-options">
+                <label>
+                    <input type="checkbox" name="remember"> 아이디/비밀번호 기억하기
+                </label>
+            </div>
+
+            <button type="submit" class="login-btn">로그인</button>
+        </form>
+
+        <div class="login-footer">
+            <p>Ewha Market이 처음이라면? <a href="{{url_for('signup')}}">회원가입</a></p>
+            <p><a href="#">아이디 혹은 비밀번호를 잊으셨나요?</a></p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .login-container {
+        max-width: 420px;
+        background: #fff;
+        border: none;
+        border-radius: 10px;
+        padding: 40px;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-title {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 22px;
+        font-weight: 700;
+        color: #00462a;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 10px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+    input[type="text"], input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        background-color: #f7f7f7;
+        font-size: 14px;
+    }
+
+        input[type="text"]:focus, input[type="password"]:focus {
+            border-color: #36ae92;
+            background-color: #fff;
+            outline: none;
+        }
+
+    .login-btn {
+        width: 100%;
+        background-color: #00462a;
+        color: #fff;
+        border: none;
+        border-radius: 6px;
+        padding: 12px;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+        .login-btn:hover {
+            background-color: #03603a;
+        }
+
+    .login-footer {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 14px;
+    }
+
+        .login-footer a {
+            color: #00462a;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+            .login-footer a:hover {
+                text-decoration: underline;
+            }
+</style>
+
+{% endblock %}
+
