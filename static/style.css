@@ -2041,6 +2041,18 @@ textarea {
   margin-top: 20px;
 }
 
+.photo-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upload-note {
+  color: #666;
+  font-size: 13px;
+}
+
+
 .primary-btn {
   background-color: #004d2c;
   color: white;
