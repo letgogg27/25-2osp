@@ -2201,19 +2201,43 @@ textarea {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 60px;
   gap: 10px;
+  margin-top: 24px;
+  margin-bottom: 60px;
 }
 
-.pagination a {
+.pagination a,
+.pagination span {
+  display: inline-block;
   padding: 6px 10px;
-  color: #004d2c;
-  border-radius: 4px;
+  border-radius: 6px;
+  color: #00462a;
+  text-decoration: none;
+  font-size: 14px;
+  background: #fff;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .pagination a:hover {
-  background-color: #004d2c;
+  background: #00462a;
   color: white;
+}
+
+/* 현재 페이지 */
+.pagination .active {
+  font-weight: bold;
+  color: #00462a;
+}
+
+/* << >> 버튼 */
+.pagination .page-ctrl {
+  font-weight: bold;
+}
+
+/* 클릭 불가능할 때 */
+.pagination .disabled {
+  opacity: 0.5;
+  pointer-events: none;
 }
 
 .welcome-message{
