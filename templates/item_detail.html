@@ -4,27 +4,27 @@
   <section class="item-summary-box">
     <aside class="item-image-box">
       <div class="main-image-wrapper">
-        <img src="../static/images/icons/tshirt.png" alt="상품이미지" />
+        <img src="../../static/images/{{data.img_path}}"/>
       </div>
       <div class="thumbnail-image-wrapper">
         <div class="thumbnail-image">
-          <img src="../static/images/icons/tshirt.png" alt="상품이미지" />
+          <img src="../../static/images/{{data.img_path}}" />
         </div>
         <div class="thumbnail-image">
-          <img src="../static/images/icons/tshirt.png" alt="상품이미지" />
+          <img src="../../static/images/{{data.img_path}}" />
         </div>
         <div class="thumbnail-image">
-          <img src="../static/images/icons/tshirt.png" alt="상품이미지" />
+          <img src="../../static/images/{{data.img_path}}" />
         </div>
       </div>
     </aside>
     <aside class="item-info-container-box">
       <div class="item-title-conditon-box">
-        <h2>이화 로고 자수 반팔 티셔츠</h2>
+        <h2>{{name}}</h2>
         <small class="item-condition">새상품(미사용)</small>
       </div>
       <div class="item-price-box">
-        <p class="item-price">₩19,900</p>
+        <p class="item-price">{{data.price}}원</p>
         <div class="item-price-negotiation">가격 제안 가능</div>
       </div>
       <div class="item-seller-info-box">
@@ -52,12 +52,12 @@
             class="item-detail-seller-id"
             style="font-size: 18px; font-weight: 700"
           >
-            @ewha_seller
+            @ {{data.seller}}
           </p>
           <small class="item-detail-seller-address" style="font-size: 14px">
             <i class="fa-solid fa-star" style="color: #ffc700"></i>평점 4.9 |
-            <i class="fa-solid fa-location-dot" style="color: darkred"></i> 서울
-            특별시 서대문구 연희동</small
+            <i class="fa-solid fa-location-dot" style="color: darkred"></i> 
+            {{data.addr}}</small
           >
         </div>
       </div>

@@ -1119,75 +1119,82 @@ legend i {
   padding-left: 40px;
 }
 
-/***Review List CSS ***/
+/*** Review List CSS ***/
 .review-page {
   max-width: 1080px;
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 24px 120px;
 }
 
-.review-title {
+.review-page .review-title {
   text-align: center;
-  font-size: 22px;
+  font-size: 24px;
   font-weight: 700;
-  color: #1e4e32;
-  margin-bottom: 28px;
+  color: black;
+  margin: 60px 0 30px; 
 }
 
-/* 🔍 검색/정렬/버튼 */
-.search-toolbar {
+.review-page .search-toolbar {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 40px;
+  flex-wrap: nowrap;
 }
 
-.search-input,
-.sort-select,
-.search-btn {
-  height: 38px;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.search-input {
-  width: 60%;
-  max-width: 520px;
+/* 검색창 */
+.review-page .search-input {
+  width: 65%;             
+  max-width: 800px;
+  height: 44px;
   border: 1px solid #ddd;
+  border-radius: 6px;
   padding: 0 14px;
+  font-size: 14px;
+  background: #f9f9f9;
   transition: border-color 0.2s ease;
 }
 
-.search-input:focus {
+.review-page .search-input:focus {
   border-color: #36ae92;
   box-shadow: 0 0 0 2px rgba(54, 174, 146, 0.15);
   outline: none;
 }
 
-.sort-select {
-  border: none;
+/* 정렬 드롭다운 */
+.review-page .sort-select {
+  width: 130px;           
+  height: 44px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   padding: 0 12px;
-  background: #f2f2f2;
+  background: #fff;
   color: #333;
-  cursor: pointer;
+  font-size: 14px;
   font-weight: 500;
+  cursor: pointer;
+  appearance: none;
+  text-align: center;
 }
 
-.search-btn {
-  border: none;
+/* 검색 버튼 */
+.review-page .search-btn {
+  width: 90px;            
+  height: 44px;
+  border-radius: 6px;
   background: #000;
   color: #fff;
-  padding: 0 18px;
   font-weight: 600;
+  border: none;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
-.search-btn:hover {
+.review-page .search-btn:hover {
   background: #333;
 }
+
 
 /* 카드 리스트 (3×2) */
 .card-list {
@@ -1332,7 +1339,7 @@ legend i {
   display: flex;
   justify-content: center;
   gap: 10px;
-  margin-top: 32px;
+  margin-top: 24px;
 }
 
 .page-list {
@@ -1347,21 +1354,39 @@ legend i {
   display: inline-block;
   padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid #cfe2da;
   color: #00462a;
-  text-decoration: none;
+  text-decoration: none; 
   font-size: 14px;
   background: #fff;
 }
 
-.page-list li.on a {
+.page-list li:not(.on) a:hover {
   background: #00462a;
-  color: #fffdf1;
-  border-color: #00462a;
+  color: white;
 }
 
+.page-list li.on a {/*현재페이지*/
+  color: #00462a;
+}
+
+.page-ctrl {
+  text-decoration: none; 
+  color: #00462a;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #fff;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.page-ctrl:hover {
+  background: #00462a;
+  color: white;
+}
+
+
+
 /**** Review Detail page CSS****/
-body {
+.review-detail body {
   font-family: "Noto Sans KR", sans-serif;
   color: #0f2e23;
   background: #fff;
@@ -1375,7 +1400,7 @@ body {
   padding: 0 24px;
 }
 
-h1.review-title {
+.review-detail h1.review-title {
   text-align: center;
   font-size: 22px;
   font-weight: 700;
@@ -1384,7 +1409,7 @@ h1.review-title {
 }
 
 /* 공통 박스 스타일 */
-.box {
+.review-detail .box {
   border: 1px solid #eee;
   border-radius: 10px;
   background: #fff;
@@ -1393,7 +1418,7 @@ h1.review-title {
 }
 
 /* 프로필 공통 */
-.profile-pic {
+.review-detail .profile-pic {
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -1401,32 +1426,37 @@ h1.review-title {
   overflow: hidden;
 }
 
-.profile-pic img {
+.review-detail .profile-pic img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
 /* 판매자 정보 */
-.seller-box {
+.review-detail .seller-box {
   margin-bottom: 32px;
 }
-.seller-info {
+
+.review-detail .seller-info {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.seller-meta {
+
+.review-detail .seller-meta {
   font-size: 14px;
   color: #333;
 }
-.seller-meta strong {
+
+.review-detail .seller-meta strong {
   font-weight: 600;
 }
-.stars {
+
+.review-detail .stars {
   color: #f4b400;
 }
-.product-name {
+
+.review-detail .product-name {
   font-size: 14px;
   font-weight: 500;
   color: #333;
@@ -1434,13 +1464,14 @@ h1.review-title {
   white-space: nowrap;
   margin-left: auto;
 }
-.divider {
+
+.review-detail .divider {
   height: 1px;
   background: #ddd;
   margin: 12px 0;
 }
 
-.location-box {
+.review-detail .location-box {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -1452,12 +1483,13 @@ h1.review-title {
 }
 
 /* 해시태그 */
-.hashtags {
+.review-detail .hashtags {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
 }
-.hashtags span {
+
+.review-detail .hashtags span {
   font-size: 12px;
   color: #00462a;
   background: #e8f5f1;
@@ -1466,51 +1498,58 @@ h1.review-title {
 }
 
 /* 리뷰 영역 */
-.review-container {
+.review-detail .review-container {
   margin-top: 16px;
 }
-.review-header {
+
+.review-detail .review-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
 }
-.user-info {
+
+.review-detail .user-info {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.user-info img {
+
+.review-detail .user-info img {
   width: 36px;
   height: 36px;
   border-radius: 50%;
   background: #e0e0e0;
 }
-.review-user {
+
+.review-detail .review-user {
   font-weight: 600;
   font-size: 14px;
 }
-.review-rating {
+
+.review-detail .review-rating {
   color: #f4b400;
   font-size: 13px;
 }
-.review-rating span {
+
+.review-detail .review-rating span {
   color: #333;
   margin-left: 4px;
 }
 
-.review-meta {
+.review-detail .review-meta {
   font-size: 13px;
   color: #666;
 }
 
-.review-images {
+.review-detail .review-images {
   display: flex;
   gap: 10px;
   margin: 16px 0;
   justify-content: center;
 }
-.review-images img {
+
+.review-detail .review-images img {
   width: 100%;
   max-width: 240px;
   height: 240px;
@@ -1519,31 +1558,33 @@ h1.review-title {
   object-fit: cover;
   transition: transform 0.2s;
 }
-.review-images img:hover {
+
+.review-detail .review-images img:hover {
   transform: scale(1.03);
 }
 
-.review-content-box {
+.review-detail .review-content-box {
   background: #f7f7f7;
   border-radius: 8px;
   padding: 14px 16px;
 }
 
-.review-content-box strong {
+.review-detail .review-content-box strong {
   display: block;
   font-size: 14px;
   font-weight: 700;
   color: #222;
   margin-bottom: 6px;
 }
-.review-content-box p {
+
+.review-detail .review-content-box p {
   font-size: 13px;
   color: #333;
   margin: 0;
   line-height: 1.6;
 }
 
-.helpful-section {
+.review-detail .helpful-section {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -1552,7 +1593,8 @@ h1.review-title {
   font-size: 13px;
   color: #555;
 }
-.helpful-section button {
+
+.review-detail .helpful-section button {
   background: none;
   border: none;
   cursor: pointer;

@@ -31,6 +31,7 @@ class DBhandler:
             "card": data['card'],
             "status": data['status'],
             "phone": data['phone'],
+            "price": data['price'],
             "img_path": img_path
         }
 
@@ -93,3 +94,17 @@ class DBhandler:
         self.db.child("user").push(user_info)
         print(f"✅ 회원가입 완료: {user_id}")
         return True
+    
+    def get_items(self):
+        items = self.db.child("item").get().val()
+        return items
+    
+    def get_item_byname(self, name):
+        items = self.db.child("item").get()
+        target_value=""
+        print("###########",name)
+        for res in items.each():
+            key_value = res.key()
+        if key_value == name:
+           target_value=res.val()
+        return target_value
