@@ -114,14 +114,6 @@ def login_user():
     else:
         flash("잘못된 아이디 혹은 비밀번호 입니다!")
         return render_template("login.html")
-def find_user(self, id_, pw_):
-    users = self.db.child("user").get()
-    target_value=[]
-    for res in users.each():
-        value = res.val()
-        if value['id'] == id_ and value['pw'] == pw_:
-            return True
-    return False
 
 @app.route("/logout")
 def logout_user():
