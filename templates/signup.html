@@ -149,6 +149,32 @@
   </div>
 </div>
 
+<style>
+  /* ✅ 페이지 전체를 세로로 구성하고 footer 밀기 */
+  html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ✅ 본문 wrapper가 footer를 밀도록 */
+  .centered-content-wrapper {
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 60px;
+    margin-bottom: 120px; /* footer와 간격 확보 */
+  }
+
+  /* ✅ footer는 고정되지 않고 자동으로 하단에 위치 */
+  footer.footer {
+    flex-shrink: 0;
+    position: relative !important;
+  }
+</style>
+
+
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     // ===== 입력 & 아이콘 =====

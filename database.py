@@ -29,6 +29,7 @@ class DBhandler:
             "card": data['card'],
             "status": data['status'],
             "phone": data['phone'],
+            "price": data['price'],
             "img_path": img_path
         }
 
@@ -87,20 +88,17 @@ class DBhandler:
         self.db.child("user").push(user_info)
         print(f"✅ 회원가입 완료: {user_id}")
         return True
-
-    def find_user(self, id_string, pw_hash):
-        users = self.db.child("user").get() # 'user' 노드의 모든 데이터 가져오기 [cite: 85]
-        
-        # 데이터가 없을 경우
-        if users.val() is None:
-            return False
-
-        # 모든 사용자 데이터를 반복하여 확인
-        for res in users.each():
-            value = res.val()
-            
-            # ID와 비밀번호 해시값이 모두 일치하는지 확인
-            if value['id'] == id_string and value['pw'] == pw_hash:
-                return True # 일치하는 사용자를 찾음
-        
-        return False # 일치하는 사용자를 찾지 못함
+    
+    def get_items(self):
+        items = self.db.child("item").get().val()
+        return items
+    
+    def get_item_byname(self, name):
+        items = self.db.child("item").get()
+        target_value=""
+        print("###########",name)
+        for res in items.each():
+            key_value = res.key()
+            if key_value == name:
+                target_value=res.val()
+        return target_value

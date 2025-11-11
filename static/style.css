@@ -1078,7 +1078,7 @@ legend i {
   color: #8c8c8c;
   transition: color 0.2s ease;
 }
-.textarea:hover::placeholder,
+
 .textarea:focus::placeholder,
 .textarea:active::placeholder {
   color: transparent;
@@ -1192,7 +1192,7 @@ legend i {
 
 /* 검색 버튼 */
 .review-page .search-btn {
-  width: 90px;
+  width: 90px;            
   height: 44px;
   border-radius: 6px;
   background: #000;
@@ -1206,6 +1206,7 @@ legend i {
 .review-page .search-btn:hover {
   background: #333;
 }
+
 
 /* 카드 리스트 (3×2) */
 .card-list {
@@ -1366,7 +1367,7 @@ legend i {
   padding: 6px 10px;
   border-radius: 6px;
   color: #00462a;
-  text-decoration: none;
+  text-decoration: none; 
   font-size: 14px;
   background: #fff;
 }
@@ -1394,6 +1395,26 @@ legend i {
   background: #00462a;
   color: white;
 }
+
+.page-list li.on a {/*현재페이지*/
+  color: #00462a;
+}
+
+.page-ctrl {
+  text-decoration: none; 
+  color: #00462a;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #fff;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.page-ctrl:hover {
+  background: #00462a;
+  color: white;
+}
+
+
 
 /**** Review Detail page CSS****/
 .review-detail body {
@@ -1806,8 +1827,8 @@ legend i {
 
 input[type="text"]:focus::placeholder,
 input[type="password"]:focus::placeholder {
-    /* placeholder 색상을 투명하게 만들어 숨깁니다. */
-    color: transparent;
+  /* placeholder 색상을 투명하게 만들어 숨깁니다. */
+  color: transparent;
 }
 
 .signup-title {
@@ -2050,6 +2071,17 @@ textarea {
   margin-top: 20px;
 }
 
+.photo-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.upload-note {
+  color: #666;
+  font-size: 13px;
+}
+
 .primary-btn {
   background-color: #004d2c;
   color: white;
@@ -2079,6 +2111,12 @@ textarea {
 .outline-btn:hover {
   background-color: #004d2c;
   color: white;
+}
+
+.primary-btn,
+.outline-btn {
+  width: 210px; /* 모든 버튼의 가로 크기 통일 */
+  text-align: center;
 }
 
 /***상품 리스트 페이지***/
@@ -2203,21 +2241,51 @@ textarea {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-bottom: 60px;
   gap: 10px;
+  margin-top: 24px;
+  margin-bottom: 60px;
 }
 
-.pagination a {
+.pagination a,
+.pagination span {
+  display: inline-block;
   padding: 6px 10px;
-  color: #004d2c;
-  border-radius: 4px;
+  border-radius: 6px;
+  color: #00462a;
+  text-decoration: none;
+  font-size: 14px;
+  background: #fff;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .pagination a:hover {
-  background-color: #004d2c;
+  background: #00462a;
   color: white;
 }
 
-.welcome-message{
-  color:#fff;
+/* 현재 페이지 */
+.pagination .active {
+  font-weight: bold;
+  color: #00462a;
 }
+
+/* << >> 버튼 */
+.pagination .page-ctrl {
+  font-weight: bold;
+}
+
+/* 클릭 불가능할 때 */
+.pagination .disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.welcome-message {
+  color: #fff;
+}
+
+/*::placeholder {
+  font-family: "Noto Sans KR", sans-serif;
+  color: #aaa;
+  opacity: 1;
+}*/

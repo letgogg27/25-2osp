@@ -41,22 +41,62 @@ def render_list():
 # 홈 = 리스트
 @app.route("/", strict_slashes=False)
 def home():
-    return render_list()
+    #return render_list()
+    return redirect(url_for('view_list'))
 
 @app.route("/list", strict_slashes=False)
-def product_list():
-    return render_list()
+def view_list():
+    page = request.args.get("page", 1,type=int)
 
-@app.route("/review", methods=['GET','POST'], strict_slashes=False)
+    per_page = 15  # 한 페이지당 아이템 수
+
+    data = DB.get_items() or {}  # DB에서 아이템 읽기
+    items = list(data.items())   # dict -> 리스트로 변환 (순회/슬라이스 용)
+    item_counts = len(items)     # 전체 상품 개수
+
+    # 전체 페이지 수 (올림)
+    page_count = (item_counts + per_page - 1) // per_page
+
+    if page < 1:
+        page = 1
+    if page > page_count:
+        page = page_count
+
+    start_idx = (page - 1) * per_page
+    end_idx   = start_idx + per_page
+    page_items = items[start_idx:end_idx]
+
+    return render_template(
+        "list.html",
+        datas=page_items,       # 템플릿에서 for key,value in datas
+        limit=per_page,
+        page=page,
+        page_count=page_count,
+        total=item_counts
+    )
+
+@app.route("/review", methods=['GET'], strict_slashes=False)
 def review():
-    return render_template("review.html")
+    page = request.args.get("page", 1, type=int)
+    page_count = 1 
+    return render_template(
+        "review.html",
+        page=page,
+        page_count=page_count
+    )
 
 @app.route("/register_items", methods=['GET','POST'], strict_slashes=False)
 def register_items():
+    if 'id' not in session:
+        flash("로그인을 해주세요!")
+        return redirect(url_for('login'))
     return render_template('reg_items.html')
 
 @app.route("/register_reviews", methods=['GET','POST'], strict_slashes=False)
 def register_reviews():
+    if 'id' not in session:
+        flash("로그인을 해주세요!")
+        return redirect(url_for('login'))
     return render_template('reg_reviews.html')
 
 @app.route("/login")
@@ -129,6 +169,18 @@ def reg_item_submit_post():
 @app.route("/item_detail", strict_slashes=False)
 def item_detail():
     return render_template("item_detail.html")
+    
+@app.route("/dynamicurl/<varible_name>/")
+def DynamicUrl(varible_name):
+    return str(varible_name)
+
+@app.route("/view_detail/<name>/")
+def view_item_detail(name):
+    print("###name:",name)
+    data = DB.get_item_byname(str(name))
+    print("####data:",data)
+    return render_template("item_detail.html", name=name, data=data)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+    

@@ -1,4 +1,4 @@
-﻿{% extends "index.html" %}
+{% extends "index.html" %}
 {% block content %}
 
 {% with mesg = get_flashed_messages() %}
@@ -32,13 +32,37 @@
         </form>
 
         <div class="login-footer">
-            <p>Ewha Market이 처음이라면? <a href="{{url_for('signup')}}">회원가입</a></p>
-            <p><a href="#">아이디 혹은 비밀번호를 잊으셨나요?</a></p>
+            <p>Ewha Market이 처음이라면? 
+                <a href="{{url_for('signup')}}">회원가입</a>
+            </p>
+            <!-- “아이디 혹은 비밀번호를 잊으셨나요?” 문구 삭제됨 -->
         </div>
     </div>
 </div>
 
 <style>
+    html, body {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /*  본문 wrapper가 footer를 밀도록 */
+  .centered-content-wrapper {
+    flex: 1 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    margin-top: 60px;
+    margin-bottom: 0px; /* footer와 간격 확보 */
+  }
+
+  /* footer는 고정되지 않고 자동으로 하단에 위치 */
+  footer.footer {
+    flex-shrink: 0;
+    position: relative !important;
+  }
+
     .login-container {
         max-width: 420px;
         background: #fff;
@@ -46,6 +70,7 @@
         border-radius: 10px;
         padding: 40px;
         box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+        
     }
 
     .login-title {
@@ -53,7 +78,7 @@
         margin-bottom: 30px;
         font-size: 22px;
         font-weight: 700;
-        color: #00462a;
+        color: #000; /* ✅ 검정색으로 변경 */
         border-bottom: 1px solid #ccc;
         padding-bottom: 10px;
     }
@@ -118,4 +143,6 @@
 </style>
 
 {% endblock %}
+
+
 
