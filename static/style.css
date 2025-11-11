@@ -1078,7 +1078,7 @@ legend i {
   color: #8c8c8c;
   transition: color 0.2s ease;
 }
-.textarea:hover::placeholder,
+
 .textarea:focus::placeholder,
 .textarea:active::placeholder {
   color: transparent;
@@ -1806,8 +1806,8 @@ legend i {
 
 input[type="text"]:focus::placeholder,
 input[type="password"]:focus::placeholder {
-    /* placeholder 색상을 투명하게 만들어 숨깁니다. */
-    color: transparent;
+  /* placeholder 색상을 투명하게 만들어 숨깁니다. */
+  color: transparent;
 }
 
 .signup-title {
@@ -2061,7 +2061,6 @@ textarea {
   font-size: 13px;
 }
 
-
 .primary-btn {
   background-color: #004d2c;
   color: white;
@@ -2098,7 +2097,6 @@ textarea {
   width: 210px; /* 모든 버튼의 가로 크기 통일 */
   text-align: center;
 }
-
 
 /***상품 리스트 페이지***/
 .search-bar {
@@ -2261,8 +2259,8 @@ textarea {
   pointer-events: none;
 }
 
-.welcome-message{
-  color:#fff;
+.welcome-message {
+  color: #fff;
 }
 
 ::placeholder {
