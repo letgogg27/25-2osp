@@ -1192,7 +1192,7 @@ legend i {
 
 /* 검색 버튼 */
 .review-page .search-btn {
-  width: 90px;
+  width: 90px;            
   height: 44px;
   border-radius: 6px;
   background: #000;
@@ -1206,6 +1206,7 @@ legend i {
 .review-page .search-btn:hover {
   background: #333;
 }
+
 
 /* 카드 리스트 (3×2) */
 .card-list {
@@ -1366,7 +1367,7 @@ legend i {
   padding: 6px 10px;
   border-radius: 6px;
   color: #00462a;
-  text-decoration: none;
+  text-decoration: none; 
   font-size: 14px;
   background: #fff;
 }
@@ -1394,6 +1395,26 @@ legend i {
   background: #00462a;
   color: white;
 }
+
+.page-list li.on a {/*현재페이지*/
+  color: #00462a;
+}
+
+.page-ctrl {
+  text-decoration: none; 
+  color: #00462a;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #fff;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.page-ctrl:hover {
+  background: #00462a;
+  color: white;
+}
+
+
 
 /**** Review Detail page CSS****/
 .review-detail body {
@@ -2263,8 +2284,8 @@ textarea {
   color: #fff;
 }
 
-::placeholder {
+/*::placeholder {
   font-family: "Noto Sans KR", sans-serif;
   color: #aaa;
   opacity: 1;
-}
+}*/
