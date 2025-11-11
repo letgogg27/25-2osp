@@ -46,32 +46,27 @@ def home():
 
 @app.route("/list", strict_slashes=False)
 def view_list():
-    page = request.args.get("page",0,type=int)
-    per_page = 12  # 한 페이지당 아이템 수
-    per_row = 6   # 한 행당 아이템 수
-    row_count = int(per_page / per_row)
-    start_idx=per_page*page
-    end_idx=per_page*(page+1)
-    data = DB.get_items() or {}  # DB에서 아이템 읽기
-    item_counts = len(data)
-    data=dict(list(data.items())[start_idx:end_idx])
-    tot_count = len(data)
+    page = request.args.get("page", 1,type=int)
 
-    # 행별 데이터 분리
-    for i in range(row_count):
-        if (i == row_count - 1) and (tot_count % per_row != 0):
-            locals()['data_{}'.format(i)] = dict(list(data.items())[i * per_row:])
-        else:
-            locals()['data_{}'.format(i)] = dict(list(data.items())[i * per_row:(i + 1) * per_row])
+    per_page = 18  # 한 페이지당 아이템 수
+    start_idx = (page - 1) * per_page
+    end_idx   = start_idx + per_page
+
+    data = DB.get_items() or {}  # DB에서 아이템 읽기
+    items = list(data.items())   # dict -> 리스트로 변환 (순회/슬라이스 용)
+
+    item_counts = len(items)     # 전체 상품 개수
+    page_items  = items[start_idx:end_idx]  # 현재 페이지에 보여줄 상품들
+
+    # 전체 페이지 수 (올림)
+    page_count = (item_counts + per_page - 1) // per_page
 
     return render_template(
         "list.html",
-        datas=data.items(),
-        row1=locals()['data_0'].items(),
-        row2=locals()['data_1'].items(),
+        datas=page_items,       # 템플릿에서 for key,value in datas
         limit=per_page,
         page=page,
-        page_count=int((item_counts/per_page)+1),
+        page_count=page_count,
         total=item_counts
     )
 
@@ -81,10 +76,16 @@ def review():
 
 @app.route("/register_items", methods=['GET','POST'], strict_slashes=False)
 def register_items():
+    if 'id' not in session:
+        flash("로그인을 해주세요!")
+        return redirect(url_for('login'))
     return render_template('reg_items.html')
 
 @app.route("/register_reviews", methods=['GET','POST'], strict_slashes=False)
 def register_reviews():
+    if 'id' not in session:
+        flash("로그인을 해주세요!")
+        return redirect(url_for('login'))
     return render_template('reg_reviews.html')
 
 @app.route("/login")
