@@ -55,7 +55,11 @@
 
   <div class="item-grid">
     {% for key, value in row1 %}
-    <div class="item-card" onclick="location.href='/view_detail/{{ key }}/';" style="cursor:pointer;">
+    <div
+  class="item-card"
+  onclick="location.href='{{ url_for('view_item_detail', name=key) }}';"
+  style="cursor:pointer;"
+>
       <img src="static/images/{{value.img_path}}" />
       <div class="item-info">
         <h3>{{ key }}</h3>
@@ -67,7 +71,11 @@
     {% endfor %}
 
     {% for key, value in row2 %}
-    <div class="item-card" onclick="location.href='/view_detail/{{ key }}/';" style="cursor:pointer;">
+    <div
+  class="item-card"
+  onclick="location.href='{{ url_for('view_item_detail', name=key) }}';"
+  style="cursor:pointer;"
+>
       <img src="static/images/{{value.img_path}}" />
       <div class="item-info">
         <h3>{{ key }}</h3>
