@@ -132,9 +132,6 @@ def reg_item_submit_post():
 @app.route("/item_detail", strict_slashes=False)
 def item_detail():
     return render_template("item_detail.html")
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
     
 @app.route("/dynamicurl/<varible_name>/")
 def DynamicUrl(varible_name):
@@ -147,3 +144,6 @@ def view_item_detail(name):
     print("####data:",data)
     return render_template("item_detail.html", name=name, data=data)
 
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
+    
