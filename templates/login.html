@@ -1,121 +1,233 @@
-﻿{% extends "index.html" %}
+{% extends "index.html" %}
 {% block content %}
 
-{% with mesg = get_flashed_messages() %}
-{% if mesg !=[] %}
-    <script> alert("{{ mesg[0] }}")</script>
+<link rel="stylesheet" href="../static/style.css">
+
+{% with mesg= get_flashed_messages() %}
+{% if mesg!=[] %}
+  <script>alert("{{ mesg[0] }}")</script>
 {% endif %}
-{% endwith %} 
+{% endwith%}
 
 <div class="centered-content-wrapper">
-    <div class="container login-container">
-        <h2 class="login-title">로그인</h2>
+  <div class="container signup-container">
+    <h2 class="signup-title">회원가입</h2>
 
-        <form method="post" action="/login_confirm" class="login-form">
-            <div class="form-group">
-                <label for="id">아이디 입력</label>
-                <input type="text" id="id" name="id" placeholder="아이디를 입력해주세요" required>
-            </div>
-
-            <div class="form-group">
-                <label for="pw">비밀번호 입력</label>
-                <input type="password" id="pw" name="pw" placeholder="비밀번호를 입력해주세요" required>
-            </div>
-
-            <div class="form-options">
-                <label>
-                    <input type="checkbox" name="remember"> 아이디/비밀번호 기억하기
-                </label>
-            </div>
-
-            <button type="submit" class="login-btn">로그인</button>
-        </form>
-
-        <div class="login-footer">
-            <p>Ewha Market이 처음이라면? <a href="{{url_for('signup')}}">회원가입</a></p>
-            <p><a href="#">아이디 혹은 비밀번호를 잊으셨나요?</a></p>
+    <form id="signupForm" class="signup-form" method="post" action="/signup_post" novalidate>
+      <!-- 아이디 -->
+      <div class="form-group compact">
+        <label for="userID">아이디 <span class="required">(필수)</span></label>
+        <div class="fieldControlIcon">
+          <input id="userID" name="userID" type="text" autocomplete="username"
+          placeholder="영문 및 숫자 혼용, 최소 5자" required/>
+          <span class="icon icon-check" id="userIcon" aria-hidden="true">
+            <i class="fa-solid fa-check"></i>
+          </span>
         </div>
+      </div>
+
+      <!-- 비밀번호 -->
+      <div class="form-group compact">
+        <label for="password">비밀번호 <span class="required">(필수)</span></label>
+        <div class="fieldControlIcon password">
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            placeholder="8~16자의 영문, 숫자, 특수기호"
+            aria-describedby="pwHelp"
+            required/>
+        </div>
+      </div>
+
+      <!-- 비밀번호 확인 -->
+      <div class="form-group compact">
+        <label for="passwordConfirm" class="fieldLabel">비밀번호 확인<span class="required">(필수)</span></label>
+        <div class="fieldControlIcon passwordcheck">
+          <input
+            id="passwordConfirm"
+            name="passwordConfirm"
+            type="password"
+            autocomplete="new-password"
+            placeholder="비밀번호를 다시 입력하세요"
+            aria-describedby="pwConfirmHelp"
+            required
+          />
+          <span class="icon icon-check" id="pwConfirmIcon" aria-hidden="true">
+            <i class="fa-solid fa-check"></i>
+          </span>
+        </div>
+      </div>
+
+      <!-- 이메일 -->
+      <div class="form-group">
+        <label for="email">이메일 <span class="required">(필수)</span></label>
+        <div class="email-row">
+          <div class="fieldControlIcon email">
+            <input
+              id="email"
+              name="email"
+              type="text"
+              autocomplete="email"
+              placeholder=""
+              aria-describedby="emailHelp"
+              required
+            />
+            <select id="emailDomain" name="emailDomain" class="email-domain" aria-label="이메일 도메인 선택">
+              <option value="ewha.ac.kr">@ewha.ac.kr</option>
+              <option value="ewhain.net">@ewhain.net</option>
+            </select>
+            <span class="icon" id="emailFormatIcon" title="형식 확인" aria-hidden="true"></span>
+            <span class="icon second" id="emailVerifiedIcon" title="인증 확인" aria-hidden="true"></span>
+          </div>
+        </div>
+        <p id="emailHelp" class="help" aria-live="polite"></p>
+      </div>
+
+      <!-- 전화번호 (선택) -->
+      <div class="form-group">
+        <label>전화번호 <span class="optional">(선택)</span></label>
+        <div class="phonenumber-row">
+          <input
+            type="text"
+            id="tel1"
+            name="tel1"
+            inputmode="numeric"
+            maxlength="3"
+            placeholder="010"
+          />
+          <span class="dash">-</span>
+          <input
+            type="text"
+            id="tel2"
+            name="tel2"
+            inputmode="numeric"
+            maxlength="4"
+          />
+          <span class="dash">-</span>
+          <input
+            type="text"
+            id="tel3"
+            name="tel3"
+            inputmode="numeric"
+            maxlength="4"
+          />
+        </div>
+      </div>
+
+      <!-- 약관 동의 -->
+      <fieldset class="agreements">
+        <legend class="agree">약관 동의</legend>
+
+        <label class="check">
+          <input type="checkbox" id="agreeAll" />
+          <span class="checkui"></span>
+          전체약관 동의
+        </label>
+
+        <label class="check indent">
+          <input type="checkbox" id="agreePrivacy" name="agreePrivacy" required />
+          <span class="checkui"></span>
+          (필수) 개인정보 수집 및 이용 동의
+        </label>
+
+        <label class="check indent">
+          <input type="checkbox" id="agreeMarketing" name="agreeMarketing" />
+          <span class="checkui"></span>
+          (선택) 마케팅 정보 수신 동의
+        </label>
+      </fieldset>
+
+      <!-- 제출 -->
+      <button type="submit" id="submitBtn" class="btn primary" disabled>회원 가입</button>
+    </form>
+
+    <div class="signup-footer">
+      <p>이미 계정이 있나요? <a href="{{ url_for('login') }}">로그인</a></p>
     </div>
+  </div>
 </div>
 
-<style>
-    .login-container {
-        max-width: 420px;
-        background: #fff;
-        border: none;
-        border-radius: 10px;
-        padding: 40px;
-        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // ===== 입력 & 아이콘 =====
+    const userIDInput   = document.getElementById("userID");
+    const userIcon      = document.getElementById("userIcon");
+
+    const pwInput       = document.getElementById("password");
+    const pwConfirm     = document.getElementById("passwordConfirm");
+    const pwConfirmIcon = document.getElementById("pwConfirmIcon");
+
+    // ===== 약관 체크박스 =====
+    const agreeAll       = document.getElementById("agreeAll");
+    const agreePrivacy   = document.getElementById("agreePrivacy");   // (필수)
+    const agreeMarketing = document.getElementById("agreeMarketing"); // (선택)
+
+    // ===== 제출 버튼 =====
+    const submitBtn = document.getElementById("submitBtn");
+
+    // 아이디 유효성: 영문 + 숫자 포함, 5자 이상
+    const idRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{5,}$/;
+
+    // 아이디 아이콘 색 업데이트
+    function updateUserIcon() {
+      const valid = idRegex.test(userIDInput.value);
+      userIcon.classList.toggle("valid", valid);
+      updateSubmitState();
     }
 
-    .login-title {
-        text-align: center;
-        margin-bottom: 30px;
-        font-size: 22px;
-        font-weight: 700;
-        color: #00462a;
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 10px;
+    // 비밀번호 확인 아이콘 색 업데이트
+    function updatePwConfirmIcon() {
+      const valid =
+        pwConfirm.value.length > 0 && pwConfirm.value === pwInput.value;
+      pwConfirmIcon.classList.toggle("valid", valid);
+      updateSubmitState();
     }
 
-    .form-group {
-        margin-bottom: 20px;
+    // 전체 동의 체크 시: 나머지 둘 상태 동기화
+    function handleAgreeAllChange() {
+      const checked = agreeAll.checked;
+      agreePrivacy.checked   = checked;
+      agreeMarketing.checked = checked;
+      updateSubmitState();
     }
 
-        .form-group label {
-            font-weight: 600;
-            margin-bottom: 6px;
-            display: block;
-        }
-
-    input[type="text"], input[type="password"] {
-        width: 100%;
-        padding: 10px;
-        border: 1px solid #ccc;
-        border-radius: 6px;
-        background-color: #f7f7f7;
-        font-size: 14px;
+    // 개별 체크박스 바뀔 때 전체 동의 상태 맞추기
+    function handleIndividualAgreeChange() {
+      // 두 개 다 체크되면 전체 동의 자동 체크, 아니면 해제
+      if (agreePrivacy.checked && agreeMarketing.checked) {
+        agreeAll.checked = true;
+      } else {
+        agreeAll.checked = false;
+      }
+      updateSubmitState();
     }
 
-        input[type="text"]:focus, input[type="password"]:focus {
-            border-color: #36ae92;
-            background-color: #fff;
-            outline: none;
-        }
+    // 제출 버튼 활성/비활성 조건
+    function updateSubmitState() {
+      const idValid   = idRegex.test(userIDInput.value);
+      const pwValid   = pwConfirm.value.length > 0 && pwConfirm.value === pwInput.value;
+      const requiredOk = agreePrivacy.checked;  // 필수 약관 동의
 
-    .login-btn {
-        width: 100%;
-        background-color: #00462a;
-        color: #fff;
-        border: none;
-        border-radius: 6px;
-        padding: 12px;
-        font-size: 16px;
-        font-weight: bold;
-        margin-top: 10px;
-        cursor: pointer;
+      // 세 조건 모두 만족해야 버튼 활성
+      submitBtn.disabled = !(idValid && pwValid && requiredOk);
     }
 
-        .login-btn:hover {
-            background-color: #03603a;
-        }
+    // ===== 이벤트 바인딩 =====
+    userIDInput.addEventListener("input", updateUserIcon);
+    pwInput.addEventListener("input", updatePwConfirmIcon);
+    pwConfirm.addEventListener("input", updatePwConfirmIcon);
 
-    .login-footer {
-        text-align: center;
-        margin-top: 25px;
-        font-size: 14px;
-    }
+    agreeAll.addEventListener("change", handleAgreeAllChange);
+    agreePrivacy.addEventListener("change", handleIndividualAgreeChange);
+    agreeMarketing.addEventListener("change", handleIndividualAgreeChange);
 
-        .login-footer a {
-            color: #00462a;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-            .login-footer a:hover {
-                text-decoration: underline;
-            }
-</style>
+    // 페이지 로드 시 초기 상태 한 번 반영
+    updateUserIcon();
+    updatePwConfirmIcon();
+    updateSubmitState();
+  });
+</script>
 
 {% endblock %}
-
