@@ -106,5 +106,11 @@ class DBhandler:
         for res in items.each():
             key_value = res.key()
             if key_value == name:
+<<<<<<< HEAD
                 target_value=res.val()
         return target_value
+=======
+               target_value=res.val()
+
+        return target_value
+>>>>>>> 1b7d18dadab195d52d3a3c13ba1c27bc2e421d74
