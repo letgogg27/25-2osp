@@ -31,38 +31,9 @@
   height: 160px;    
   object-fit: cover;  
 }
-
-  .page-nation ul{
-    display:flex;
-  }
-  .page-nation li{
-  list-style: none;
-}
-.page-wrap{
-  text-align: center;
-  font-size: 0;
-  margin-bottom: 100px;
-}
-.page-nation{
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
-}
-.page-nation a{
-  display: block;
-  margin: 0 3px;
-  float: left;
-  border: 1px solid #e6e6e6;
-  width: 28px;
-  height: 28px;
-  line-height: 28px;
-  text-align: center;
-  background-color: #fff;
-  font-size: 13px;
-  color: black;
-  text-decoration: none;
-  font-weight:bold;
+.pager {
+    margin-top: 24px;
+    margin-bottom: 80px;
 }
 </style>
 
@@ -100,17 +71,32 @@
   </div>
 </div>
 
-  <div class="page-wrap">
-    <div class="page-nation">
-      <ul>
-        {% for i in range(page_count) %}
-          <li><a href="{{ url_for('view_list', page=i) }}">{{ i }}</a></li>
-        {% endfor %}
-      </ul>
-    </div>
+<div class="pager">
+    {# 이전 버튼 #}
+    {% if page > 1 %}
+      <a href="{{ url_for('view_list', page=page-1) }}" class="page-ctrl" aria-label="이전">&laquo;</a>
+    {% else %}
+      <span class="page-ctrl" aria-label="이전">&laquo;</span>
+    {% endif %}
+
+    <ol class="page-list">
+      {% for i in range(1, page_count + 1) %}
+        <li class="{% if i == page %}on{% endif %}">
+          <a href="{{ url_for('view_list', page=i) }}">{{ i }}</a>
+        </li>
+      {% endfor %}
+    </ol>
+
+    {# 다음 버튼 #}
+    {% if page < page_count %}
+      <a href="{{ url_for('view_list', page=page+1) }}" class="page-ctrl" aria-label="다음">&raquo;</a>
+    {% else %}
+      <span class="page-ctrl" aria-label="다음">&raquo;</span>
+    {% endif %}
   </div>
 
 {% else %}
   <p>등록된 상품이 없습니다.</p>
 {% endif %}
+
 {% endblock %}

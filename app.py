@@ -49,17 +49,22 @@ def view_list():
     page = request.args.get("page", 1,type=int)
 
     per_page = 18  # 한 페이지당 아이템 수
-    start_idx = (page - 1) * per_page
-    end_idx   = start_idx + per_page
 
     data = DB.get_items() or {}  # DB에서 아이템 읽기
     items = list(data.items())   # dict -> 리스트로 변환 (순회/슬라이스 용)
-
     item_counts = len(items)     # 전체 상품 개수
-    page_items  = items[start_idx:end_idx]  # 현재 페이지에 보여줄 상품들
 
     # 전체 페이지 수 (올림)
     page_count = (item_counts + per_page - 1) // per_page
+
+    if page < 1:
+        page = 1
+    if page > page_count:
+        page = page_count
+
+    start_idx = (page - 1) * per_page
+    end_idx   = start_idx + per_page
+    page_items = items[start_idx:end_idx]
 
     return render_template(
         "list.html",
@@ -70,9 +75,15 @@ def view_list():
         total=item_counts
     )
 
-@app.route("/review", methods=['GET','POST'], strict_slashes=False)
+@app.route("/review", methods=['GET'], strict_slashes=False)
 def review():
-    return render_template("review.html")
+    page = request.args.get("page", 1, type=int)
+    page_count = 1 
+    return render_template(
+        "review.html",
+        page=page,
+        page_count=page_count
+    )
 
 @app.route("/register_items", methods=['GET','POST'], strict_slashes=False)
 def register_items():
