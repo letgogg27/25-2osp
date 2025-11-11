@@ -48,7 +48,7 @@ def home():
 def view_list():
     page = request.args.get("page", 1,type=int)
 
-    per_page = 18  # 한 페이지당 아이템 수
+    per_page = 15  # 한 페이지당 아이템 수
 
     data = DB.get_items() or {}  # DB에서 아이템 읽기
     items = list(data.items())   # dict -> 리스트로 변환 (순회/슬라이스 용)
