@@ -65,11 +65,20 @@
         <p>{{ value.price }}원</p>
         <p>{{ value.addr }}</p>
       </div>
-      <span class="like-btn">♡</span>
+      {# 찜 상태 표시: 로그인했고 내 찜에 있으면 ♥, 아니면 ♡ #}
+      {% set liked = (my_wishlist_ids and p.id in my_wishlist_ids) %}
+      <button 
+        class="like-btn {% if liked %}liked{% endif %}" 
+        data-pid="{{ p.id }}" 
+        aria-label="찜하기" 
+        type="button">
+        {% if liked %}♥{% else %}♡{% endif %}
+      </button>
     </div>
     {% endfor %}
   </div>
 </div>
+
 
 <div class="pager">
     {# 이전 버튼 #}
@@ -94,6 +103,39 @@
       <span class="page-ctrl" aria-label="다음">&raquo;</span>
     {% endif %}
   </div>
+
+<!--추가!-->
+<script>
+  // 하트 버튼 토글
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.like-btn');
+    if (!btn) return;
+
+    const pid = btn.dataset.pid;
+
+    try {
+      const res = await fetch(`/toggle_wishlist/${pid}`, { method: 'POST' });
+      if (res.status === 401) {
+        alert('로그인 해주세요.');
+        window.location.href = "{{ url_for('login') }}";
+        return;
+      }
+      const data = await res.json();
+      if (!data.ok) throw new Error(data.error || '에러');
+
+      if (data.in_wishlist) {
+        btn.classList.add('liked');
+        btn.textContent = '♥';
+      } else {
+        btn.classList.remove('liked');
+        btn.textContent = '♡';
+      }
+    } catch (err) {
+      console.error(err);
+      alert('오류가 발생했습니다.');
+    }
+  });
+</script>
 
 {% else %}
   <p>등록된 상품이 없습니다.</p>
