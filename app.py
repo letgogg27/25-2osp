@@ -177,7 +177,6 @@ def reg_item_submit_post():
 
 
     
-# 찜목록 
 @app.route("/wishlist")
 def wishlist():
     user_id = current_user_id()
@@ -185,26 +184,22 @@ def wishlist():
         flash("로그인 해주세요.")
         return redirect(url_for("login"))
 
-    wishlist_ids = set(DB.get_wishlist_ids(user_id))
-    wishlist_products = [p for p in PRODUCTS if p["id"] in wishlist_ids]
+    # heart/{user_id}/{itemName} = {"interested": "Y"}
+    heart_data = DB.db.child("heart").child(user_id).get().val()
 
-    page_size = 15  # 5x3
-    total = len(wishlist_products)
-    total_pages = (total + page_size - 1) // page_size
+    if not heart_data:
+        items = []
+    else:
+        liked_items = [name for name, val in heart_data.items()
+                       if val.get("interested") == "Y"]
 
-    page = int(request.args.get("page", 1))
-    if page > total_pages and total_pages != 0:
-        page = total_pages
+        all_items = DB.get_items() or {}
 
-    start = (page - 1) * page_size
-    end = start + page_size
+        items = [(k, all_items[k]) for k in liked_items if k in all_items]
 
     return render_template(
         "wishlist.html",
-        products=wishlist_products[start:end],
-        total=total,
-        page=page,
-        total_pages=total_pages
+        datas=items
     )
 
 @app.route('/show_heart/<name>/', methods=['GET'])
@@ -214,11 +209,11 @@ def show_heart(name):
 @app.route('/like/<name>/', methods=['POST'])
 def like(name):
      my_heart = DB.update_heart(session['id'],'Y',name)
-     return jsonify({'msg': '좋아요 완료!'})
+     return jsonify({'msg': '좋아요 추가 완료!'})
 @app.route('/unlike/<name>/', methods=['POST'])
 def unlike(name):
      my_heart = DB.update_heart(session['id'],'N',name)
-     return jsonify({'msg': '안좋아요 완료!'})
+     return jsonify({'msg': '좋아요 취소 완료!'})
      
 # just to check item_detait.html page
 
