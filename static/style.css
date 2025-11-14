@@ -2289,3 +2289,11 @@ textarea {
   color: #aaa;
   opacity: 1;
 }*/
+
+.fa-heart {
+  font-size: 22px;
+  color: grey;
+}
+.fa-heart.red {
+  color: red;
+}
