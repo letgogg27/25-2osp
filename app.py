@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonfy
+from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify
 import hashlib
 from database import DBhandler
 import sys
