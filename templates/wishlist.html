@@ -1,74 +1,67 @@
 {% extends "index.html" %}
-{% block title %}찜목록{% endblock %}
+{% block title %}찜 목록{% endblock %}
+
 {% block content %}
 
-<h2 class="page-title">내 찜목록</h2>
+<h2 class="page-title">내 찜 목록</h2>
 
-{% if total > 0 %}
-  <div class="item-grid">
+{% if products|length == 0 %}
+    <p style="text-align:center; margin-top:40px;">찜한 상품이 없습니다.</p>
+{% else %}
+
+<div class="item-grid">
+
     {% for p in products %}
     <div class="item-card">
-      <a href="{{ url_for('item_detail') }}">
-        <img src="{{ url_for('static', filename='images/icons/' + p.img) }}" alt="{{ p.name }}" onerror="this.src='/static/images/placeholder.png'"/>
-      </a>
-      <div class="item-info">
-        <h3><a href="{{ url_for('item_detail') }}">{{ p.name }}</a></h3>
-        <p>{{ "{:,}".format(p.price) }}원</p>
-        <p>{{ p.location }}</p>
-      </div>
-      <button class="like-btn liked" data-pid="{{ p.id }}" type="button">♥</button>
+        
+        <!-- 상품 상세 이동 -->
+        <a href="{{ url_for('item_detail', item_id=p.id) }}">
+            <img 
+                src="{{ url_for('static', filename='images/icons/' + p.img) }}"
+                alt="{{ p.name }}"
+            />
+            <div class="item-info">
+                <h3>{{ p.name }}</h3>
+                <p>{{ "{:,}".format(p.price) }}원</p>
+                <p>{{ p.location }}</p>
+            </div>
+        </a>
+
+        <!-- 찜 취소(좋아요 취소) 버튼 -->
+        <span 
+            class="like-btn"
+            style="color:red;"
+            onclick="unlike({{ p.id }})"
+        >
+            ♥
+        </span>
+
     </div>
     {% endfor %}
-  </div>
 
-  <div class="pagination">
-    {% if page > 1 %}
-      <a href="{{ url_for('wishlist') }}?page=1" class="page-ctrl">«</a>
-    {% else %}
-      <span class="page-ctrl disabled">«</span>
-    {% endif %}
+</div>
 
-    {% for i in range(1, total_pages+1) %}
-      {% if i == page %}
-        <span class="page active">{{ i }}</span>
-      {% else %}
-        <a href="{{ url_for('wishlist') }}?page={{ i }}" class="page">{{ i }}</a>
-      {% endif %}
-    {% endfor %}
-
-    {% if page < total_pages %}
-      <a href="{{ url_for('wishlist') }}?page={{ total_pages }}" class="page-ctrl">»</a>
-    {% else %}
-      <span class="page-ctrl disabled">»</span>
-    {% endif %}
-  </div>
-
-{% else %}
-  <p class="empty-msg">아직 찜한 상품이 없습니다.</p>
 {% endif %}
 
-<script>
-  // 찜목록 페이지에서도 하트 누르면 제거하고 카드 삭제
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.like-btn');
-    if (!btn) return;
-    const pid = btn.dataset.pid;
 
-    try {
-      const res = await fetch(`/toggle_wishlist/${pid}`, { method: 'POST' });
-      if (res.status === 401) {
-        alert('로그인 해주세요.');
-        window.location.href = "{{ url_for('login') }}";
-        return;
-      }
-      const data = await res.json();
-      if (data.ok && !data.in_wishlist) {
-        btn.closest('.item-card').remove();
-      }
-    } catch (err) {
-      console.error(err);
-      alert('오류가 발생했습니다.');
-    }
-  });
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+
+<script>
+/* 찜 취소 (교수님 방식) */
+function unlike(pid) {
+    $.ajax({
+        url: "/unlike/" + pid,
+        type: "POST",
+        success: function(res) {
+            // 취소한 후 페이지 새로고침
+            location.reload();
+        },
+        error: function() {
+            alert("오류가 발생했습니다.");
+        }
+    });
+}
 </script>
+
 {% endblock %}
