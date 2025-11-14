@@ -5,34 +5,30 @@
 
 <h2 class="page-title">내 찜 목록</h2>
 
-{% if products|length == 0 %}
+{% if datas|length == 0 %}
     <p style="text-align:center; margin-top:40px;">찜한 상품이 없습니다.</p>
 {% else %}
 
 <div class="item-grid">
 
-    {% for p in products %}
+    {% for key, value in datas %}
     <div class="item-card">
-        
-        <!-- 상품 상세 이동 -->
-        <a href="{{ url_for('item_detail', item_id=p.id) }}">
-            <img 
-                src="{{ url_for('static', filename='images/icons/' + p.img) }}"
-                alt="{{ p.name }}"
-            />
+
+        <!-- 상품 상세보기 -->
+        <a href="{{ url_for('view_item_detail', name=key) }}">
+            <img src="/static/images/{{ value.img_path }}" />
             <div class="item-info">
-                <h3>{{ p.name }}</h3>
-                <p>{{ "{:,}".format(p.price) }}원</p>
-                <p>{{ p.location }}</p>
+                <h3>{{ key }}</h3>
+                <p>{{ value.price }}원</p>
+                <p>{{ value.addr }}</p>
             </div>
         </a>
 
-        <!-- 찜 취소(좋아요 취소) 버튼 -->
-        <span 
-            class="like-btn"
+        <!-- 찜 취소 -->
+        <span
+            class="heart-icon"
             style="color:red;"
-            onclick="unlike({{ p.id }})"
-        >
+            onclick="unlike('{{ key }}')">
             ♥
         </span>
 
@@ -43,22 +39,15 @@
 
 {% endif %}
 
-
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 
 <script>
-/* 찜 취소 (교수님 방식) */
 function unlike(pid) {
     $.ajax({
-        url: "/unlike/" + pid,
         type: "POST",
-        success: function(res) {
-            // 취소한 후 페이지 새로고침
+        url: "/unlike/" + pid + "/",
+        success: function(res){
             location.reload();
-        },
-        error: function() {
-            alert("오류가 발생했습니다.");
         }
     });
 }
