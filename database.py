@@ -103,15 +103,16 @@ class DBhandler:
                 target_value=res.val()
         return target_value
 
-# 추가! 특정 유저의 특정 상품 하트 상태 가져오기
+# 특정 유저의 특정 상품 하트 상태 가져오기
     # heart/{user_id}/{item} = {"interested": "Y" or "N"}
     def get_heart_byname(self, uid, name):
         snap = self.db.child("heart").child(uid).child(name).get()
         val = snap.val()
 
         if not val:
-            return ""
-        return val.get("interested", "")
+            return {"interested": "N"}
+
+        return val
 
     # 하트 업데이트 (Y or N)
     def update_heart(self, user_id, isHeart, item):
@@ -120,13 +121,12 @@ class DBhandler:
         }
         self.db.child("heart").child(user_id).child(item).set(heart_info)
         return True
-        
+
     # 찜목록 기능
-
-
     def add_wishlist(self, user_id: str, product_key: str):
         self.db.child("wishlist").child(user_id).child(product_key).set(True)
         return True
+
 
     def remove_wishlist(self, user_id: str, product_key: str):
         self.db.child("wishlist").child(user_id).child(product_key).remove()
