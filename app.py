@@ -4,6 +4,7 @@ from database import DBhandler
 import sys
 
 from flask import abort
+from flask import jsonify #추가
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key="some-secret"
@@ -31,12 +32,22 @@ def render_list():
     start = (page - 1) * PAGE_SIZE
     end   = start + PAGE_SIZE
     total_pages = (len(PRODUCTS) + PAGE_SIZE - 1) // PAGE_SIZE
+
+    #추가
+    user_id = current_user_id()
+    my_wishlist_ids = DB.get_wishlist_ids(user_id) if user_id else []
+
     return render_template(
         "list.html",
         products=PRODUCTS[start:end],
         page=page,
-        total_pages=total_pages
+        total_pages=total_pages,
+        my_wishlist_ids=my_wishlist_ids #추가
     )
+    
+def current_user_id():
+    return session.get('id')  # 로그인 시 세션에 넣는 값 그대로 (추가)
+
 
 # 홈 = 리스트
 @app.route("/", strict_slashes=False)
@@ -163,6 +174,52 @@ def reg_item_submit_post():
     data = request.form
     DB.insert_item(data['name'], data, image_file.filename)
     return render_template('submit_item_result.html', data = data, img_path = "static/images/{}".format(image_file.filename))
+
+#추가 하트 토글
+@app.route("/toggle_wishlist/<int:product_id>", methods=["POST"])
+def toggle_wishlist(product_id):
+    user_id = session.get('id')  # 로그인한 사람의 id
+    if not user_id:
+        return jsonify({"ok": False, "error": "login_required"}), 401
+
+    in_now = DB.is_in_wishlist(user_id, product_id)
+    if in_now:
+        DB.remove_wishlist(user_id, product_id)
+        return jsonify({"ok": True, "in_wishlist": False})
+    else:
+        DB.add_wishlist(user_id, product_id)
+        return jsonify({"ok": True, "in_wishlist": True})
+    
+# 찜목록 
+@app.route("/wishlist")
+def wishlist():
+    user_id = current_user_id()
+    if not user_id:
+        flash("로그인 해주세요.")
+        return redirect(url_for("login"))
+
+    wishlist_ids = set(DB.get_wishlist_ids(user_id))
+    wishlist_products = [p for p in PRODUCTS if p["id"] in wishlist_ids]
+
+    page_size = 15  # 5x3
+    total = len(wishlist_products)
+    total_pages = (total + page_size - 1) // page_size
+
+    page = int(request.args.get("page", 1))
+    if page > total_pages and total_pages != 0:
+        page = total_pages
+
+    start = (page - 1) * page_size
+    end = start + page_size
+
+    return render_template(
+        "wishlist.html",
+        products=wishlist_products[start:end],
+        total=total,
+        page=page,
+        total_pages=total_pages
+    )
+
 
 # just to check item_detait.html page
 
