@@ -207,8 +207,8 @@ def wishlist():
         total_pages=total_pages
     )
 
- @app.route('/show_heart/<name>/', methods=['GET'])
- def show_heart(name):
+@app.route('/show_heart/<name>/', methods=['GET'])
+def show_heart(name):
      my_heart = DB.get_heart_byname(session['id'],name)
      return jsonify({'my_heart': my_heart})
 @app.route('/like/<name>/', methods=['POST'])
