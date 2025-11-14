@@ -102,3 +102,61 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+
+    # ---사용자별 찜 추가
+    def add_wishlist(self, user_id: str, product_id: int):
+        # wishlist/{user_id}/{product_id} = true
+        self.db.child("wishlist").child(user_id).child(str(product_id)).set(True)
+        return True
+
+    # 사용자별 찜 제거
+    def remove_wishlist(self, user_id: str, product_id: int):
+        # wishlist/{user_id}/{product_id} 삭제
+        self.db.child("wishlist").child(user_id).child(str(product_id)).remove()
+        return True
+
+    # 사용자의 찜 ID 리스트 가져오기
+    def get_wishlist_ids(self, user_id: str):
+        snap = self.db.child("wishlist").child(user_id).get()
+        val = snap.val()
+
+        if not val:
+            return []
+
+    # case1: 딕셔너리 형태 (정상)
+        if isinstance(val, dict):
+            return [int(k) for k in val.keys()]
+
+    # case2: 리스트 형태 (이전 데이터가 push로 들어간 경우)
+        if isinstance(val, list):
+        # 리스트 길이만큼 인덱스를 id로 쓸 수 있지만, 여기선 임시로 무시
+        # 또는 True값만 count하는 용도로
+            return [i for i, v in enumerate(val) if v]
+
+    # 혹시 모르는 다른 타입 방어
+        return []
+
+
+    # 특정 상품이 찜 상태인지
+    def is_in_wishlist(self, user_id: str, product_id: int) -> bool:
+        val = self.db.child("wishlist").child(user_id).child(str(product_id)).get().val()
+        return bool(val)
+
+
+    def find_user(self, id_string, pw_hash):
+        users = self.db.child("user").get() # 'user' 노드의 모든 데이터 가져오기 [cite: 85]
+        
+        # 데이터가 없을 경우
+        if users.val() is None:
+            return False
+
+        # 모든 사용자 데이터를 반복하여 확인
+        for res in users.each():
+            value = res.val()
+            
+            # ID와 비밀번호 해시값이 모두 일치하는지 확인
+            if value['id'] == id_string and value['pw'] == pw_hash:
+                return True # 일치하는 사용자를 찾음
+        
+        return False # 일치하는 사용자를 찾지 못함
+
