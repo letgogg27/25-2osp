@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, session
+from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonfy
 import hashlib
 from database import DBhandler
 import sys
@@ -175,20 +175,7 @@ def reg_item_submit_post():
     DB.insert_item(data['name'], data, image_file.filename)
     return render_template('submit_item_result.html', data = data, img_path = "static/images/{}".format(image_file.filename))
 
-#추가 하트 토글
-@app.route("/toggle_wishlist/<int:product_id>", methods=["POST"])
-def toggle_wishlist(product_id):
-    user_id = session.get('id')  # 로그인한 사람의 id
-    if not user_id:
-        return jsonify({"ok": False, "error": "login_required"}), 401
 
-    in_now = DB.is_in_wishlist(user_id, product_id)
-    if in_now:
-        DB.remove_wishlist(user_id, product_id)
-        return jsonify({"ok": True, "in_wishlist": False})
-    else:
-        DB.add_wishlist(user_id, product_id)
-        return jsonify({"ok": True, "in_wishlist": True})
     
 # 찜목록 
 @app.route("/wishlist")
@@ -220,7 +207,19 @@ def wishlist():
         total_pages=total_pages
     )
 
-
+ @application.route('/show_heart/<name>/', methods=['GET'])
+ def show_heart(name):
+     my_heart = DB.get_heart_byname(session['id'],name)
+     return jsonify({'my_heart': my_heart})
+@application.route('/like/<name>/', methods=['POST'])
+def like(name):
+     my_heart = DB.update_heart(session['id'],'Y',name)
+     return jsonify({'msg': '좋아요 완료!'})
+@application.route('/unlike/<name>/', methods=['POST'])
+def unlike(name):
+     my_heart = DB.update_heart(session['id'],'N',name)
+     return jsonify({'msg': '안좋아요 완료!'})
+     
 # just to check item_detait.html page
 
 @app.route("/item_detail", strict_slashes=False)
