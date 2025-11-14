@@ -35,6 +35,13 @@
     margin-top: 24px;
     margin-bottom: 80px;
 }
+.heart-icon {
+  font-size: 20px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 12px;
+}
 </style>
 
 <div class="search-bar">
@@ -65,15 +72,11 @@
         <p>{{ value.price }}원</p>
         <p>{{ value.addr }}</p>
       </div>
-      {# 찜 상태 표시: 로그인했고 내 찜에 있으면 ♥, 아니면 ♡ #}
-      {% set liked = (my_wishlist_ids and p.id in my_wishlist_ids) %}
-      <button 
-        class="like-btn {% if liked %}liked{% endif %}" 
-        data-pid="{{ p.id }}" 
-        aria-label="찜하기" 
-        type="button">
-        {% if liked %}♥{% else %}♡{% endif %}
-      </button>
+      <!-- 추가 -->
+      <i class="fa-heart heart-icon" 
+        id="heart-{{ key.id }}" 
+        onclick="onHeartClick({{ key }})">
+      </i>
     </div>
     {% endfor %}
   </div>
@@ -104,41 +107,62 @@
     {% endif %}
   </div>
 
-<!--추가--!>
-<script>
-  // 하트 버튼 토글
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.like-btn');
-    if (!btn) return;
-
-    const pid = btn.dataset.pid;
-
-    try {
-      const res = await fetch(`/toggle_wishlist/${pid}`, { method: 'POST' });
-      if (res.status === 401) {
-        alert('로그인 해주세요.');
-        window.location.href = "{{ url_for('login') }}";
-        return;
-      }
-      const data = await res.json();
-      if (!data.ok) throw new Error(data.error || '에러');
-
-      if (data.in_wishlist) {
-        btn.classList.add('liked');
-        btn.textContent = '♥';
-      } else {
-        btn.classList.remove('liked');
-        btn.textContent = '♡';
-      }
-    } catch (err) {
-      console.error(err);
-      alert('오류가 발생했습니다.');
-    }
-  });
-</script>
-
 {% else %}
   <p>등록된 상품이 없습니다.</p>
 {% endif %}
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+
+<script>
+// 페이지 로드 시 각 상품의 좋아요 상태 표시
+$(document).ready(function() {
+    {% for key, value in datas %}
+        showHeart("{{ key }}");
+    {% endfor %}
+});
+
+// 좋아요 상태 불러오기
+function showHeart(pid) {
+    $.ajax({
+        url: "/show_heart/" + pid,
+        type: "GET",
+        success: function(res) {
+            if (res === "Y") {
+                $("#heart-" + pid).css("color", "red");
+                $("#heart-" + pid).attr("onclick", "unlike('" + pid + "')");
+            } else {
+                $("#heart-" + pid).css("color", "grey");
+                $("#heart-" + pid).attr("onclick", "like('" + pid + "')");
+            }
+        }
+    });
+}
+
+// 좋아요 등록
+function like(pid) {
+    $.ajax({
+        url: "/like/" + pid,
+        type: "POST",
+        success: function() {
+            location.reload();
+        }
+    });
+}
+
+// 좋아요 취소
+function unlike(pid) {
+    $.ajax({
+        url: "/unlike/" + pid,
+        type: "POST",
+        success: function() {
+            location.reload();
+        }
+    });
+}
+
+// 클릭 시 호출되는 껍데기 함수
+function onHeartClick(pid){}
+</script>
 
 {% endblock %}
