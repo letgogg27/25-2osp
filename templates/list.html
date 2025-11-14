@@ -57,28 +57,33 @@
 </div>
 
 {% if total > 0 %}
-  <p>{{ total }}개 상품 등록됨</p>
+<p>{{ total }}개 상품 등록됨</p>
 <div class="item-grid-wrapper">
   <div class="item-grid">
+
     {% for key, value in datas %}
-    <div
-      class="item-card"
-      onclick="location.href='{{ url_for('view_item_detail', name=key) }}';"
-      style="cursor:pointer;"
-    >
-      <img src="static/images/{{ value.img_path }}" />
-      <div class="item-info">
-        <h3>{{ key }}</h3>
-        <p>{{ value.price }}원</p>
-        <p>{{ value.addr }}</p>
+    <div class="item-card">
+
+      <!-- 클릭 영역 -->
+      <div onclick="location.href='{{ url_for('view_item_detail', name=key) }}'"
+           style="cursor:pointer;">
+          <img src="static/images/{{ value.img_path }}" />
+          <div class="item-info">
+              <h3>{{ key }}</h3>
+              <p>{{ value.price }}원</p>
+              <p>{{ value.addr }}</p>
+          </div>
       </div>
-      <!-- 추가 -->
-      <i class="fa-heart heart-icon" 
-        id="heart-{{ key.id }}" 
-        onclick="onHeartClick({{ key }})">
-      </i>
+
+      <!-- 하트 -->
+      <i class="fa fa-heart heart-icon"
+         id="heart-{{ key }}"
+         onclick="onHeartClick(event, '{{ key }}')"></i>
+
     </div>
+
     {% endfor %}
+
   </div>
 </div>
 
@@ -115,20 +120,26 @@
 <script src="https://code.jquery.com/jquery-latest.min.js"></script>
 
 <script>
-// 페이지 로드 시 각 상품의 좋아요 상태 표시
-$(document).ready(function() {
+$(document).ready(function () {
+
+    // 페이지 로딩 시, 전체 상품에 대해 좋아요 상태 확인
     {% for key, value in datas %}
         showHeart("{{ key }}");
     {% endfor %}
 });
 
-// 좋아요 상태 불러오기
+/* 교수님 구조 그대로 가져온 showHeart() */
 function showHeart(pid) {
+
     $.ajax({
-        url: "/show_heart/" + pid,
-        type: "GET",
-        success: function(res) {
-            if (res === "Y") {
+        type: 'GET',
+        url: '/show_heart/' + pid + '/',
+        data: {},
+        success: function (response) {
+
+            let my_heart = response['my_heart'];
+
+            if (my_heart['interested'] == 'Y') {
                 $("#heart-" + pid).css("color", "red");
                 $("#heart-" + pid).attr("onclick", "unlike('" + pid + "')");
             } else {
@@ -139,30 +150,39 @@ function showHeart(pid) {
     });
 }
 
-// 좋아요 등록
+/* 교수님 방식: 좋아요 등록 */
 function like(pid) {
+
     $.ajax({
-        url: "/like/" + pid,
-        type: "POST",
-        success: function() {
-            location.reload();
+        type: 'POST',
+        url: '/like/' + pid + '/',
+        data: { interested: "Y" },
+        success: function (response) {
+            alert(response['msg']);
+            window.location.reload();
         }
     });
 }
 
-// 좋아요 취소
+/* 교수님 방식: 좋아요 취소 */
 function unlike(pid) {
+
     $.ajax({
-        url: "/unlike/" + pid,
-        type: "POST",
-        success: function() {
-            location.reload();
+        type: 'POST',
+        url: '/unlike/' + pid + '/',
+        data: { interested: "N" },
+        success: function (response) {
+            alert(response['msg']);
+            window.location.reload();
         }
     });
 }
 
-// 클릭 시 호출되는 껍데기 함수
-function onHeartClick(pid){}
+/* 카드 클릭과 하트 클릭 구분하기 */
+function onHeartClick(event, pid) {
+    event.stopPropagation();   // 상세페이지 이동 막기
+}
 </script>
+
 
 {% endblock %}
