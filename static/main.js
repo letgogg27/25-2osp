@@ -201,7 +201,6 @@ function initFormReset() {
     if (previewContainer) previewContainer.innerHTML = "";
   });
 }
-
 //* ==============
 //  Real-time CHAT MODAL
 //============== *//
@@ -231,19 +230,34 @@ function initChatFeature() {
     return;
   }
 
+  // Get data from the HTML
   const ITEM_NAME = chatModal.dataset.itemName;
   const SELLER_ID = chatModal.dataset.sellerId;
   const CURRENT_USER_ID = chatModal.dataset.currentUserId;
 
-  // Create the Conversation ID
+  // Get the "chat_with" user from the URL (if it exists)
+  const urlParams = new URLSearchParams(window.location.search);
+  const chatWithUser = urlParams.get("chat_with");
+
   let conversationId;
-  if (CURRENT_USER_ID && SELLER_ID) {
-    const userIds = [CURRENT_USER_ID, SELLER_ID].sort();
-    conversationId = `${userIds[0]}_${userIds[1]}_${ITEM_NAME}`;
-  } else {
-    // User is not logged in-> can't start a chat
-    return;
+
+  if (!CURRENT_USER_ID) {
+    return; // Not logged in
   }
+
+  // the other person chat
+  let otherUserId;
+
+  if (chatWithUser) {
+    //  a Seller (or Buyer) clicking from their inbox.
+    otherUserId = chatWithUser;
+  } else {
+    // This is a Buyer starting a new chat.
+    otherUserId = SELLER_ID;
+  }
+
+  const userIds = [CURRENT_USER_ID, otherUserId].sort();
+  conversationId = `${userIds[0]}_${userIds[1]}_${ITEM_NAME}`;
 
   function openChat() {
     chatModal.style.display = "flex";
@@ -351,19 +365,18 @@ function initChatFeature() {
   function addMessage(content, senderId) {
     if (!messagesContainer) return;
 
-    // --- [NEW DEBUG CODE] ---
-    // Let's print the variables to the console to see what's happening
+    // Let's print the variables to the console to see what's happening // just to check and debug
     console.log("--- New Message ---");
     console.log(`Message Sender ID (senderId): ${senderId}`);
     console.log(`My Browser's ID (CURRENT_USER_ID): ${CURRENT_USER_ID}`);
-    // --- [END DEBUG CODE] ---
+    // END DEBUG
 
     const role = senderId === CURRENT_USER_ID ? "sender" : "receiver";
 
-    // --- [NEW DEBUG CODE] ---
+    // Start DEBUG CODE
     console.log(`Resulting Role (left/right): ${role}`);
     console.log("-------------------");
-    // --- [END DEBUG CODE] ---
+    // END DEBUG CODE
 
     const { text, imageURL } = content;
     const hasImage = !!imageURL;
