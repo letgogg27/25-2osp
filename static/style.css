@@ -1376,6 +1376,11 @@ legend i {
   color: white;
 }
 
+.page-list li:not(.on) a:hover {
+  background: #00462a;
+  color: white;
+}
+
 .page-list li.on a {
   /*현재페이지*/
   color: #00462a;

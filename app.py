@@ -39,12 +39,40 @@ def render_list():
 # 홈 = 리스트
 @app.route("/", strict_slashes=False)
 def home():
-    return render_list()
+    #return render_list()
+    return redirect(url_for('view_list'))
 
 # /list 로 접근해도 동일
 @app.route("/list", strict_slashes=False)
-def product_list():
-    return render_list()
+def view_list():
+    page = request.args.get("page",0,type=int)
+    per_page = 12  # 한 페이지당 아이템 수
+    per_row = 6   # 한 행당 아이템 수
+    row_count = int(per_page / per_row)
+    start_idx=per_page*page
+    end_idx=per_page*(page+1)
+    data = DB.get_items() or {}  # DB에서 아이템 읽기
+    item_counts = len(data)
+    data=dict(list(data.items())[start_idx:end_idx])
+    tot_count = len(data)
+
+    # 행별 데이터 분리
+    for i in range(row_count):
+        if (i == row_count - 1) and (tot_count % per_row != 0):
+            locals()['data_{}'.format(i)] = dict(list(data.items())[i * per_row:])
+        else:
+            locals()['data_{}'.format(i)] = dict(list(data.items())[i * per_row:(i + 1) * per_row])
+
+    return render_template(
+        "list.html",
+        datas=data.items(),
+        row1=locals()['data_0'].items(),
+        row2=locals()['data_1'].items(),
+        limit=per_page,
+        page=page,
+        page_count=int((item_counts/per_page)+1),
+        total=item_counts
+    )
 
 @app.route("/review", methods=['GET','POST'], strict_slashes=False)
 def review():
@@ -104,6 +132,18 @@ def reg_item_submit_post():
 @app.route("/item_detail", strict_slashes=False)
 def item_detail():
     return render_template("item_detail.html")
+    
+@app.route("/dynamicurl/<varible_name>/")
+def DynamicUrl(varible_name):
+    return str(varible_name)
+
+@app.route("/view_detail/<name>/")
+def view_item_detail(name):
+    print("###name:",name)
+    data = DB.get_item_byname(str(name))
+    print("####data:",data)
+    return render_template("item_detail.html", name=name, data=data)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+    
