@@ -441,7 +441,6 @@ function initChatFeature() {
         headers: {
           "Content-Type": "application/json",
         },
-        // Send the RECEIVER's ID
         body: JSON.stringify({ other_user_id: otherUserId }),
       });
     } catch (error) {
@@ -449,7 +448,6 @@ function initChatFeature() {
       chatInput.value = text;
     }
   }
-
   // Open / close modal
   openChatButton.addEventListener("click", openChat);
   if (closeChatButton) closeChatButton.addEventListener("click", closeChat);
@@ -570,7 +568,6 @@ function initMyMessagesPage() {
           font-weight: bold;
         `;
       } else {
-        messages;
         unreadBadge.innerHTML = "&rarr;";
         unreadBadge.style.cssText =
           "color: #00462a; font-weight: bold; font-size: 18px;";

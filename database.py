@@ -186,26 +186,30 @@ class DBhandler:
     def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id, is_new_message_for_this_user):
         """
         Saves a reference to a conversation under a user's ID.
-        If it's a new message, it also increments the unread_count.
+        If it's a new message, increments unread_count for that user.
         """
         try:
             chat_info_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
             chat_info = chat_info_ref.get().val()
 
             if chat_info:
-                # Chat link already exists.
+                # Existing link -> only touch unread_count when needed
                 if is_new_message_for_this_user:
-                    count_ref = chat_info_ref.child("unread_count")
-                    count_ref.transaction(lambda current_count: (current_count or 0) + 1)
+                    current = chat_info.get("unread_count", 0)
+                    try:
+                        current = int(current)
+                    except (TypeError, ValueError):
+                        current = 0
+                    chat_info_ref.update({"unread_count": current + 1})
                 return True
             else:
-                # no chat list , create new one
+                # New chat link
                 new_chat_info = {
                     "conversation_id": conversation_id,
                     "item_name": item_name,
                     "with_user": other_user_id,
                     "unread_count": 1 if is_new_message_for_this_user else 0,
-                    "last_message": ""
+                    "last_message": "",
                 }
                 chat_info_ref.set(new_chat_info)
                 print(f"✅ NEW link for user {user_id} to {conversation_id}")
@@ -214,6 +218,7 @@ class DBhandler:
         except Exception as e:
             print(f"❌ Error linking/incrementing user to chat: {e}")
             return False
+
 
     #  Get the list of chats for the Inbox page
     def get_user_conversations(self, user_id):
@@ -224,35 +229,8 @@ class DBhandler:
             print(f"❌ Error fetching user chats: {e}")
             return {}
         
-    # def increment_unread_count(self, user_id, conversation_id):
-    #     """
-    #     Increments the unread_count for a user's specific chat.
-    #     """
-    #     try:
-    #         chat_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
-            
-
-    #         def increment_transaction(current_count):
-    #             if current_count is None:
-    #                 return 1  # If it doesn't exist, set it to 1
-    #             return current_count + 1
-
-    #         chat_ref.child("unread_count").transaction(increment_transaction)
-    #         print(f"✅ Incremented unread count for user {user_id}")
-    #         return True
-    #     except Exception as e:
-    #         print(f"❌ Error incrementing unread count: {e}")
-    #         return False
-        
     def clear_unread_count(self, user_id, conversation_id):
-        """
-        Resets the unread_count for a specific chat to 0.
-        """
-        try:
-            chat_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
-            chat_ref.child("unread_count").set(0)
-            print(f"✅ Cleared unread count for user {user_id}")
-            return True
-        except Exception as e:
-            print(f"❌ Error clearing unread count: {e}")
-            return False
+        chat_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
+        chat_ref.child("unread_count").set(0)
+        print(f"✅ Cleared unread count for user {user_id}")
+        return True
