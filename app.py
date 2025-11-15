@@ -184,9 +184,7 @@ def wishlist():
         flash("로그인 해주세요.")
         return redirect(url_for("login"))
 
-    # heart/{user_id}/{itemName} = {"interested": "Y"}
     heart_data = DB.db.child("heart").child(user_id).get().val()
-
     if not heart_data:
         items = []
     else:
@@ -194,13 +192,31 @@ def wishlist():
                        if val.get("interested") == "Y"]
 
         all_items = DB.get_items() or {}
+        
+        items = []
+        for k, v in all_items.items():
+            if k in liked_items:
+                v["interested"] = "Y"   # 추가
+                items.append((k, v))
 
-        items = [(k, all_items[k]) for k in liked_items if k in all_items]
+    # --- 페이지네이션 ---
+    page = request.args.get("page", 1, type=int)
+    per_page = 15
+    total = len(items)
+    page_count = (total + per_page - 1) // per_page
+
+    start = (page - 1) * per_page
+    end = start + per_page
+    page_items = items[start:end]
 
     return render_template(
         "wishlist.html",
-        datas=items
+        datas=page_items,
+        page=page,
+        page_count=page_count,
+        total=total
     )
+
 
 @app.route('/show_heart/<name>/', methods=['GET'])
 def show_heart(name):
