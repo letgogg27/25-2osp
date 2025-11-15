@@ -1,77 +1,81 @@
 {% extends "index.html" %}
 {% block title %}Ewha Market - Review List{% endblock %}
 {% block content %}
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>이화마켓 리뷰 목록</title>
 
-</head>
+<div class="review-page">
+  <h1 class="review-title">이화마켓 리뷰 목록</h1>
 
-<body>
-  <div class="review-page">
-    <h1 class="review-title">이화마켓 리뷰 목록</h1>
+  <!-- 검색 + 정렬 -->
+  <form class="search-toolbar" action="#" method="get">
+    <input class="search-input" type="text" placeholder="판매자명 또는 상품명 검색" />
+    <select class="sort-select" name="sort">
+      <option value="new" selected>정렬: 최신순</option>
+      <option value="high">정렬: 평점높은순</option>
+      <option value="low">정렬: 평점낮은순</option>
+    </select>
+    <button class="search-btn" type="submit">검색</button>
+  </form>
 
-    <!-- 검색 + 정렬 -->
-    <form class="search-toolbar" action="#" method="get">
-      <input class="search-input" type="text" placeholder="판매자명 또는 상품명 검색" />
-      <select class="sort-select" name="sort">
-        <option value="new" selected>정렬: 최신순</option>
-        <option value="high">정렬: 평점높은순</option>
-        <option value="low">정렬: 평점낮은순</option>
-      </select>
-      <button class="search-btn" type="submit">검색</button>
-    </form>
-
-    <!-- 카드 -->
-    <ul class="card-list">
-      <li class="card">
-        <div>
-          <div class="review-header">
-            <div class="profile-pic">
-              <img src="/static/images/fake_profile.png" alt="프로필 이미지" />
-            </div>
-            <div>
-              <div class="review-user">@ewha123</div>
-              <div class="review-rating">⭐️⭐️⭐️⭐️⭐️ <span>5.0</span></div>
-            </div>
+  <!-- 카드 (지금은 예시 1개) -->
+  <ul class="card-list">
+    <li class="card">
+      <div>
+        <div class="review-header">
+          <div class="profile-pic">
+            <img src="/static/images/fake_profile.png" alt="프로필 이미지" />
           </div>
-
-          <div class="review-content">
-            <strong>“판매자님이 정말 친절하세요!”</strong>
-            <p>판매자님이 정말 친절하시고 상품 상태도 최상이었습니다! 약속시간도 잘 지켜주셨어요...</p>
-          </div>
-
-          <a href="review_detail.html" class="thumb">
-            <img src="/static/images/fake_image.png" alt="리뷰 이미지" />
-          </a>
-
-          <div class="hashtags">
-            <span>#친절해요</span>
-            <span>#시간 약속을 잘 지켜요</span>
+          <div>
+            <div class="review-user">@ewha123</div>
+            <div class="review-rating">⭐️⭐️⭐️⭐️⭐️ <span>5.0</span></div>
           </div>
         </div>
 
-        <div class="review-footer">
-          <div class="helpful">도움이 되었어요 5</div>
-          <div class="review-date">2024.05.20</div>
+        <div class="review-content">
+          <strong>“판매자님이 정말 친절하세요!”</strong>
+          <p>판매자님이 정말 친절하시고 상품 상태도 최상이었습니다! 약속시간도 잘 지켜주셨어요...</p>
         </div>
-      </li>
-    </ul>
 
-    <!-- 페이지네이션 -->
-    <div class="pager">
-      <a href="#" class="page-ctrl">&laquo;</a>
-      <ol class="page-list">
-        <li class="on"><a href="#">1</a></li>
-        <li><a href="#">2</a></li>
-        <li><a href="#">3</a></li>
-      </ol>
-      <a href="#" class="page-ctrl">&raquo;</a>
-    </div>
+        <a href="review_detail.html" class="thumb">
+          <img src="/static/images/fake_image.png" alt="리뷰 이미지" />
+        </a>
+
+        <div class="hashtags">
+          <span>#친절해요</span>
+          <span>#시간 약속을 잘 지켜요</span>
+        </div>
+      </div>
+
+      <div class="review-footer">
+        <div class="helpful">도움이 되었어요 5</div>
+        <div class="review-date">2024.05.20</div>
+      </div>
+    </li>
+  </ul>
+
+  <!-- 페이지네이션: list.html이랑 같은 구조 -->
+  <div class="pager">
+    {# 이전 버튼 #}
+    {% if page > 1 %}
+      <a href="{{ url_for('review', page=page-1) }}" class="page-ctrl" aria-label="이전">&laquo;</a>
+    {% else %}
+      <span class="page-ctrl disabled" aria-label="이전">&laquo;</span>
+    {% endif %}
+
+    <ol class="page-list">
+      {% for i in range(1, page_count + 1) %}
+        <li class="{% if i == page %}on{% endif %}">
+          <a href="{{ url_for('review', page=i) }}">{{ i }}</a>
+        </li>
+      {% endfor %}
+    </ol>
+
+    {# 다음 버튼 #}
+    {% if page < page_count %}
+      <a href="{{ url_for('review', page=page+1) }}" class="page-ctrl" aria-label="다음">&raquo;</a>
+    {% else %}
+      <span class="page-ctrl disabled" aria-label="다음">&raquo;</span>
+    {% endif %}
   </div>
-</body>
-</html>
+</div>
+
 {% endblock %}

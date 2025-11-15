@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, url_for, redirect, flash
+from flask import Flask, render_template, request, url_for, redirect, flash, session
 import hashlib
 from database import DBhandler
 import sys
+
+from flask import abort
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key="some-secret"
@@ -42,54 +44,81 @@ def home():
     #return render_list()
     return redirect(url_for('view_list'))
 
-# /list 로 접근해도 동일
 @app.route("/list", strict_slashes=False)
 def view_list():
-    page = request.args.get("page",0,type=int)
-    per_page = 12  # 한 페이지당 아이템 수
-    per_row = 6   # 한 행당 아이템 수
-    row_count = int(per_page / per_row)
-    start_idx=per_page*page
-    end_idx=per_page*(page+1)
-    data = DB.get_items() or {}  # DB에서 아이템 읽기
-    item_counts = len(data)
-    data=dict(list(data.items())[start_idx:end_idx])
-    tot_count = len(data)
+    page = request.args.get("page", 1,type=int)
 
-    # 행별 데이터 분리
-    for i in range(row_count):
-        if (i == row_count - 1) and (tot_count % per_row != 0):
-            locals()['data_{}'.format(i)] = dict(list(data.items())[i * per_row:])
-        else:
-            locals()['data_{}'.format(i)] = dict(list(data.items())[i * per_row:(i + 1) * per_row])
+    per_page = 15  # 한 페이지당 아이템 수
+
+    data = DB.get_items() or {}  # DB에서 아이템 읽기
+    items = list(data.items())   # dict -> 리스트로 변환 (순회/슬라이스 용)
+    item_counts = len(items)     # 전체 상품 개수
+
+    # 전체 페이지 수 (올림)
+    page_count = (item_counts + per_page - 1) // per_page
+
+    if page < 1:
+        page = 1
+    if page > page_count:
+        page = page_count
+
+    start_idx = (page - 1) * per_page
+    end_idx   = start_idx + per_page
+    page_items = items[start_idx:end_idx]
 
     return render_template(
         "list.html",
-        datas=data.items(),
-        row1=locals()['data_0'].items(),
-        row2=locals()['data_1'].items(),
+        datas=page_items,       # 템플릿에서 for key,value in datas
         limit=per_page,
         page=page,
-        page_count=int((item_counts/per_page)+1),
+        page_count=page_count,
         total=item_counts
     )
 
-@app.route("/review", methods=['GET','POST'], strict_slashes=False)
+@app.route("/review", methods=['GET'], strict_slashes=False)
 def review():
-    return render_template("review.html")
-
+    page = request.args.get("page", 1, type=int)
+    page_count = 1 
+    return render_template(
+        "review.html",
+        page=page,
+        page_count=page_count
+    )
 
 @app.route("/register_items", methods=['GET','POST'], strict_slashes=False)
 def register_items():
+    if 'id' not in session:
+        flash("로그인을 해주세요!")
+        return redirect(url_for('login'))
     return render_template('reg_items.html')
 
 @app.route("/register_reviews", methods=['GET','POST'], strict_slashes=False)
 def register_reviews():
+    if 'id' not in session:
+        flash("로그인을 해주세요!")
+        return redirect(url_for('login'))
     return render_template('reg_reviews.html')
 
 @app.route("/login")
 def login():
     return render_template("login.html")
+
+@app.route("/login_confirm", methods=['POST'])
+def login_user():
+    id_=request.form['id']
+    pw=request.form['pw']
+    pw_hash=hashlib.sha256(pw.encode('utf-8')).hexdigest()
+    if DB.find_user(id_,pw_hash):
+        session['id']=id_
+        return redirect(url_for('home'))
+    else:
+        flash("잘못된 아이디 혹은 비밀번호 입니다!")
+        return render_template("login.html")
+
+@app.route("/logout")
+def logout_user():
+    session.clear()
+    return redirect(url_for('home'))
 
 @app.route("/signup")
 def signup():

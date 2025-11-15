@@ -15,9 +15,7 @@ class DBhandler:
         self.db = firebase.database()
         print("✅ Firebase 연결 완료")
 
-    # -------------------------------
     # [과제1] 상품 정보 삽입 함수
-    # -------------------------------
     def insert_item(self, name, data, img_path):
         """
         전달받은 상품 데이터를 JSON 형태로 구성하여
@@ -40,9 +38,7 @@ class DBhandler:
         print(f"✅ 상품 '{name}' 등록 완료")
         return True
 
-    # -------------------------------
     # [과제2] ID 중복 체크 함수
-    # -------------------------------
     def user_duplicate_check(self, id_string):
         """
         'user' 노드를 조회하여 동일한 ID가 이미 존재하는지 확인
@@ -65,28 +61,26 @@ class DBhandler:
         print(f"✅ 사용 가능한 ID: {id_string}")
         return True
 
-    # ------------------------------
-    # [과제2] 회원 등록 함수 (닉네임 제외 버전)
-    # ------------------------------
+    # [과제2] 회원 등록 함수
     def insert_user(self, form_data, pw_hash):
         """
         form_data: request.form (signup.html의 name 속성 기준)
         - userID, password, passwordConfirm, email, emailDomain, tel1, tel2, tel3, ...
         pw_hash: app.py에서 SHA-256 등으로 해시된 비밀번호 문자열
         """
-        # 폼 명칭과 백엔드 키 맞추기 (userID 사용!)
+        # 폼 명칭과 백엔드 키 맞추기 (userID 사용)
         user_id = form_data.get('userID', '').strip()
 
         if not user_id:
             print("❌ 회원가입 실패: userID 누락")
             return False
 
-        # 중복 체크
+        #중복 체크
         if not self.user_duplicate_check(user_id):
             print(f"❌ 회원가입 실패 (중복 ID): {user_id}")
             return False
 
-        # 최소 저장 정보 (요구대로 id, pw만 저장)
+        #저장 정보
         user_info = {
             "id": user_id,
             "pw": pw_hash
@@ -94,6 +88,15 @@ class DBhandler:
         self.db.child("user").push(user_info)
         print(f"✅ 회원가입 완료: {user_id}")
         return True
+
+    def find_user(self, id_, pw_):
+        users = self.db.child("user").get()
+        target_value=[]
+        for res in users.each():
+            value = res.val()
+            if value['id'] == id_ and value['pw'] == pw_:
+                return True
+        return False
     
     def get_items(self):
         items = self.db.child("item").get().val()
@@ -108,5 +111,4 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
-
 

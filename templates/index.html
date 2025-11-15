@@ -4,35 +4,92 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Ewha Market {% endblock %}</title>
-    <!-- Font Awesome -->
+
+    <!-- FontAwesome -->
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
-    <!-- 아이콘용 폰트 (Google Material Icons) -->
+    <!-- Google Material Icons -->
     <link
       href="https://fonts.googleapis.com/icon?family=Material+Icons"
       rel="stylesheet"
     />
-
     <link
       rel="stylesheet"
       href="{{ url_for('static', filename='style.css') }}"
     />
+    <style>
+      /* ✅ 페이지 기본 레이아웃 구조 */
+      html, body {
+        height: 100%;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+      }
+
+      main {
+        flex: 1; /* 본문이 footer 위를 밀어내도록 */
+      }
+
+      /* ✅ Footer 설정 */
+      .footer {
+        background-color: #00462a;
+        color: #36ae92;
+        text-align: center;
+        padding: 25px 0 15px;
+        font-family: "Noto Sans KR", sans-serif;
+        font-size: 14px;
+        position: relative; /* 따라오지 않고 아래로 밀림 */
+        bottom: 0;
+        width: 100%;
+        margin-top: auto; /* 본문이 짧을 때 하단 고정 */
+      }
+
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 25px;
+        margin-bottom: 10px;
+      }
+
+      .footer-links a {
+        color: #36ae92;
+        text-decoration: none;
+        transition: color 0.3s ease;
+      }
+
+      .footer-links a:hover {
+        color: #ffd700;
+      }
+
+      .footer-copy {
+        font-size: 12px;
+        color: #36ae92;
+      }
+    </style>
   </head>
+
   <body>
     <nav>
       <div class="navbar_logo">
         <a href="{{url_for('home')}}">Ewha Market</a>
       </div>
+
       <div class="navbar_menu">
+        {% if session['id'] %}
+        <div class="welcome-message">
+          <b>{{ session['id'] }}님 반갑습니다!</b>
+        </div>
+        {% endif %}
         <div>
           <a href="{{url_for('home')}}"><i class="fa-solid fa-house"></i> 홈</a>
         </div>
         <div>
           <a href="{{url_for('review')}}"
             ><img
-              src="../static/images/icons/star-rating.png"
+              src="{{ url_for('static', filename='images/icons/star-rating.png') }}"
               alt="star-rating"
               class="review-icon"
             />
@@ -50,14 +107,28 @@
           >
         </div>
         <div>
-          <a href="/cart"><i class="fa-solid fa-cart-shopping"></i> 장바구니</a>
+          <a href="/cart"><i class="fa-solid fa-heart"></i> 찜 목록</a>
         </div>
+
         <div>
-          <a href="/login"><i class="fa-regular fa-circle-user"></i>로그인</a>
+          {% if session['id'] %}
+          <a href="/logout"
+            ><i class="fa-regular fa-circle-user"></i> 로그아웃</a
+          >
+          {% else %}
+          <a href="{{url_for('login')}}"
+            ><i class="fa-regular fa-circle-user"></i> 로그인</a
+          >
+          {% endif %}
         </div>
       </div>
     </nav>
-    {% block content %} {% endblock %}
+
+    <!-- ✅ 여기에 페이지 내용 들어감 -->
+    <main>
+      {% block content %} {% endblock %}
+    </main>
+
     <footer class="footer">
       <div class="footer-links">
         <a href="#">About</a>
@@ -67,6 +138,7 @@
       </div>
       <p class="footer-copy">©2025 Ewha Market. All rights reserved.</p>
     </footer>
+
     <script src="../static/main.js" defer></script>
   </body>
 </html>
