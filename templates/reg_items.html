@@ -1,7 +1,5 @@
-{% extends "index.html" %} {% block title %}상품 등록{% endblock %}
-<!-- {% block head %}
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
-{% endblock %}  -->
+{% extends "index.html" %}
+{% block title %}상품 등록{% endblock %}
 {% block content %}
 
 <h2 class="page-title">상품 등록</h2>
@@ -20,7 +18,7 @@
         type="text"
         id="item_name"
         name="item_name"
-        placeholder="공기청정기"
+        placeholder="상품명을 입력해주세요."
         required
       />
 
@@ -29,7 +27,7 @@
         type="text"
         id="item_price"
         name="item_price"
-        placeholder="99,999원"
+        placeholder="가격을 입력해주세요."
         required
       />
 
@@ -58,20 +56,22 @@
       </div>
 
       <label for="seller_id">판매자 아이디</label>
+      <div class="readonly-field">
+        {{ session['id'] }}
+      </div>
       <input
-        type="text"
+        type="hidden"
         id="seller_id"
         name="seller_id"
-        placeholder="ewha1234"
-        required
+        value="{{ session['id'] }}"
       />
 
-      <label for="address">희망 거래 지역</label>
+      <label for="address">거래 희망 지역</label>
       <input
         type="text"
         id="address"
         name="address"
-        placeholder="서울특별시 서대문구 연희동"
+        placeholder="거래 희망 지역을 입력해주세요. (예:서대문구 대현동)"
         required
       />
     </div>
@@ -82,17 +82,17 @@
     <!-- 오른쪽 -->
     <div class="form-right">
       <div class="photo-upload">
-  <label for="file">대표 사진 업로드</label>
-  <input
-    type="file"
-    id="file"
-    name="file"
-    accept="image/*"
-    multiple
-    required
-  />
-  <small class="upload-note">최대 10장 업로드 가능</small>
-</div>
+        <label for="file">대표 사진 업로드</label>
+        <input
+          type="file"
+          id="file"
+          name="file"
+          accept="image/*"
+          multiple
+          required
+        />
+        <small class="upload-note">최대 10장 업로드 가능</small>
+      </div>
 
 
       <label for="description">상품 설명</label>
@@ -110,16 +110,30 @@
       </div>
     </div>
   </form>
+
   <script>
   document.querySelectorAll('input, textarea').forEach((el) => {
     el.addEventListener('focus', () => {
       el.dataset.placeholder = el.placeholder;
-      el.placeholder = ''; // 포커스 시 placeholder 제거
+      el.placeholder = '';
     });
     el.addEventListener('blur', () => {
-      el.placeholder = el.dataset.placeholder; // 포커스 해제 시 복원
+      el.placeholder = el.dataset.placeholder || "";
     });
   });
+
+    const priceInput = document.getElementById("item_price");
+
+    priceInput.addEventListener("input", (e) => {
+      // 숫자만 남기기
+      let value = e.target.value.replace(/[^0-9]/g, "");
+      if (!value) {
+        e.target.value = "";
+        return;
+      }
+      const num = Number(value);
+      e.target.value = num.toLocaleString("ko-KR") + "원";
+    });
 
   const fileInput = document.getElementById("file");
 
