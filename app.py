@@ -124,6 +124,8 @@ def login_user():
     pw_hash = hashlib.sha256(pw.encode("utf-8")).hexdigest()
     if DB.find_user(id_, pw_hash):
         session["id"] = id_
+        token = DB.create_custom_token(id_)
+        session["firebase_token"] = token
         return redirect(url_for("home"))
     else:
         flash("잘못된 아이디 혹은 비밀번호 입니다!")
@@ -251,90 +253,74 @@ def view_item_detail(name):
     data = DB.get_item_byname(str(name))
     return render_template("item_detail.html", name=name, data=data)
 
-# Gets the message history for a chat
-@app.route("/api/chat/history/<item_name>")
-def get_chat_history(item_name):
-    # Check if user is logged in
+
+@app.route("/api/chat/link_inbox/<item_name>", methods=['POST'])
+def link_chat_to_inbox(item_name):
+    """
+    Called by JS *after* a message is sent.
+    Links chat to sender (if new)
+    Links chat to receiver (if new) AND increments receiver's unread count.
+    """
     if 'id' not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
-    # Get seller ID from the item
-    item_data = DB.get_item_byname(item_name)
-    if not item_data:
-        return jsonify({"error": "Item not found"}), 404
+    try:
+        data = request.json
+        other_user_id = data.get('other_user_id') #  the RECEIVER
+        current_user_id = session['id']           #  the SENDER
 
-    seller_id = item_data.get("seller")
-    buyer_id = session['id']
+        if not other_user_id:
+            return jsonify({"error": "Missing other_user_id"}), 400
 
-    # Create a unique conversation ID
-    user_ids = sorted([buyer_id, seller_id])
-    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+        user_ids = sorted([current_user_id, other_user_id])
+        conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+        
+        # Link to Sender's Inbox 
+        DB.link_user_to_conversation(
+            user_id=current_user_id, 
+            conversation_id=conversation_id, 
+            item_name=item_name, 
+            other_user_id=other_user_id,
+            is_new_message_for_this_user=False 
+        )
+        # Link to Receiver's Inbox
+        DB.link_user_to_conversation(
+            user_id=other_user_id, 
+            conversation_id=conversation_id, 
+            item_name=item_name, 
+            other_user_id=current_user_id,
+            is_new_message_for_this_user=True #  a new msg for the receiver
+        )
+        
+        return jsonify({"status": "success", "message": "Inbox linked/incremented"})
 
-    # Fetch messages from DB
-    messages = DB.get_messages(conversation_id)
+    except Exception as e:
+        print(f"⚠️ Error linking inbox: {e}")
+        return jsonify({"error": "Failed to link inbox"}), 500
 
-    # Send messages back to the JavaScript as JSON
-    return jsonify(messages)
-
-# Sends a new message
-@app.route("/api/chat/send/<item_name>", methods=['POST'])
-def send_chat_message(item_name):
-    # Check if user is logged in
+@app.route("/api/chat/clear_unread", methods=['POST'])
+def clear_unread():
+    """
+    Called by JS when a chat is opened.
+    Sets the unread_count for that chat to 0.
+    """
     if 'id' not in session:
         return jsonify({"error": "Unauthorized"}), 401
+    
+    try:
+        data = request.json
+        conversation_id = data.get('conversation_id')
+        current_user_id = session['id']
 
-    # Get data from the JavaScript request
-    data = request.json
-    text = data.get("text")
+        if not conversation_id:
+            return jsonify({"error": "Missing conversation_id"}), 400
 
-    # 나중에 Image sending 
+        DB.clear_unread_count(current_user_id, conversation_id)
+        return jsonify({"status": "success", "message": "Count cleared"})
 
-    if not text:
-        return jsonify({"error": "Empty message"}), 400
-
-    # Get seller and buyer IDs
-    item_data = DB.get_item_byname(item_name)
-    if not item_data:
-        return jsonify({"error": "Item not found"}), 404
-
-    item_owner_id = item_data.get("seller") 
-    current_user_id = session['id']          
-
-    # Create the conversation ID
-    user_ids = sorted([current_user_id, item_owner_id]) 
-
-    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
-
-    # Save the message to the database
-    success = DB.add_message(
-        conversation_id=conversation_id,
-        sender_id=current_user_id,  
-        text=text
-    )
-
-    if success:
-        try:
-            
-            # Link to the Current User's Inbox
-            DB.link_user_to_conversation(
-                user_id=current_user_id, 
-                conversation_id=conversation_id, 
-                item_name=item_name, 
-                other_user_id=item_owner_id
-            )
-            # Link to the Item Owner's Inbox
-            DB.link_user_to_conversation(
-                user_id=item_owner_id,
-                conversation_id=conversation_id, 
-                item_name=item_name, 
-                other_user_id=current_user_id
-            )
-        except Exception as e:
-            print(f"⚠️ Error linking chats: {e}")
-
-        return jsonify({"status": "success", "message": "Message sent"})
-    else:
-        return jsonify({"error": "Failed to send message"}), 500
+    except Exception as e:
+        print(f"⚠️ Error clearing count: {e}")
+        return jsonify({"error": "Failed to clear count"}), 500
     
 @app.route("/my_messages")
 def my_messages():
@@ -342,15 +328,7 @@ def my_messages():
         flash("Please log in first.")
         return redirect(url_for('login'))
     
-    my_id = session['id']
-    
-    # Get list of chats from DB
-    conversations_dict = DB.get_user_conversations(my_id)
-    
-    # Convert to a list for the HTML loop
-    conversations_list = list(conversations_dict.values()) if conversations_dict else []
-    
-    return render_template("my_messages.html", conversations=conversations_list)
+    return render_template("my_messages.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

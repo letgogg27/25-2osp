@@ -1,54 +1,22 @@
-{% extends "index.html" %} {% block title %}My Messages{% endblock %} {% block
+{% extends "index.html" %} {% block title %} My Messages {% endblock %} {% block
 content %}
-<div style="max-width: 800px; margin: 40px auto; padding: 20px">
-  <h2>My Messages</h2>
-  <hr />
-
-  {% if conversations|length == 0 %}
-  <p>You have no active conversations.</p>
-  {% else %}
-  <div style="display: flex; flex-direction: column; gap: 15px">
-    {% for chat in conversations %}
+<main
+  class="container"
+  style="padding-top: 2rem; padding-bottom: 2rem"
+  id="my-messages-page"
+  data-current-user-id="{{ session['id'] }}"
+>
+  <section class="content-box" style="max-width: 800px; margin: auto">
     <div
-      style="
-        border: 1px solid #ddd;
-        padding: 15px;
-        border-radius: 8px;
-        background: white;
-      "
+      class="header"
+      style="border-bottom: 1px solid #ddd; padding-bottom: 1rem"
     >
-      <div
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
-        <div>
-          <h3 style="margin: 0 0 5px 0; font-size: 18px">
-            Item: {{ chat.item_name }}
-          </h3>
-          <p style="margin: 0; color: #666">
-            Chat with: <strong>@{{ chat.with_user }}</strong>
-          </p>
-        </div>
-
-        <a
-          href="/view_detail/{{ chat.item_name }}/?chat_with={{ chat.with_user }}"
-          style="
-            background: #00462a;
-            color: white;
-            padding: 8px 15px;
-            text-decoration: none;
-            border-radius: 4px;
-          "
-        >
-          Open Chat
-        </a>
-      </div>
+      <h2>My Messages</h2>
     </div>
-    {% endfor %}
-  </div>
-  {% endif %}
-</div>
+
+    <div class="chat-list" id="chat-list-container" style="margin-top: 1rem">
+      <p>Loading messages...</p>
+    </div>
+  </section>
+</main>
 {% endblock %}

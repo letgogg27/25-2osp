@@ -1,6 +1,8 @@
 ﻿import pyrebase
 import json
 import datetime
+import firebase_admin
+from firebase_admin import credentials, auth
 
 class DBhandler:
     def __init__(self):
@@ -14,7 +16,28 @@ class DBhandler:
         # Firebase 연결 초기화
         firebase = pyrebase.initialize_app(config)
         self.db = firebase.database()
-        print("✅ Firebase 연결 완료")
+        print("✅ Pyrebase (Web) connected.")
+
+        # 3. Initialize Firebase Admin (for creating tokens)
+        if not firebase_admin._apps:
+            cred = credentials.Certificate('./authentication/serviceAccountKey.json')
+            
+            firebase_admin.initialize_app(cred, {
+                'databaseURL': config.get('databaseURL')
+            })
+            print("✅ Firebase Admin (Server) connected.")
+
+    def create_custom_token(self, user_id):
+        """
+        Creates a Firebase Custom Token for a given user_id.
+        """
+        try:
+            # Create a token that expires in 1 hour 
+            custom_token = auth.create_custom_token(user_id, {'expiresIn': 3600})
+            return custom_token.decode('utf-8')
+        except Exception as e:
+            print(f"❌ Error creating custom token: {e}")
+            return None
 
     # [과제1] 상품 정보 삽입 함수
     def insert_item(self, name, data, img_path):
@@ -158,19 +181,38 @@ class DBhandler:
             print(f"⚠️ Error fetching messages: {e}")
             return {}
         
+    
     # Save a link so the user can see this chat in their inbox
-    def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id):
+    def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id, is_new_message_for_this_user):
+        """
+        Saves a reference to a conversation under a user's ID.
+        If it's a new message, it also increments the unread_count.
+        """
         try:
-            chat_info = {
-                "conversation_id": conversation_id,
-                "item_name": item_name,
-                "with_user": other_user_id
-            }
-            # Save under "user_chats/USER_ID/CONVERSATION_ID"
-            self.db.child("user_chats").child(user_id).child(conversation_id).set(chat_info)
-            return True
+            chat_info_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
+            chat_info = chat_info_ref.get().val()
+
+            if chat_info:
+                # Chat link already exists.
+                if is_new_message_for_this_user:
+                    count_ref = chat_info_ref.child("unread_count")
+                    count_ref.transaction(lambda current_count: (current_count or 0) + 1)
+                return True
+            else:
+                # no chat list , create new one
+                new_chat_info = {
+                    "conversation_id": conversation_id,
+                    "item_name": item_name,
+                    "with_user": other_user_id,
+                    "unread_count": 1 if is_new_message_for_this_user else 0,
+                    "last_message": ""
+                }
+                chat_info_ref.set(new_chat_info)
+                print(f"✅ NEW link for user {user_id} to {conversation_id}")
+                return True
+
         except Exception as e:
-            print(f"❌ Error linking user to chat: {e}")
+            print(f"❌ Error linking/incrementing user to chat: {e}")
             return False
 
     #  Get the list of chats for the Inbox page
@@ -181,3 +223,36 @@ class DBhandler:
         except Exception as e:
             print(f"❌ Error fetching user chats: {e}")
             return {}
+        
+    # def increment_unread_count(self, user_id, conversation_id):
+    #     """
+    #     Increments the unread_count for a user's specific chat.
+    #     """
+    #     try:
+    #         chat_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
+            
+
+    #         def increment_transaction(current_count):
+    #             if current_count is None:
+    #                 return 1  # If it doesn't exist, set it to 1
+    #             return current_count + 1
+
+    #         chat_ref.child("unread_count").transaction(increment_transaction)
+    #         print(f"✅ Incremented unread count for user {user_id}")
+    #         return True
+    #     except Exception as e:
+    #         print(f"❌ Error incrementing unread count: {e}")
+    #         return False
+        
+    def clear_unread_count(self, user_id, conversation_id):
+        """
+        Resets the unread_count for a specific chat to 0.
+        """
+        try:
+            chat_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
+            chat_ref.child("unread_count").set(0)
+            print(f"✅ Cleared unread count for user {user_id}")
+            return True
+        except Exception as e:
+            print(f"❌ Error clearing unread count: {e}")
+            return False
