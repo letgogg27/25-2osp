@@ -4,7 +4,7 @@
   <section class="item-summary-box">
     <aside class="item-image-box">
       <div class="main-image-wrapper">
-        <img src="../../static/images/{{data.img_path}}"/>
+        <img src="../../static/images/{{data.img_path}}" />
       </div>
       <div class="thumbnail-image-wrapper">
         <div class="thumbnail-image">
@@ -56,7 +56,7 @@
           </p>
           <small class="item-detail-seller-address" style="font-size: 14px">
             <i class="fa-solid fa-star" style="color: #ffc700"></i>평점 4.9 |
-            <i class="fa-solid fa-location-dot" style="color: darkred"></i> 
+            <i class="fa-solid fa-location-dot" style="color: darkred"></i>
             {{data.addr}}</small
           >
         </div>
@@ -90,25 +90,26 @@
   <section class="item-detail-explanation-box">
     <div class="detail-header">상품 설명</div>
     <div class="detail-body">
-<span>이화 로고 자수 반팔 티셔츠</span>
-이화여대 공식 굿즈로 제작된 로고 자수 반팔 티셔츠입니다.
-한정 수량으로 제작된 제품이며, 가슴 부분의 자수가 깔끔하고 세련된 느낌을 줍니다.
-새상품은 25000원 입니다.
-
-🧺 상품 상태: 미사용 (한 번도 착용하지 않음)
-👕 사이즈: M (55–66)
-🎨 색상: 틸 그린
-🧵 소재: 100% 면
-🏷️ 제조국: 대한민국
-
-부드럽고 탄탄한 코튼 소재로 제작되어 편하게 착용하기 좋습니다.
-학교 로고 자수가 포인트로 들어가 있어 깔끔한 데일리룩이나 기념품으로도 추천드립니다.
-택배 배송 시, 배송비는 3000원입니다. 직거래를 원하시면 채팅 주세요.
+      <span>이화 로고 자수 반팔 티셔츠</span>
+      이화여대 공식 굿즈로 제작된 로고 자수 반팔 티셔츠입니다. 한정 수량으로
+      제작된 제품이며, 가슴 부분의 자수가 깔끔하고 세련된 느낌을 줍니다.
+      새상품은 25000원 입니다. 🧺 상품 상태: 미사용 (한 번도 착용하지 않음) 👕
+      사이즈: M (55–66) 🎨 색상: 틸 그린 🧵 소재: 100% 면 🏷️ 제조국: 대한민국
+      부드럽고 탄탄한 코튼 소재로 제작되어 편하게 착용하기 좋습니다. 학교 로고
+      자수가 포인트로 들어가 있어 깔끔한 데일리룩이나 기념품으로도 추천드립니다.
+      택배 배송 시, 배송비는 3000원입니다. 직거래를 원하시면 채팅 주세요.
     </div>
   </section>
 
   <!-- Chat modal -->
-  <div id="chat-modal" class="chat-overlay" style="display: none">
+  <div
+    id="chat-modal"
+    class="chat-overlay"
+    style="display: none"
+    data-item-name="{{ name }}"
+    data-seller-id="{{ data.seller }}"
+    data-current-user-id="{{ session['id'] }}"
+  >
     <div class="chat-window">
       <!-- Header -->
       <div class="chat-header">

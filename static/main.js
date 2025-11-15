@@ -203,7 +203,7 @@ function initFormReset() {
 }
 
 //* ==============
-//   CHAT MODAL
+//  CHAT MODAL
 //============== *//
 
 function initChatFeature() {
@@ -230,10 +230,52 @@ function initChatFeature() {
     return;
   }
 
+  // --- [NEW] Get data from HTML ---
+  const ITEM_NAME = chatModal.dataset.itemName;
+  const SELLER_ID = chatModal.dataset.sellerId;
+  const CURRENT_USER_ID = chatModal.dataset.currentUserId;
+
   // --- Helper Functions ---
-  function openChat() {
+  async function openChat() {
     chatModal.style.display = "flex";
     bodyElement.classList.add("no-scroll");
+
+    // [NEW] Clear old messages and fetch history
+    if (messagesContainer) messagesContainer.innerHTML = "Loading...";
+
+    try {
+      const response = await fetch(`/api/chat/history/${ITEM_NAME}`);
+      if (!response.ok) {
+        if (response.status === 401) {
+          messagesContainer.innerHTML = "Please log in to chat.";
+        } else {
+          messagesContainer.innerHTML = "Error loading chat.";
+        }
+        return;
+      }
+
+      const messages = await response.json();
+      messagesContainer.innerHTML = ""; // Clear "Loading..."
+
+      // Check if messages object is empty
+      if (Object.keys(messages).length === 0) {
+        messagesContainer.innerHTML =
+          "<div class='chat-system-message'>This is the beginning of your conversation.</div>";
+      } else {
+        // Loop over messages and add them
+        for (const key in messages) {
+          const msg = messages[key];
+          addMessage(
+            { text: msg.text, imageURL: msg.image || null },
+            msg.sender
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Error fetching chat:", error);
+      messagesContainer.innerHTML = "Could not load messages.";
+    }
+
     scrollToBottom();
   }
 
@@ -243,6 +285,7 @@ function initChatFeature() {
     currentFileToSend = null;
     renderChatPreview(null); // Clear preview on close
     if (chatInput) chatInput.value = "";
+    if (messagesContainer) messagesContainer.innerHTML = ""; // Clear messages on close
   }
 
   function scrollToBottom() {
@@ -251,56 +294,38 @@ function initChatFeature() {
   }
 
   function renderChatPreview(file) {
+    // This function (renderChatPreview) stays exactly the same as your original
     if (!chatPreviewContainer || !chatInput) return;
     chatPreviewContainer.innerHTML = ""; // Clear existing preview
-
-    // Update the file variable
     currentFileToSend = file;
-
     if (file) {
       const reader = new FileReader();
       reader.onload = function (e) {
         const previewWrapper = document.createElement("div");
         previewWrapper.style.cssText =
           "width: 40px; height: 40px; overflow: hidden; border-radius: 4px; margin-right: 8px; position: relative;";
-
         const img = document.createElement("img");
         img.src = e.target.result;
         img.alt = file.name;
         img.style.cssText = "width: 100%; height: 100%; object-fit: cover;";
-
-        // Delete Button for the preview
         const deleteBtn = document.createElement("button");
         deleteBtn.innerHTML = "&times;";
         deleteBtn.classList.add("chat-preview-delete-btn");
         deleteBtn.style.cssText = `
-                    position: absolute;
-                    top: -1px;
-                    right: -1px; 
-                    background: rgba(0,0,0,0.6);
-                    color: white;
-                    border: none;
-                    border-top-right-radius: 6px;
-                    width: 16px;
-                    height: 16px;
-                    font-size: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    cursor: pointer;
-                    line-height: 1;
-                    padding: 0;
-                `;
+                    position: absolute; top: -1px; right: -1px; 
+                    background: rgba(0,0,0,0.6); color: white; border: none;
+                    border-top-right-radius: 6px; width: 16px; height: 16px;
+                    font-size: 12px; display: flex; align-items: center;
+                    justify-content: center; cursor: pointer; line-height: 1; padding: 0;
+                  `;
         deleteBtn.addEventListener("click", (event) => {
           event.stopPropagation();
           currentFileToSend = null;
           renderChatPreview(null);
           if (fileInput) fileInput.value = null;
         });
-
         previewWrapper.appendChild(img);
-        previewWrapper.appendChild(deleteBtn); //delete btn for selected img
-
+        previewWrapper.appendChild(deleteBtn);
         chatPreviewContainer.appendChild(previewWrapper);
       };
       reader.readAsDataURL(file);
@@ -311,10 +336,13 @@ function initChatFeature() {
 
   /**
    * Creates and appends a text or image message bubble.
+   * [MODIFIED] Now takes a 'senderId' to determine role.
    */
-
-  function addMessage(content, role) {
+  function addMessage(content, senderId) {
     if (!messagesContainer) return;
+
+    // [NEW] Determine role ("sender" or "receiver")
+    const role = senderId === CURRENT_USER_ID ? "sender" : "receiver";
 
     const { text, imageURL } = content;
     const hasImage = !!imageURL;
@@ -327,13 +355,13 @@ function initChatFeature() {
 
     const avatar = document.createElement("div");
     avatar.classList.add("message-avatar");
-    avatar.textContent = role === "receiver" ? "E" : "K";
+    // [MODIFIED] Use role to set avatar
+    avatar.textContent = role === "receiver" ? "E" : "K"; // You can make this dynamic later
     avatar.classList.add(role);
 
     const bubble = document.createElement("div");
     bubble.classList.add("message-bubble", role);
 
-    // 1. Render Image (if present)
     if (hasImage) {
       const img = document.createElement("img");
       img.src = imageURL;
@@ -343,12 +371,10 @@ function initChatFeature() {
       bubble.appendChild(img);
     }
 
-    // 2. Render Text (if present)
     if (hasText) {
       const textElement = document.createElement("p");
       textElement.textContent = text;
       textElement.style.margin = "0";
-
       bubble.appendChild(textElement);
     }
 
@@ -364,30 +390,55 @@ function initChatFeature() {
     scrollToBottom();
   }
 
-  function handleSend() {
+  /**
+   * [MODIFIED] Sends message to the backend.
+   */
+  async function handleSend() {
     const text = chatInput.value;
-    const file = currentFileToSend;
+    const file = currentFileToSend; // We are not handling file sending yet
 
     if (!text.trim() && !file) return;
 
+    // (Image sending logic is complex, we'll only send text for now)
     let fileURL = null;
-    if (file) {
-      fileURL = URL.createObjectURL(file);
-    }
+    // if (file) {
+    //   fileURL = URL.createObjectURL(file); // This is local, not real
+    // }
 
-    addMessage({ text: text, imageURL: fileURL }, "sender");
+    // 1. [MODIFIED] Add message to UI *immediately*
+    // We send OUR user ID
+    addMessage({ text: text, imageURL: fileURL }, CURRENT_USER_ID);
 
+    const messageText = text; // Store text before clearing
     chatInput.value = "";
     if (fileInput) fileInput.value = null;
     renderChatPreview(null);
 
-    // Demo Auto-reply
-    setTimeout(() => {
-      addMessage({ text: "네, 확인했습니다!", imageURL: null }, "receiver");
-    }, 800);
+    // 2. [NEW] Send message to backend API
+    try {
+      await fetch(`/api/chat/send/${ITEM_NAME}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: messageText,
+          // imageURL: null // Future
+        }),
+      });
+      // Message is sent, no need to do anything on success
+    } catch (error) {
+      console.error("Error sending message:", error);
+      // (Maybe add a "Failed to send" status to the message)
+    }
+
+    // 3. [REMOVED] Remove the fake "setTimeout" auto-reply
+    // setTimeout(() => {
+    //   addMessage({ text: "네, 확인했습니다!", imageURL: null }, "receiver");
+    // }, 800);
   }
 
-  // --- Event Listeners ---
+  // --- Event Listeners (No changes needed here) ---
 
   // Open / close modal
   openChatButton.addEventListener("click", openChat);
@@ -437,6 +488,7 @@ function initChatFeature() {
     });
   }
 }
+
 /* =========================
     TEXTAREA AUTO-RESIZE
    ========================= */

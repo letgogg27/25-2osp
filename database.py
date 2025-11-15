@@ -1,5 +1,6 @@
 ﻿import pyrebase
 import json
+import datetime
 
 class DBhandler:
     def __init__(self):
@@ -111,4 +112,36 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+    # Add a message to a conversation
+    def add_message(self, conversation_id, sender_id, text, image_url=None):
+        """
+        Saves a new message to a specific conversation node in Firebase.
+        """
+        try:
+            timestamp = datetime.datetime.utcnow().isoformat()
+            message_data = {
+                "sender": sender_id,
+                "text": text,
+                "image": image_url or "",
+                "timestamp": timestamp
+            }
+            
+            self.db.child("conversations").child(conversation_id).push(message_data)
+            print(f"✅ Message sent to: {conversation_id}")
+            return True
+        except Exception as e:
+            print(f"⚠️ Error sending message: {e}")
+            return False
 
+#  Get all messages for a conversation
+    def get_messages(self, conversation_id):
+        """
+        Retrieves all messages for a specific conversation_id.
+        """
+        try:
+            messages = self.db.child("conversations").child(conversation_id).get().val()
+            
+            return messages or {}
+        except Exception as e:
+            print(f"⚠️ Error fetching messages: {e}")
+            return {}

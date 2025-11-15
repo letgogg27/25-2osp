@@ -1,8 +1,8 @@
-from flask import Flask, render_template, request, url_for, redirect, flash, session
+from flask import Flask, render_template, request, url_for, redirect, flash, session, jsonify
 import hashlib
 from database import DBhandler
 import sys
-
+import datetime
 from flask import abort
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -172,6 +172,71 @@ def view_item_detail(name):
     data = DB.get_item_byname(str(name))
     print("####data:",data)
     return render_template("item_detail.html", name=name, data=data)
+
+# Gets the message history for a chat
+@app.route("/api/chat/history/<item_name>")
+def get_chat_history(item_name):
+    # Check if user is logged in
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    # Get seller ID from the item
+    item_data = DB.get_item_byname(item_name)
+    if not item_data:
+        return jsonify({"error": "Item not found"}), 404
+
+    seller_id = item_data.get("seller")
+    buyer_id = session['id']
+
+    # Create a unique conversation ID
+    user_ids = sorted([buyer_id, seller_id])
+    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+
+    # Fetch messages from DB
+    messages = DB.get_messages(conversation_id)
+
+    # Send messages back to the JavaScript as JSON
+    return jsonify(messages)
+
+# Sends a new message
+@app.route("/api/chat/send/<item_name>", methods=['POST'])
+def send_chat_message(item_name):
+    # Check if user is logged in
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    # Get data from the JavaScript request
+    data = request.json
+    text = data.get("text")
+
+    # 나중에 Image sending 
+
+    if not text:
+        return jsonify({"error": "Empty message"}), 400
+
+    # Get seller and buyer IDs
+    item_data = DB.get_item_byname(item_name)
+    if not item_data:
+        return jsonify({"error": "Item not found"}), 404
+
+    seller_id = item_data.get("seller")
+    buyer_id = session['id']
+
+    # Create the conversation ID
+    user_ids = sorted([buyer_id, seller_id])
+    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+
+    # Save the message to the database
+    success = DB.add_message(
+        conversation_id=conversation_id,
+        sender_id=buyer_id, 
+        text=text
+    )
+
+    if success:
+        return jsonify({"status": "success", "message": "Message sent"})
+    else:
+        return jsonify({"error": "Failed to send message"}), 500
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
