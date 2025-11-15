@@ -21,7 +21,8 @@
     />
     <style>
       /* ✅ 페이지 기본 레이아웃 구조 */
-      html, body {
+      html,
+      body {
         height: 100%;
         margin: 0;
         display: flex;
@@ -125,9 +126,7 @@
     </nav>
 
     <!-- ✅ 여기에 페이지 내용 들어감 -->
-    <main>
-      {% block content %} {% endblock %}
-    </main>
+    <main>{% block content %} {% endblock %}</main>
 
     <footer class="footer">
       <div class="footer-links">
@@ -139,6 +138,6 @@
       <p class="footer-copy">©2025 Ewha Market. All rights reserved.</p>
     </footer>
 
-    <script src="../static/main.js" defer></script>
+    <script src="{{url_for('static', filename='main.js')}}" defer></script>
   </body>
 </html>

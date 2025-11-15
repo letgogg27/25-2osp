@@ -1,40 +1,41 @@
-{% extends "index.html" %}
-{% block title %}상품 목록{% endblock %}
-{% block content %}
+{% extends "index.html" %} {% block title %}상품 목록{% endblock %} {% block
+content %}
 
 <h2 class="page-title">Ewha Market</h2>
 
 <style>
-*{ box-sizing: border-box;}
+  * {
+    box-sizing: border-box;
+  }
 
-.item-grid-wrapper {
-  margin: 0 auto;
-  max-width: 1800px;
-}
+  .item-grid-wrapper {
+    margin: 0 auto;
+    max-width: 1800px;
+  }
 
-.item-grid {
+  .item-grid {
     display: grid;
     grid-template-columns: repeat(5, minmax(190px, 1fr));
     gap: 10px;
-}
+  }
 
-.item-card {
+  .item-card {
     width: 100%;
     padding: 9px;
     text-align: left;
     border: 1px solid #eee;
     background: #fff;
-}
+  }
 
-.item-card img {
-  width: 100%;
-  height: 160px;    
-  object-fit: cover;  
-}
-.pager {
+  .item-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+  }
+  .pager {
     margin-top: 24px;
     margin-bottom: 80px;
-}
+  }
 </style>
 
 <div class="search-bar">
@@ -50,14 +51,14 @@
 </div>
 
 {% if total > 0 %}
-  <p>{{ total }}개 상품 등록됨</p>
+<p>{{ total }}개 상품 등록됨</p>
 <div class="item-grid-wrapper">
   <div class="item-grid">
     {% for key, value in datas %}
     <div
       class="item-card"
       onclick="location.href='{{ url_for('view_item_detail', name=key) }}';"
-      style="cursor:pointer;"
+      style="cursor: pointer"
     >
       <img src="static/images/{{ value.img_path }}" />
       <div class="item-info">
@@ -72,31 +73,37 @@
 </div>
 
 <div class="pager">
-    {# 이전 버튼 #}
-    {% if page > 1 %}
-      <a href="{{ url_for('view_list', page=page-1) }}" class="page-ctrl" aria-label="이전">&laquo;</a>
-    {% else %}
-      <span class="page-ctrl" aria-label="이전">&laquo;</span>
-    {% endif %}
+  {# 이전 버튼 #} {% if page > 1 %}
+  <a
+    href="{{ url_for('view_list', page=page-1) }}"
+    class="page-ctrl"
+    aria-label="이전"
+    >&laquo;</a
+  >
+  {% else %}
+  <span class="page-ctrl" aria-label="이전">&laquo;</span>
+  {% endif %}
 
-    <ol class="page-list">
-      {% for i in range(1, page_count + 1) %}
-        <li class="{% if i == page %}on{% endif %}">
-          <a href="{{ url_for('view_list', page=i) }}">{{ i }}</a>
-        </li>
-      {% endfor %}
-    </ol>
+  <ol class="page-list">
+    {% for i in range(1, page_count + 1) %}
+    <li class="{% if i == page %}on{% endif %}">
+      <a href="{{ url_for('view_list', page=i) }}">{{ i }}</a>
+    </li>
+    {% endfor %}
+  </ol>
 
-    {# 다음 버튼 #}
-    {% if page < page_count %}
-      <a href="{{ url_for('view_list', page=page+1) }}" class="page-ctrl" aria-label="다음">&raquo;</a>
-    {% else %}
-      <span class="page-ctrl" aria-label="다음">&raquo;</span>
-    {% endif %}
-  </div>
+  {# 다음 버튼 #} {% if page < page_count %}
+  <a
+    href="{{ url_for('view_list', page=page+1) }}"
+    class="page-ctrl"
+    aria-label="다음"
+    >&raquo;</a
+  >
+  {% else %}
+  <span class="page-ctrl" aria-label="다음">&raquo;</span>
+  {% endif %}
+</div>
 
 {% else %}
-  <p>등록된 상품이 없습니다.</p>
-{% endif %}
-
-{% endblock %}
+<p>등록된 상품이 없습니다.</p>
+{% endif %} {% endblock %}
