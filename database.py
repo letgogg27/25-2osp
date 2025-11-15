@@ -88,6 +88,15 @@ class DBhandler:
         self.db.child("user").push(user_info)
         print(f"✅ 회원가입 완료: {user_id}")
         return True
+
+    def find_user(self, id_, pw_):
+        users = self.db.child("user").get()
+        target_value=[]
+        for res in users.each():
+            value = res.val()
+            if value['id'] == id_ and value['pw'] == pw_:
+                return True
+        return False
     
     def get_items(self):
         items = self.db.child("item").get().val()
@@ -102,3 +111,4 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+
