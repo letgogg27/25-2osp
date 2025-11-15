@@ -22,16 +22,28 @@ class DBhandler:
         전달받은 상품 데이터를 JSON 형태로 구성하여
         Firebase DB의 'item' 노드에 저장
         """
+        if isinstance(img_path, list):
+            img_list = img_path
+        else:
+            img_list = [img_path]
+
+        raw_price = data.get('price', '')
+        digits_only = ''.join(ch for ch in str(raw_price) if ch.isdigit())
+
         item_info = {
-            "seller": data['seller'],
-            "addr": data['addr'],
-            "email": data['email'],
-            "category": data['category'],
-            "card": data['card'],
-            "status": data['status'],
-            "phone": data['phone'],
-            "price": data['price'],
-            "img_path": img_path
+            "seller": data.get('seller', ''),
+            "addr": data.get('addr', ''),
+            "price": digits_only,
+            "status": data.get('status', ''),
+            "negotiable": data.get('negotiable', ''),
+            "description": data.get('description', ''),
+            "email": data.get('email', ''),
+            "category": data.get('category', ''),
+            "card": data.get('card', ''),
+            "phone": data.get('phone', ''),
+            
+            "img_paths": img_list,
+            "img_path": img_list[0], 
         }
 
         # "item" 노드 아래 상품 이름(name)을 키로 데이터 저장
