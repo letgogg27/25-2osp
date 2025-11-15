@@ -1,34 +1,71 @@
-{% extends "index.html" %} {% block title %} Detail Item Info {%endblock %}
-{%block content %}
+{% extends "index.html" %}
+{% block title %}{{ name }} 상세보기{% endblock %}
+{% block content %}
+
+{# 이미지 목록: img_paths가 있으면 그걸 쓰고, 없으면 기존 img_path 하나만 사용 #}
+{% set imgs = data.img_paths if data.img_paths is defined and data.img_paths else [data.img_path] %}
+{% set price_int = (data.price|int if data.price is defined and data.price is not none and data.price != '' else 0) %}
+{% if data.seller is defined and data.seller %}
+  {% set seller_initial = data.seller[0]|upper %}
+{% else %}
+  {% set seller_initial = 'E' %}
+{% endif %}
+
 <main class="item-details-container">
   <section class="item-summary-box">
     <aside class="item-image-box">
       <div class="main-image-wrapper">
-        <img src="../../static/images/{{data.img_path}}"/>
+        {% if imgs %}
+        <img id="main-image"
+             src="{{ url_for('static', filename='images/' ~ imgs[0]) }}"
+             alt="{{ name }}" />
+        {% endif %}
       </div>
+
+      {% if imgs|length > 1 %}
       <div class="thumbnail-image-wrapper">
+        {% for img in imgs %}
         <div class="thumbnail-image">
-          <img src="../../static/images/{{data.img_path}}" />
+          <img class="thumb-img"
+               src="{{ url_for('static', filename='images/' ~ img) }}"
+               data-index="{{ loop.index0 }}"
+               alt="{{ name }} {{ loop.index }}" />
         </div>
-        <div class="thumbnail-image">
-          <img src="../../static/images/{{data.img_path}}" />
-        </div>
-        <div class="thumbnail-image">
-          <img src="../../static/images/{{data.img_path}}" />
-        </div>
+        {% endfor %}
       </div>
+      {% endif %}
     </aside>
+
     <aside class="item-info-container-box">
       <div class="item-title-conditon-box">
-        <h2>{{name}}</h2>
-        <small class="item-condition">새상품(미사용)</small>
+        <h2>{{ name }}</h2>
+        <small class="item-condition">
+          {% if data.status == 'new' %}
+            새상품(미사용)
+          {% elif data.status == 'almost_new' %}
+            거의 새상품
+          {% elif data.status == 'used' %}
+            사용감 있음
+          {% else %}
+            상태 미정
+          {% endif %}
+        </small>
       </div>
+
       <div class="item-price-box">
-        <p class="item-price">{{data.price}}원</p>
-        <div class="item-price-negotiation">가격 제안 가능</div>
+        <p class="item-price">
+          {{ "{:,}".format(price_int) }}원
+        </p>
+        <div class="item-price-negotiation">
+          {% if data.negotiable == 'yes' %}
+            가격 제안 가능
+          {% else %}
+            가격 제안 불가
+          {% endif %}
+        </div>
       </div>
+
       <div class="item-seller-info-box">
-        <!--갑자기 css가 이부분에 실행 안 함 , 나중 error 찾은 후 외부파일로 옮긴 예정-->
         <div
           class="seller-thumb-avatar"
           style="
@@ -45,8 +82,9 @@
             font-size: 20px;
           "
         >
-          E
+          {{ seller_initial }}
         </div>
+
         <div class="item-detail-seller-info">
           <p
             class="item-detail-seller-id"
@@ -57,10 +95,11 @@
           <small class="item-detail-seller-address" style="font-size: 14px">
             <i class="fa-solid fa-star" style="color: #ffc700"></i>평점 4.9 |
             <i class="fa-solid fa-location-dot" style="color: darkred"></i> 
-            {{data.addr}}</small
-          >
+            {{data.addr}}
+          </small>
         </div>
       </div>
+
       <div class="item-seller-review">
         <h4>이전 거래 후기</h4>
         <hr />
@@ -87,23 +126,12 @@
       </div>
     </aside>
   </section>
+
   <section class="item-detail-explanation-box">
     <div class="detail-header">상품 설명</div>
     <div class="detail-body">
-<span>이화 로고 자수 반팔 티셔츠</span>
-이화여대 공식 굿즈로 제작된 로고 자수 반팔 티셔츠입니다.
-한정 수량으로 제작된 제품이며, 가슴 부분의 자수가 깔끔하고 세련된 느낌을 줍니다.
-새상품은 25000원 입니다.
-
-🧺 상품 상태: 미사용 (한 번도 착용하지 않음)
-👕 사이즈: M (55–66)
-🎨 색상: 틸 그린
-🧵 소재: 100% 면
-🏷️ 제조국: 대한민국
-
-부드럽고 탄탄한 코튼 소재로 제작되어 편하게 착용하기 좋습니다.
-학교 로고 자수가 포인트로 들어가 있어 깔끔한 데일리룩이나 기념품으로도 추천드립니다.
-택배 배송 시, 배송비는 3000원입니다. 직거래를 원하시면 채팅 주세요.
+      {# DB에 저장된 description 사용. 줄바꿈을 유지하고 싶으면 replace('\n','<br>')|safe #}
+      {{ data.description | replace('\n', '<br>') | safe }}
     </div>
   </section>
 
@@ -113,9 +141,9 @@
       <!-- Header -->
       <div class="chat-header">
         <div class="chat-header-left">
-          <div class="chat-header-avatar">E</div>
+          <div class="chat-header-avatar">{{ seller_initial }}</div>
           <div class="chat-header-info">
-            <div class="chat-header-name user-id">@ewha_seller</div>
+            <div class="chat-header-name user-id">@{{ data.seller }}</div>
             <div class="chat-header-status">현재 활동 중</div>
           </div>
         </div>
@@ -129,9 +157,9 @@
         <div class="chat-messages" id="chat-messages">
           <!-- Example receiver message -->
           <div class="message-row receiver">
-            <div class="message-avatar receiver">E</div>
+            <div class="message-avatar receiver">{{ seller_initial }}</div>
             <div class="message-bubble receiver">
-              안녕하세요, 티셔츠 아직 구매 가능한가요?
+              안녕하세요, 상품 아직 구매 가능한가요?
             </div>
           </div>
 
