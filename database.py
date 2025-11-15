@@ -157,3 +157,27 @@ class DBhandler:
         except Exception as e:
             print(f"⚠️ Error fetching messages: {e}")
             return {}
+        
+    # Save a link so the user can see this chat in their inbox
+    def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id):
+        try:
+            chat_info = {
+                "conversation_id": conversation_id,
+                "item_name": item_name,
+                "with_user": other_user_id
+            }
+            # Save under "user_chats/USER_ID/CONVERSATION_ID"
+            self.db.child("user_chats").child(user_id).child(conversation_id).set(chat_info)
+            return True
+        except Exception as e:
+            print(f"❌ Error linking user to chat: {e}")
+            return False
+
+    #  Get the list of chats for the Inbox page
+    def get_user_conversations(self, user_id):
+        try:
+            conversations = self.db.child("user_chats").child(user_id).get().val()
+            return conversations or {}
+        except Exception as e:
+            print(f"❌ Error fetching user chats: {e}")
+            return {}

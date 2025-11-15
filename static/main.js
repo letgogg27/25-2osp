@@ -203,13 +203,15 @@ function initFormReset() {
 }
 
 //* ==============
-//  CHAT MODAL
+//  Real-time CHAT MODAL
 //============== *//
 
 function initChatFeature() {
   let currentFileToSend = null;
+  let currentConversationRef = null; // To store the database reference
+  let currentMessageListener = null; // To store the listener so we can turn it off
 
-  // --- Element Selection ---
+  // Element Selection
   const openChatButton = document.getElementById("open-chat-btn");
   const chatModal = document.getElementById("chat-modal");
   const closeChatButton = document.getElementById("close-chat-btn");
@@ -219,7 +221,6 @@ function initChatFeature() {
   const chatInput = document.getElementById("chat-input");
   const sendButton = document.getElementById("send-btn");
 
-  // Photo/Emoji Elements
   const photoBtn = document.getElementById("photo-btn");
   const fileInput = document.getElementById("file-input");
   const emojiBtn = document.getElementById("emoji-btn");
@@ -230,62 +231,82 @@ function initChatFeature() {
     return;
   }
 
-  // --- [NEW] Get data from HTML ---
   const ITEM_NAME = chatModal.dataset.itemName;
   const SELLER_ID = chatModal.dataset.sellerId;
   const CURRENT_USER_ID = chatModal.dataset.currentUserId;
 
-  // --- Helper Functions ---
-  async function openChat() {
+  // Create the Conversation ID
+  let conversationId;
+  if (CURRENT_USER_ID && SELLER_ID) {
+    const userIds = [CURRENT_USER_ID, SELLER_ID].sort();
+    conversationId = `${userIds[0]}_${userIds[1]}_${ITEM_NAME}`;
+  } else {
+    // User is not logged in-> can't start a chat
+    return;
+  }
+
+  function openChat() {
     chatModal.style.display = "flex";
     bodyElement.classList.add("no-scroll");
+    if (messagesContainer) messagesContainer.innerHTML = "Loading chat...";
 
-    // [NEW] Clear old messages and fetch history
-    if (messagesContainer) messagesContainer.innerHTML = "Loading...";
+    // Get the database reference for this specific chat
+    currentConversationRef = database.ref("conversations/" + conversationId);
 
-    try {
-      const response = await fetch(`/api/chat/history/${ITEM_NAME}`);
-      if (!response.ok) {
-        if (response.status === 401) {
-          messagesContainer.innerHTML = "Please log in to chat.";
-        } else {
-          messagesContainer.innerHTML = "Error loading chat.";
-        }
-        return;
-      }
-
-      const messages = await response.json();
-      messagesContainer.innerHTML = ""; // Clear "Loading..."
-
-      // Check if messages object is empty
-      if (Object.keys(messages).length === 0) {
-        messagesContainer.innerHTML =
-          "<div class='chat-system-message'>This is the beginning of your conversation.</div>";
-      } else {
-        // Loop over messages and add them
-        for (const key in messages) {
-          const msg = messages[key];
-          addMessage(
-            { text: msg.text, imageURL: msg.image || null },
-            msg.sender
-          );
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching chat:", error);
-      messagesContainer.innerHTML = "Could not load messages.";
+    if (currentMessageListener) {
+      currentConversationRef.off("value", currentMessageListener);
     }
+    currentMessageListener = currentConversationRef.on(
+      "value",
+      (snapshot) => {
+        if (!messagesContainer) return;
+        messagesContainer.innerHTML = ""; // Clear "Loading..."
+
+        const messages = snapshot.val(); // Get all messages as an object
+
+        if (messages) {
+          // Loop through all messages
+          Object.keys(messages).forEach((key) => {
+            const msg = messages[key];
+            addMessage(
+              { text: msg.text, imageURL: msg.image || null },
+              msg.sender
+            );
+          });
+        } else {
+          // No messages yet
+          messagesContainer.innerHTML =
+            "<div class='chat-system-message'>This is the beginning of your conversation.</div>";
+        }
+
+        scrollToBottom();
+      },
+      (error) => {
+        // Handle errors
+        console.error("Firebase read error:", error);
+        if (messagesContainer)
+          messagesContainer.innerHTML = "Error loading chat.";
+      }
+    );
 
     scrollToBottom();
   }
 
   function closeChat() {
+    // Turn off the real-time listener
+    if (currentConversationRef && currentMessageListener) {
+      currentConversationRef.off("value", currentMessageListener);
+      currentConversationRef = null;
+      currentMessageListener = null;
+    }
+
+    // Reset everything else
     chatModal.style.display = "none";
     bodyElement.classList.remove("no-scroll");
     currentFileToSend = null;
-    renderChatPreview(null); // Clear preview on close
+    renderChatPreview(null);
     if (chatInput) chatInput.value = "";
-    if (messagesContainer) messagesContainer.innerHTML = ""; // Clear messages on close
+    if (messagesContainer) messagesContainer.innerHTML = "";
   }
 
   function scrollToBottom() {
@@ -294,9 +315,8 @@ function initChatFeature() {
   }
 
   function renderChatPreview(file) {
-    // This function (renderChatPreview) stays exactly the same as your original
     if (!chatPreviewContainer || !chatInput) return;
-    chatPreviewContainer.innerHTML = ""; // Clear existing preview
+    chatPreviewContainer.innerHTML = "";
     currentFileToSend = file;
     if (file) {
       const reader = new FileReader();
@@ -311,13 +331,7 @@ function initChatFeature() {
         const deleteBtn = document.createElement("button");
         deleteBtn.innerHTML = "&times;";
         deleteBtn.classList.add("chat-preview-delete-btn");
-        deleteBtn.style.cssText = `
-                    position: absolute; top: -1px; right: -1px; 
-                    background: rgba(0,0,0,0.6); color: white; border: none;
-                    border-top-right-radius: 6px; width: 16px; height: 16px;
-                    font-size: 12px; display: flex; align-items: center;
-                    justify-content: center; cursor: pointer; line-height: 1; padding: 0;
-                  `;
+        deleteBtn.style.cssText = `position: absolute; top: -1px; right: -1px; background: rgba(0,0,0,0.6); color: white; border: none; border-top-right-radius: 6px; width: 16px; height: 16px; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; line-height: 1; padding: 0;`;
         deleteBtn.addEventListener("click", (event) => {
           event.stopPropagation();
           currentFileToSend = null;
@@ -334,34 +348,35 @@ function initChatFeature() {
     }
   }
 
-  /**
-   * Creates and appends a text or image message bubble.
-   * [MODIFIED] Now takes a 'senderId' to determine role.
-   */
   function addMessage(content, senderId) {
     if (!messagesContainer) return;
 
-    // [NEW] Determine role ("sender" or "receiver")
+    // --- [NEW DEBUG CODE] ---
+    // Let's print the variables to the console to see what's happening
+    console.log("--- New Message ---");
+    console.log(`Message Sender ID (senderId): ${senderId}`);
+    console.log(`My Browser's ID (CURRENT_USER_ID): ${CURRENT_USER_ID}`);
+    // --- [END DEBUG CODE] ---
+
     const role = senderId === CURRENT_USER_ID ? "sender" : "receiver";
+
+    // --- [NEW DEBUG CODE] ---
+    console.log(`Resulting Role (left/right): ${role}`);
+    console.log("-------------------");
+    // --- [END DEBUG CODE] ---
 
     const { text, imageURL } = content;
     const hasImage = !!imageURL;
     const hasText = !!text && text.trim().length > 0;
-
     if (!hasImage && !hasText) return;
-
     const row = document.createElement("div");
     row.classList.add("message-row", role);
-
     const avatar = document.createElement("div");
     avatar.classList.add("message-avatar");
-    // [MODIFIED] Use role to set avatar
-    avatar.textContent = role === "receiver" ? "E" : "K"; // You can make this dynamic later
+    avatar.textContent = role === "receiver" ? "E" : "K";
     avatar.classList.add(role);
-
     const bubble = document.createElement("div");
     bubble.classList.add("message-bubble", role);
-
     if (hasImage) {
       const img = document.createElement("img");
       img.src = imageURL;
@@ -370,14 +385,12 @@ function initChatFeature() {
         "max-width: 100%; border-radius: 8px; margin-bottom: 5px;";
       bubble.appendChild(img);
     }
-
     if (hasText) {
       const textElement = document.createElement("p");
       textElement.textContent = text;
       textElement.style.margin = "0";
       bubble.appendChild(textElement);
     }
-
     if (role === "receiver") {
       row.appendChild(avatar);
       row.appendChild(bubble);
@@ -385,60 +398,40 @@ function initChatFeature() {
       row.appendChild(bubble);
       row.appendChild(avatar);
     }
-
     messagesContainer.appendChild(row);
     scrollToBottom();
   }
-
-  /**
-   * [MODIFIED] Sends message to the backend.
-   */
   async function handleSend() {
     const text = chatInput.value;
-    const file = currentFileToSend; // We are not handling file sending yet
+    const file = currentFileToSend; // 나중에 넣을 예정
 
     if (!text.trim() && !file) return;
 
-    // (Image sending logic is complex, we'll only send text for now)
-    let fileURL = null;
-    // if (file) {
-    //   fileURL = URL.createObjectURL(file); // This is local, not real
-    // }
+    // 1. Create the message data object
+    const messageData = {
+      sender: CURRENT_USER_ID,
+      text: text,
+      image: "", // 나중에 넣을 예정
+      timestamp: firebase.database.ServerValue.TIMESTAMP, // Firebase will set the time
+    };
 
-    // 1. [MODIFIED] Add message to UI *immediately*
-    // We send OUR user ID
-    addMessage({ text: text, imageURL: fileURL }, CURRENT_USER_ID);
-
-    const messageText = text; // Store text before clearing
+    // 2. Clear the input *before* sending
     chatInput.value = "";
     if (fileInput) fileInput.value = null;
     renderChatPreview(null);
 
-    // 2. [NEW] Send message to backend API
+    // 3.  Send to Firebase using push()
     try {
-      await fetch(`/api/chat/send/${ITEM_NAME}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          text: messageText,
-          // imageURL: null // Future
-        }),
-      });
-      // Message is sent, no need to do anything on success
+      const convoRef = database.ref("conversations/" + conversationId);
+      await convoRef.push(messageData);
+
+      await fetch(`/api/chat/link_inbox/${ITEM_NAME}`, { method: "POST" });
     } catch (error) {
       console.error("Error sending message:", error);
-      // (Maybe add a "Failed to send" status to the message)
+      // If it fails, maybe add the text back?
+      chatInput.value = text;
     }
-
-    // 3. [REMOVED] Remove the fake "setTimeout" auto-reply
-    // setTimeout(() => {
-    //   addMessage({ text: "네, 확인했습니다!", imageURL: null }, "receiver");
-    // }, 800);
   }
-
-  // --- Event Listeners (No changes needed here) ---
 
   // Open / close modal
   openChatButton.addEventListener("click", openChat);

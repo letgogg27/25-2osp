@@ -297,25 +297,60 @@ def send_chat_message(item_name):
     if not item_data:
         return jsonify({"error": "Item not found"}), 404
 
-    seller_id = item_data.get("seller")
-    buyer_id = session['id']
+    item_owner_id = item_data.get("seller") 
+    current_user_id = session['id']          
 
     # Create the conversation ID
-    user_ids = sorted([buyer_id, seller_id])
+    user_ids = sorted([current_user_id, item_owner_id]) 
+
     conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
 
     # Save the message to the database
     success = DB.add_message(
         conversation_id=conversation_id,
-        sender_id=buyer_id, 
+        sender_id=current_user_id,  
         text=text
     )
 
     if success:
+        try:
+            
+            # Link to the Current User's Inbox
+            DB.link_user_to_conversation(
+                user_id=current_user_id, 
+                conversation_id=conversation_id, 
+                item_name=item_name, 
+                other_user_id=item_owner_id
+            )
+            # Link to the Item Owner's Inbox
+            DB.link_user_to_conversation(
+                user_id=item_owner_id,
+                conversation_id=conversation_id, 
+                item_name=item_name, 
+                other_user_id=current_user_id
+            )
+        except Exception as e:
+            print(f"⚠️ Error linking chats: {e}")
+
         return jsonify({"status": "success", "message": "Message sent"})
     else:
         return jsonify({"error": "Failed to send message"}), 500
-
+    
+@app.route("/my_messages")
+def my_messages():
+    if 'id' not in session:
+        flash("Please log in first.")
+        return redirect(url_for('login'))
+    
+    my_id = session['id']
+    
+    # Get list of chats from DB
+    conversations_dict = DB.get_user_conversations(my_id)
+    
+    # Convert to a list for the HTML loop
+    conversations_list = list(conversations_dict.values()) if conversations_dict else []
+    
+    return render_template("my_messages.html", conversations=conversations_list)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
