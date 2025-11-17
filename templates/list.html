@@ -49,12 +49,12 @@ content %}
 </style>
 
 <div class="search-bar">
-  <form class="search-form" method="GET" action="/list">
-    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색" />
+  <form class="search-form" method="GET" action="{{ url_for('view_list') }}">
+    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색" value="{{ q or '' }}"/>
     <select name="sort">
-      <option value="">최신순</option>
-      <option value="price_asc">가격 낮은 순</option>
-      <option value="price_desc">가격 높은 순</option>
+      <option value="" {% if not sort %}selected{% endif %}>최신순</option>
+      <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>가격 낮은 순</option>
+      <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>가격 높은 순</option>
     </select>
     <button type="submit">검색</button>
   </form>
@@ -91,11 +91,10 @@ content %}
 <div class="pager">
   {# 이전 버튼 #} {% if page > 1 %}
   <a
-    href="{{ url_for('view_list', page=page-1) }}"
+    href="{{ url_for('view_list', page=page-1, q=q, sort=sort) }}"
     class="page-ctrl"
     aria-label="이전"
-    >&laquo;</a
-  >
+    >&laquo;</a>
   {% else %}
   <span class="page-ctrl" aria-label="이전">&laquo;</span>
   {% endif %}
@@ -103,18 +102,17 @@ content %}
   <ol class="page-list">
     {% for i in range(1, page_count + 1) %}
     <li class="{% if i == page %}on{% endif %}">
-      <a href="{{ url_for('view_list', page=i) }}">{{ i }}</a>
+      <a href="{{ url_for('view_list', page=i, q=q, sort=sort) }}">{{ i }}</a>
     </li>
     {% endfor %}
   </ol>
 
   {# 다음 버튼 #} {% if page < page_count %}
   <a
-    href="{{ url_for('view_list', page=page+1) }}"
+    href="{{ url_for('view_list', page=page+1, q=q, sort=sort) }}"
     class="page-ctrl"
     aria-label="다음"
-    >&raquo;</a
-  >
+    >&raquo;</a>
   {% else %}
   <span class="page-ctrl" aria-label="다음">&raquo;</span>
   {% endif %}

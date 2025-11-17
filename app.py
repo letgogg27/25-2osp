@@ -68,19 +68,44 @@ def current_user_id():
 def home():
     return redirect(url_for("view_list"))
 
+def safe_int(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
 
 @app.route("/list", strict_slashes=False)
 def view_list():
     page = request.args.get("page", 1, type=int)
+    q = request.args.get("q", "").strip()
+    sort = request.args.get("sort", "")
 
-    per_page = 15  # 한 페이지당 아이템 수
+    per_page = 15
 
-    data = DB.get_items() or {}  # DB에서 아이템 읽기
-    items = list(data.items())  # dict -> 리스트로 변환 (순회/슬라이스 용)
-    item_counts = len(items)  # 전체 상품 개수
+    data = DB.get_items() or {}  
+    items = list(data.items())
 
-    # 전체 페이지 수 (올림)
-    page_count = (item_counts + per_page - 1) // per_page
+    filtered = []
+    for name, info in items:
+        seller = info.get("seller", "")
+        if q:
+            if (q.lower() not in name.lower()) and (q.lower() not in seller.lower()):
+                continue
+        filtered.append((name, info))
+
+    if sort == "price_asc":
+        filtered.sort(key=lambda kv: safe_int(kv[1].get("price")))
+    elif sort == "price_desc":
+        filtered.sort(
+            key=lambda kv: safe_int(kv[1].get("price")),
+            reverse=True
+        )
+    else:
+        pass
+
+    item_counts = len(filtered)
+
+    page_count = (item_counts + per_page - 1) // per_page if item_counts > 0 else 1
 
     if page < 1:
         page = 1
@@ -89,15 +114,17 @@ def view_list():
 
     start_idx = (page - 1) * per_page
     end_idx = start_idx + per_page
-    page_items = items[start_idx:end_idx]
+    page_items = filtered[start_idx:end_idx]
 
     return render_template(
         "list.html",
-        datas=page_items,  # 템플릿에서 for key,value in datas
+        datas=page_items,
         limit=per_page,
         page=page,
         page_count=page_count,
         total=item_counts,
+        q=q,
+        sort=sort,
     )
 
 
@@ -319,11 +346,6 @@ def view_item_detail(name):
 
 @app.route("/api/chat/link_inbox/<item_name>", methods=['POST'])
 def link_chat_to_inbox(item_name):
-    """
-    Called by JS *after* a message is sent.
-    Links chat to sender (if new)
-    Links chat to receiver (if new) AND increments receiver's unread count.
-    """
     # if 'id' not in session:
     #     return jsonify({"error": "Unauthorized"}), 401
 
@@ -367,10 +389,6 @@ def link_chat_to_inbox(item_name):
 
 @app.route("/api/chat/clear_unread", methods=['POST'])
 def clear_unread():
-    """
-    Called by JS when a chat is opened.
-    Sets the unread_count for that chat to 0.
-    """
     # if 'id' not in session:
     #     return jsonify({"error": "Unauthorized"}), 401
     if "id" not in session:
@@ -402,3 +420,4 @@ def my_messages():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
