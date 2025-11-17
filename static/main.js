@@ -243,10 +243,15 @@ function initChatFeature() {
 
   let conversationId;
 
+  // NOT Login
   if (!CURRENT_USER_ID) {
-    return; // Not logged in
+    // 비로그인: 버튼 누르면 로그인 페이지로 이동
+    openChatButton.addEventListener("click", () => {
+      alert("로그인 후 이용해주세요!");
+      window.location.href = "/login";
+    });
+    return;
   }
-
   // the other person chat
   let otherUserId;
 

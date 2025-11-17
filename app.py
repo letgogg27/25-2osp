@@ -261,9 +261,13 @@ def link_chat_to_inbox(item_name):
     Links chat to sender (if new)
     Links chat to receiver (if new) AND increments receiver's unread count.
     """
-    if 'id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
+    # if 'id' not in session:
+    #     return jsonify({"error": "Unauthorized"}), 401
 
+    if "id" not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for("login"))
+    
     try:
         data = request.json
         other_user_id = data.get('other_user_id') #  the RECEIVER
@@ -304,8 +308,11 @@ def clear_unread():
     Called by JS when a chat is opened.
     Sets the unread_count for that chat to 0.
     """
-    if 'id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
+    # if 'id' not in session:
+    #     return jsonify({"error": "Unauthorized"}), 401
+    if "id" not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for("login"))
     
     try:
         data = request.json
