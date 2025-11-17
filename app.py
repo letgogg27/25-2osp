@@ -13,14 +13,19 @@ from flask import (
 import hashlib
 from database import DBhandler
 import os
+import uuid
 from werkzeug.utils import secure_filename
 import sys
 import datetime
 from flask import abort
 from flask import jsonify
 
+
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "some-secret"
+
+UPLOAD_FOLDER = os.path.join(app.root_path, "static", "images")
+
 
 DB = DBhandler()
 
@@ -101,7 +106,10 @@ def view_list():
             reverse=True
         )
     else:
-        pass
+        filtered.sort(
+            key=lambda kv: float(kv[1].get("created_at", 0)),
+            reverse=True
+        )
 
     item_counts = len(filtered)
 
@@ -223,10 +231,12 @@ def reg_item_submit_post():
     filenames = []
     for f in files[:10]:  # 최대 10장
         if f and f.filename:
-            filename = secure_filename(f.filename)
-            save_path = os.path.join(image_dir, filename)
+            original_name = secure_filename(f.filename)
+            _, ext = os.path.splitext(original_name)
+            unique_name = f"{uuid.uuid4().hex}{ext}"
+            save_path = os.path.join(image_dir, unique_name)
             f.save(save_path)
-            filenames.append(filename)
+            filenames.append(unique_name)
 
     if not filenames:
         flash("이미지 저장에 실패했습니다.")
@@ -253,7 +263,6 @@ def reg_item_submit_post():
     description = (form.get("description") or "").strip()
     seller_id = session["id"]  # 폼 값 대신 세션 사용
 
-    # DBhandler.insert_item이 기대하는 키(seller, addr, price, status...) 기준으로 매핑
     data = {
         "seller": seller_id,
         "addr": address,

@@ -42,6 +42,8 @@ class DBhandler:
         raw_price = data.get('price', '')
         digits_only = ''.join(ch for ch in str(raw_price) if ch.isdigit())
 
+        created_at = datetime.datetime.utcnow().timestamp()
+
         item_info = {
             "seller": data.get('seller', ''),
             "addr": data.get('addr', ''),
@@ -56,9 +58,10 @@ class DBhandler:
             
             "img_paths": img_list,
             "img_path": img_list[0], 
+
+            "created_at": created_at,
         }
 
-        # "item" 노드 아래 상품 이름(name)을 키로 데이터 저장
         self.db.child("item").child(name).set(item_info)
         print(f"✅ 상품 '{name}' 등록 완료")
         return True
