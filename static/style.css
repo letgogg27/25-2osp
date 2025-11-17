@@ -1,10 +1,17 @@
 /*** Navbar ***/
 
 body {
-  padding-top: 100px;
-  padding-bottom: 60px;
   margin: 0;
+  padding-top: 100px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+
+main {
+  flex-grow: 1;
+}
+
 /*공통 textarea font*/
 textarea,
 textarea::placeholder {
@@ -95,11 +102,6 @@ nav {
   padding: 25px 0 15px;
   font-family: "Noto Sans KR", sans-serif;
   font-size: 14px;
-  position: fixed;
-  z-index: 999;
-  bottom: 0;
-  left: 0;
-  right: 0;
   width: 100%;
 }
 
