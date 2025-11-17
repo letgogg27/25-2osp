@@ -109,9 +109,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         <button class="item-detail-btn to-chat" id="open-chat-btn">
           채팅하러 가기
         </button>
-        <button class="item-detail-btn to-wishlist">
-          <i class="fa-regular fa-heart"></i>
-        </button>
+        <i class="fa fa-heart" id="heart"
+           style="font-size:28px; cursor:pointer; margin-left:10px;"></i>
       </div>
     </aside>
   </section>
@@ -205,5 +204,63 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     </div>
   </div>
 </main>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+  function showHeart() {
+    $.ajax({
+      type: 'GET',
+      url: '/show_heart/{{name}}/',
+      data: {},
+      success: function (response) {
+        let my_heart = response['my_heart'];
+
+        // 값이 없거나 null이면 기본 상태로 설정
+        if (!my_heart || !my_heart['interested']) {
+          $("#heart").css("color", "grey");
+          $("#heart").attr("onclick", "like()");
+          return;
+        }
+
+        if (my_heart['interested'] == 'Y') {
+          $("#heart").css("color", "red");
+          $("#heart").attr("onclick", "unlike()");
+        } else {
+          $("#heart").css("color", "grey");
+          $("#heart").attr("onclick", "like()");
+        }
+      }
+    });
+  }
+
+  function like() {
+    $.ajax({
+      type: 'POST',
+      url: '/like/{{name}}/',
+      data: { interested: "Y" },
+      success: function (response) {
+        alert(response['msg']);
+        window.location.reload();
+      }
+    });
+  }
+
+  function unlike() {
+    $.ajax({
+      type: 'POST',
+      url: '/unlike/{{name}}/',
+      data: { interested: "N" },
+      success: function (response) {
+        alert(response['msg']);
+        window.location.reload();
+      }
+    });
+  }
+
+  $(document).ready(function () {
+    showHeart();
+  });
+</script>
 
 {%endblock%}
