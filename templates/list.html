@@ -61,34 +61,30 @@ content %}
 </div>
 
 {% if total > 0 %}
-<p>{{ total }}개 상품 등록됨</p>
 <div class="item-grid-wrapper">
-  <div class="item-grid">
+  <p class="item-count-text">{{ total }}개 상품 등록됨</p>
+    <div class="item-grid">
 
-    {% for key, value in datas %}
-    <div class="item-card">
+      {% for key, value in datas %}
+      <div class="item-card">
+        <!-- 클릭 영역 -->
+        <div onclick="location.href='{{ url_for('view_item_detail', name=key) }}'"
+            style="cursor:pointer;">
+            <img src="static/images/{{ value.img_path }}" />
+            <div class="item-info">
+                <h3>{{ key }}</h3>
+                <p>{{ value.price }}원</p>
+                <p>{{ value.addr }}</p>
+            </div>
+        </div>
 
-      <!-- 클릭 영역 -->
-      <div onclick="location.href='{{ url_for('view_item_detail', name=key) }}'"
-           style="cursor:pointer;">
-          <img src="static/images/{{ value.img_path }}" />
-          <div class="item-info">
-              <h3>{{ key }}</h3>
-              <p>{{ value.price }}원</p>
-              <p>{{ value.addr }}</p>
-          </div>
+        <!-- 하트 -->
+        <i class="fa fa-heart heart-icon"
+          id="heart-{{ key }}"
+          onclick="onHeartClick(event, '{{ key }}')"></i>
       </div>
-
-      <!-- 하트 -->
-      <i class="fa fa-heart heart-icon"
-         id="heart-{{ key }}"
-         onclick="onHeartClick(event, '{{ key }}')"></i>
-
+      {% endfor %}
     </div>
-
-    {% endfor %}
-
-  </div>
 </div>
 
 

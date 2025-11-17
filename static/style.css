@@ -2168,6 +2168,12 @@ textarea {
   margin: 0 auto 60px;
 }
 
+.item-count-text {
+  margin: 0 0 12px 0;
+  text-align: center;
+  font-weight: 500;
+}
+
 .item-card {
   border: 1px solid #e5e5e5;
   border-radius: 10px;
