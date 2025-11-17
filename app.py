@@ -212,7 +212,6 @@ def reg_item_submit_post():
     if not item_name:
         flash("상품 이름을 입력해주세요.")
         return redirect(url_for("register_items"))
-
     # 가격: 숫자만 추출해서 DB에는 "1000000" 형태로 저장
     raw_price = (form.get("item_price") or "").strip()
     digits_only = "".join(ch for ch in raw_price if ch.isdigit())
