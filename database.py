@@ -234,3 +234,30 @@ class DBhandler:
         chat_ref.child("unread_count").set(0)
         print(f"✅ Cleared unread count for user {user_id}")
         return True
+
+    def reg_review(self, data, img_path):
+        review_info = {
+            "title": data['title'],
+            "rate": data['rating'],
+            "review": data['content'],
+            "img_path": img_path,
+            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "pros": data.get("pros", ""),
+        }
+        self.db.child("review").child(data['name']).set(review_info)
+        return True
+
+    
+    def get_reviews(self):
+        reviews = self.db.child("review").get().val()
+        return reviews
+    
+    def get_review_byname(self, name):
+        reviews = self.db.child("review").get()
+        target_value=""
+        print("###########",name)
+        for res in reviews.each():
+            key_value = res.key()
+            if key_value == name:
+                target_value=res.val()
+        return target_value

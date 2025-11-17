@@ -1,180 +1,100 @@
-{% extends "index.html" %} {% block title %} 리뷰 작성하기 {%endblock %} {%block
-content %}
+{% extends "index.html" %}
+{% block title %} 리뷰 작성하기 {% endblock %}
+{% block content %}
+
 <main class="reg-review-container">
   <h2>거래 후기 작성</h2>
-  <!--상품 및 판매자정보 -->
+
+  <!-- 🟢 상품 및 판매자 정보 -->
   <section class="info-box review">
     <div class="product-info-box review">
       <div class="product-thumb review">
-        <img src="../static/images/icons/tshirt.png" alt="상품이미지" />
+        <img src="{{ url_for('static', filename='images/' ~ data.img_path) }}" alt="상품이미지">
       </div>
+
       <div class="product-info review">
-        <p class="product-title review">이화 로고 자수 반팔 티셔츠</p>
-        <p class="product-price review">₩19,900</p>
+        <p class="product-title review">{{ name }}</p>
+        <p class="product-price review">₩{{ data.price }}</p>
       </div>
     </div>
+
     <div class="review-seller-info-box">
       <div class="review-seller-thumb-avatar">E</div>
       <div class="review-seller-info">
-        <p class="review-seller-id">@ewha_seller</p>
-        <small class="review-seller-address">서울특별시 서대문구 연희동</small>
+        <p class="review-seller-id">@{{ data.seller }}</p>
+        <small class="review-seller-address">{{ data.addr }}</small>
       </div>
     </div>
   </section>
-  <!--리뷰 등록 부분-->
-  <form class="review-box">
-    <!--별점-->
+
+  <!-- 🟢 리뷰 등록 폼 시작 -->
+  <form class="review-box" method="post" action="/reg_review" enctype="multipart/form-data">
+
+    <!-- 🔥 상품명 전달 (form 내부로 이동!!) -->
+    <input type="hidden" name="name" value="{{ name }}">
+
+    <!-- ⭐ 별점 -->
     <fieldset>
       <legend><i class="fa-regular fa-star"></i>별점을 주세요!</legend>
-      <div class="stars" id="stars" role="radiogroup" aria-label="별점">
-        <!-- 5 stars -->
-        <button
-          type="button"
-          class="star-btn"
-          data-value="1"
-          aria-label="1점"
-          aria-pressed="false"
-        >
-          ★
-        </button>
-        <button
-          type="button"
-          class="star-btn"
-          data-value="2"
-          aria-label="2점"
-          aria-pressed="false"
-        >
-          ★
-        </button>
-        <button
-          type="button"
-          class="star-btn"
-          data-value="3"
-          aria-label="3점"
-          aria-pressed="false"
-        >
-          ★
-        </button>
-        <button
-          type="button"
-          class="star-btn"
-          data-value="4"
-          aria-label="4점"
-          aria-pressed="false"
-        >
-          ★
-        </button>
-        <button
-          type="button"
-          class="star-btn"
-          data-value="5"
-          aria-label="5점"
-          aria-pressed="false"
-        >
-          ★
-        </button>
+
+      <div class="stars" id="stars" role="radiogroup">
+        {% for i in range(1, 6) %}
+        <button type="button" class="star-btn" data-value="{{ i }}">★</button>
+        {% endfor %}
       </div>
+
       <input type="hidden" name="rating" id="rating" value="0" />
     </fieldset>
-    <!--거래는 어땠나요 -->
-    <!-- <fieldset>
-      <legend><i class="fa-solid fa-question"></i>거래는 어땠나요?</legend>
-      <div class="options">
-        <label class="radio-card" data-checked="false">
-          <input
-            type="radio"
-            name="experience"
-            value="satisfied"
-            aria-label="만족"
-          />
-          <div><span>😊 </span>만족</div>
-        </label>
-        <label class="radio-card" data-checked="false">
-          <input
-            type="radio"
-            name="experience"
-            value="normal"
-            aria-label="보통"
-          />
-          <div><span>🙂</span> 보통</div>
-        </label>
-        <label class="radio-card" data-checked="false">
-          <input
-            type="radio"
-            name="experience"
-            value="sad"
-            aria-label="아쉬움"
-          />
-          <div><span>😕</span> 아쉬움</div>
-        </label>
-      </div>
-    </fieldset> -->
-    <!--어떤 점이 좋았나요 -->
+
+    <!-- 👍 어떤 점이 좋았나요 -->
     <fieldset>
       <legend><i class="fa-solid fa-t"></i>어떤 점이 좋았나요?</legend>
-      <div class="chips" id="chipGroup" aria-label="좋았던 점">
-        <span class="chip" role="checkbox" aria-checked="false" tabindex="0"
-          >친절했어요</span
-        >
-        <span class="chip" role="checkbox" aria-checked="false" tabindex="0"
-          >시간 약속을 잘 지켜요</span
-        >
-        <span class="chip" role="checkbox" aria-checked="false" tabindex="0"
-          >응답이 빨라요</span
-        >
-        <span class="chip" role="checkbox" aria-checked="false" tabindex="0"
-          >설명과 같아요</span
-        >
-        <span class="chip" role="checkbox" aria-checked="false" tabindex="0"
-          >상품 상태가 좋아요</span
-        >
-        <span class="chip" role="checkbox" aria-checked="false" tabindex="0"
-          >좋은 가격이에요</span
-        >
+
+      <div class="chips" id="chipGroup">
+        <span class="chip">친절했어요</span>
+        <span class="chip">시간 약속을 잘 지켜요</span>
+        <span class="chip">응답이 빨라요</span>
+        <span class="chip">설명과 같아요</span>
+        <span class="chip">상품 상태가 좋아요</span>
+        <span class="chip">좋은 가격이에요</span>
       </div>
-      <input type="hidden" name="pros" id="pros" value="" />
+
+      <input type="hidden" name="pros" id="pros" value="">
     </fieldset>
-    <!--리뷰 이미지 업로드-->
+
+    <!-- 🖼 리뷰 이미지 업로드 -->
     <fieldset>
-      <legend>
-        <i class="fa-regular fa-image"></i>
-        리뷰 이미지 업로드
-        <small style="color: var(--muted); font-weight: 400">(선택)</small>
-      </legend>
-      <label class="drop" for="images">
+      <legend><i class="fa-regular fa-image"></i> 리뷰 이미지 업로드</legend>
+
+      <label class="drop" for="file">
         <div><i class="fa-solid fa-plus"></i></div>
-        <div class="text-main">클릭하여 이미지를 업로드하세요.</div>
-        <div class="text-sub">JPG, PNG 파일만 가능</div>
-        <input
-          id="images"
-          name="images[]"
-          type="file"
-          accept="image/png,image/jpeg"
-          multiple
-          required
-        />
+        <div class="text-main">이미지를 업로드하세요.</div>
+        <div class="text-sub">JPG, PNG만 가능</div>
+
+        <!-- 백엔드가 단일 이미지만 받으므로 name="file"로 변경 -->
+        <input id="file" name="file" type="file" accept="image/png,image/jpeg" />
       </label>
-      <div
-        id="image-previews"
-        style="margin-top: 10px; display: flex; flex-wrap: wrap; gap: 10px"
-      ></div>
     </fieldset>
-    <!--리뷰 내용-->
+
+    <!-- 📝 리뷰 제목 -->
+    <fieldset>
+      <legend><i class="fa-regular fa-message"></i>리뷰 제목</legend>
+      <textarea class="textarea" name="title" placeholder="리뷰의 제목을 작성해주세요."></textarea>
+    </fieldset>
+
+    <!-- 📝 리뷰 내용 -->
     <fieldset>
       <legend><i class="fa-regular fa-message"></i>리뷰 내용</legend>
-      <textarea
-        class="textarea"
-        name="content"
-        placeholder="상품에 대한 솔직한 후기를 작성해주세요."
-      ></textarea>
+      <textarea class="textarea" name="content" placeholder="상품에 대한 솔직한 후기를 작성해주세요."></textarea>
     </fieldset>
+
+    <!-- 제출/취소 -->
     <div class="reg-review-btn-actions">
       <button type="reset" class="reg-review-btn secondary">취소</button>
-      <button type="submit" class="reg-review-btn primary">
-        후기 등록하기
-      </button>
+      <button type="submit" class="reg-review-btn primary">후기 등록하기</button>
     </div>
+
   </form>
 </main>
 
-{%endblock%}
+{% endblock %}

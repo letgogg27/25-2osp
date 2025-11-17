@@ -89,13 +89,6 @@ def view_list():
     )
 
 
-@app.route("/review", methods=["GET"], strict_slashes=False)
-def review():
-    page = request.args.get("page", 1, type=int)
-    page_count = 1
-    return render_template("review.html", page=page, page_count=page_count)
-
-
 @app.route("/register_items", methods=["GET", "POST"], strict_slashes=False)
 def register_items():
     if "id" not in session:
@@ -329,6 +322,94 @@ def my_messages():
         return redirect(url_for('login'))
     
     return render_template("my_messages.html")
+
+@app.route("/reg_review_init/<name>/")
+def reg_review_init(name):
+    data = DB.get_item_byname(name)   # ⭐ 상품 상세 정보 가져오기
+    return render_template("reg_reviews.html", name=name, data=data)
+
+
+@app.route("/reg_review", methods=['POST'])
+def reg_review():
+    data = request.form
+    files = request.files.getlist("images[]")
+
+    # 이미지 저장
+    img_names = []
+    for f in files:
+        if f and f.filename:
+            filename = secure_filename(f.filename)
+            f.save(os.path.join("static/images", filename))
+            img_names.append(filename)
+
+    review_info = {
+        "title": data.get("title", ""),
+        "review": data.get("content", ""),
+        "rate": data.get("rating", "0"),
+        "pros": data.get("pros", ""),
+        "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+        "img_path": img_names[0] if img_names else ""
+    }
+
+    item_name = data.get("name")   # ★ 반드시 form에서 넘어와야 함
+
+    DB.db.child("review").child(item_name).set(review_info)
+
+    return redirect(url_for("view_review"))
+
+@app.route("/review/<name>/")
+def view_review_detail(name):
+    data = DB.get_review_byname(str(name))
+    return render_template("review_detail.html", name=name, data=data)
+
+@app.route("/review", strict_slashes=False)
+def view_review():
+    page = request.args.get("page", 1, type=int)
+
+    per_page = 15  
+
+    raw = DB.get_reviews() or {}
+    items = list(raw.items())
+    item_counts = len(items)
+
+    page_count = (item_counts + per_page - 1) // per_page or 1
+
+    if page < 1:
+        page = 1
+    if page > page_count:
+        page = page_count
+
+    start_idx = (page - 1) * per_page
+    page_items = items[start_idx : start_idx + per_page]
+
+    converted = []
+    for key, rv in page_items:
+        rv = rv or {}  # ⭐ rv가 None이어도 OK
+
+        converted.append(
+            (
+                key,
+                {
+                    "img_path": rv.get("img_path") or "no_image.png",
+                    "rate": rv.get("rate") or 0,
+                    "review": rv.get("review") or "(리뷰 내용 없음)",
+                    "user": rv.get("user") or "ewha_user",
+                    "title": rv.get("title") or "제목 없음",
+                    "profile_img": rv.get("profile_img") or "fake_profile.png",
+                    "tags": rv.get("tags") or ["친절해요", "시간약속지켜요"],
+                    "helpful": rv.get("helpful") or 0,
+                    "date": rv.get("date") or "2025.01.01",
+                }
+            )
+        )
+
+    return render_template(
+        "review.html",
+        datas=converted,
+        page=page,
+        page_count=page_count,
+        total=item_counts,
+    )
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

@@ -109,6 +109,9 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         <button class="item-detail-btn to-chat" id="open-chat-btn">
           채팅하러 가기
         </button>
+        <button class="item-detail-btn to-chat" id="reg-riview-btn" onclick="location.href='/reg_review_init/{{name}}/';">
+          리뷰 등록하기
+        </button>
         <button class="item-detail-btn to-wishlist">
           <i class="fa-regular fa-heart"></i>
         </button>
