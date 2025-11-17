@@ -9,12 +9,15 @@ from flask import (
     jsonify,
     abort,
 )
+
 import hashlib
 from database import DBhandler
 import os
 from werkzeug.utils import secure_filename
 import sys
 import datetime
+from flask import abort
+from flask import jsonify
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
 app.secret_key = "some-secret"
@@ -43,12 +46,21 @@ def render_list():
     start = (page - 1) * PAGE_SIZE
     end = start + PAGE_SIZE
     total_pages = (len(PRODUCTS) + PAGE_SIZE - 1) // PAGE_SIZE
+
+    #추가
+    user_id = current_user_id()
+    my_wishlist_ids = DB.get_wishlist_ids(user_id) if user_id else []
+
     return render_template(
         "list.html",
         products=PRODUCTS[start:end],
         page=page,
         total_pages=total_pages,
+        my_wishlist_ids=my_wishlist_ids #추가
     )
+    
+def current_user_id():
+    return session.get('id')  # 로그인 시 세션에 넣는 값 그대로 (추가)
 
 
 # 홈 = 리스트
@@ -164,10 +176,7 @@ def register_user():
         flash("이미 존재하는 아이디입니다.")
         return redirect(url_for("signup"))
 
-
-# -------------------------------
 # 상품 등록 처리 (여러 장 업로드)
-# -------------------------------
 @app.route("/submit_item_post", methods=["POST"], strict_slashes=False)
 def reg_item_submit_post():
     # 로그인 확인: 판매자 아이디는 세션에서 고정
@@ -237,6 +246,60 @@ def reg_item_submit_post():
     # 등록 결과 페이지 대신, 바로 상세 페이지로 이동
     return redirect(url_for("view_item_detail", name=item_name))
 
+@app.route("/wishlist")
+def wishlist():
+    user_id = current_user_id()
+    if not user_id:
+        flash("로그인 해주세요.")
+        return redirect(url_for("login"))
+
+    heart_data = DB.db.child("heart").child(user_id).get().val()
+    if not heart_data:
+        items = []
+    else:
+        liked_items = [name for name, val in heart_data.items()
+                       if val.get("interested") == "Y"]
+
+        all_items = DB.get_items() or {}
+        
+        items = []
+        for k, v in all_items.items():
+            if k in liked_items:
+                v["interested"] = "Y"   # 추가
+                items.append((k, v))
+
+    # --- 페이지네이션 ---
+    page = request.args.get("page", 1, type=int)
+    per_page = 15
+    total = len(items)
+    page_count = (total + per_page - 1) // per_page
+
+    start = (page - 1) * per_page
+    end = start + per_page
+    page_items = items[start:end]
+
+    return render_template(
+        "wishlist.html",
+        datas=page_items,
+        page=page,
+        page_count=page_count,
+        total=total
+    )
+
+
+@app.route('/show_heart/<name>/', methods=['GET'])
+def show_heart(name):
+     my_heart = DB.get_heart_byname(session['id'],name)
+     return jsonify({'my_heart': my_heart})
+@app.route('/like/<name>/', methods=['POST'])
+def like(name):
+     my_heart = DB.update_heart(session['id'],'Y',name)
+     return jsonify({'msg': '좋아요 추가 완료!'})
+@app.route('/unlike/<name>/', methods=['POST'])
+def unlike(name):
+     my_heart = DB.update_heart(session['id'],'N',name)
+     return jsonify({'msg': '좋아요 취소 완료!'})
+     
 
 @app.route("/item_detail", strict_slashes=False)
 def item_detail():

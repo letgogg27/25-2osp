@@ -25,7 +25,9 @@ content %}
     text-align: left;
     border: 1px solid #eee;
     background: #fff;
-  }
+    border-radius: 10px;
+    position: relative;
+}
 
   .item-card img {
     width: 100%;
@@ -35,7 +37,15 @@ content %}
   .pager {
     margin-top: 24px;
     margin-bottom: 80px;
-  }
+}
+.heart-icon {
+  font-size: 22px;
+  cursor: pointer;
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  color: grey;
+}
 </style>
 
 <div class="search-bar">
@@ -54,23 +64,33 @@ content %}
 <p>{{ total }}개 상품 등록됨</p>
 <div class="item-grid-wrapper">
   <div class="item-grid">
+
     {% for key, value in datas %}
-    <div
-      class="item-card"
-      onclick="location.href='{{ url_for('view_item_detail', name=key) }}';"
-      style="cursor: pointer"
-    >
-      <img src="static/images/{{ value.img_path }}" />
-      <div class="item-info">
-        <h3>{{ key }}</h3>
-        <p>{{ value.price }}원</p>
-        <p>{{ value.addr }}</p>
+    <div class="item-card">
+
+      <!-- 클릭 영역 -->
+      <div onclick="location.href='{{ url_for('view_item_detail', name=key) }}'"
+           style="cursor:pointer;">
+          <img src="static/images/{{ value.img_path }}" />
+          <div class="item-info">
+              <h3>{{ key }}</h3>
+              <p>{{ value.price }}원</p>
+              <p>{{ value.addr }}</p>
+          </div>
       </div>
-      <span class="like-btn">♡</span>
+
+      <!-- 하트 -->
+      <i class="fa fa-heart heart-icon"
+         id="heart-{{ key }}"
+         onclick="onHeartClick(event, '{{ key }}')"></i>
+
     </div>
+
     {% endfor %}
+
   </div>
 </div>
+
 
 <div class="pager">
   {# 이전 버튼 #} {% if page > 1 %}
@@ -105,5 +125,75 @@ content %}
 </div>
 
 {% else %}
-<p>등록된 상품이 없습니다.</p>
-{% endif %} {% endblock %}
+<p style="text-align:center; margin-top:50px;">등록된 상품이 없습니다.</p>
+{% endif %}
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+
+<script>
+$(document).ready(function () {
+
+    // 페이지 로딩 시, 전체 상품에 대해 좋아요 상태 확인
+    {% for key, value in datas %}
+        showHeart("{{ key }}");
+    {% endfor %}
+});
+
+/* 교수님 구조 그대로 가져온 showHeart() */
+function showHeart(pid) {
+
+    $.ajax({
+        type: 'GET',
+        url: '/show_heart/' + pid + '/',
+        data: {},
+        success: function (response) {
+
+            let my_heart = response['my_heart'];
+
+            if (my_heart['interested'] == 'Y') {
+                $("#heart-" + pid).css("color", "red");
+                $("#heart-" + pid).attr("onclick", "unlike('" + pid + "')");
+            } else {
+                $("#heart-" + pid).css("color", "grey");
+                $("#heart-" + pid).attr("onclick", "like('" + pid + "')");
+            }
+        }
+    });
+}
+
+/* 교수님 방식: 좋아요 등록 */
+function like(pid) {
+
+    $.ajax({
+        type: 'POST',
+        url: '/like/' + pid + '/',
+        data: { interested: "Y" },
+        success: function (response) {
+            alert(response['msg']);
+            window.location.reload();
+        }
+    });
+}
+
+/* 교수님 방식: 좋아요 취소 */
+function unlike(pid) {
+
+    $.ajax({
+        type: 'POST',
+        url: '/unlike/' + pid + '/',
+        data: { interested: "N" },
+        success: function (response) {
+            alert(response['msg']);
+            window.location.reload();
+        }
+    });
+}
+
+/* 카드 클릭과 하트 클릭 구분하기 */
+function onHeartClick(event, pid) {
+    event.stopPropagation();   // 상세페이지 이동 막기
+}
+</script>
+
+{% endblock %}

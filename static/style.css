@@ -319,7 +319,6 @@ button:hover,
   color: darkred;
 }
 
-/* 이전 거래 후기 */
 .item-seller-review {
   box-shadow: 2px 2px 8px rgba(137, 113, 113, 0.2);
   padding: 10px;
@@ -2273,3 +2272,14 @@ textarea {
   color: #aaa;
   opacity: 1;
 }*/
+<<<<<<< HEAD
+=======
+
+.fa-heart {
+  font-size: 22px;
+  color: grey;
+}
+.fa-heart.red {
+  color: red;
+}
+>>>>>>> chaeeun

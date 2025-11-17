@@ -147,6 +147,7 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+
     # Add a message to a conversation
     def add_message(self, conversation_id, sender_id, text, image_url=None):
         """
@@ -170,9 +171,6 @@ class DBhandler:
 
 #  Get all messages for a conversation
     def get_messages(self, conversation_id):
-        """
-        Retrieves all messages for a specific conversation_id.
-        """
         try:
             messages = self.db.child("conversations").child(conversation_id).get().val()
             
@@ -184,10 +182,6 @@ class DBhandler:
     
     # Save a link so the user can see this chat in their inbox
     def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id, is_new_message_for_this_user):
-        """
-        Saves a reference to a conversation under a user's ID.
-        If it's a new message, increments unread_count for that user.
-        """
         try:
             chat_info_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
             chat_info = chat_info_ref.get().val()
@@ -234,3 +228,67 @@ class DBhandler:
         chat_ref.child("unread_count").set(0)
         print(f"✅ Cleared unread count for user {user_id}")
         return True
+
+# 특정 유저의 특정 상품 하트 상태 가져오기
+    # heart/{user_id}/{item} = {"interested": "Y" or "N"}
+    def get_heart_byname(self, uid, name):
+        snap = self.db.child("heart").child(uid).child(name).get()
+        val = snap.val()
+
+        if not val:
+            return {"interested": "N"}
+
+        return val
+
+    # 하트 업데이트 (Y or N)
+    def update_heart(self, user_id, isHeart, item):
+        heart_info = {
+            "interested": isHeart
+        }
+        self.db.child("heart").child(user_id).child(item).set(heart_info)
+        return True
+
+    # 찜목록 기능
+    def add_wishlist(self, user_id: str, product_key: str):
+        self.db.child("wishlist").child(user_id).child(product_key).set(True)
+        return True
+
+
+    def remove_wishlist(self, user_id: str, product_key: str):
+        self.db.child("wishlist").child(user_id).child(product_key).remove()
+        return True
+
+    def get_wishlist_ids(self, user_id: str):
+        snap = self.db.child("wishlist").child(user_id).get()
+        val = snap.val()
+
+        if not val:
+            return []
+
+        if isinstance(val, dict):
+            return list(val.keys())
+
+        if isinstance(val, list):
+            return [i for i, v in enumerate(val) if v]
+
+        return []
+
+    def is_in_wishlist(self, user_id: str, product_key: str) -> bool:
+        val = self.db.child("wishlist").child(user_id).child(product_key).get().val()
+        return bool(val)
+
+    # 로그인 검증
+    def find_user(self, id_string, pw_hash):
+        users = self.db.child("user").get()
+
+        if users.val() is None:
+            return False
+
+        for res in users.each():
+            v = res.val()
+            if v['id'] == id_string and v['pw'] == pw_hash:
+                return True
+
+        return False
+
+

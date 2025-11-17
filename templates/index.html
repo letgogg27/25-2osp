@@ -104,11 +104,11 @@
         </div>
         <div>
           <a href="{{url_for('register_reviews')}}"
-            ><i class="fa-solid fa-pen-to-square"></i> 리뷰작성</a
+            ><i class="fa-solid fa-pen-to-square"></i>거래후기</a
           >
         </div>
         <div>
-          <a href="/cart"><i class="fa-solid fa-heart"></i> 찜 목록</a>
+          <a href="{{ url_for('wishlist') }}"><i class="fa-solid fa-heart"></i> 찜 목록</a>
         </div>
 
         <div>
@@ -181,5 +181,9 @@
         startApp(); // <-- Call startApp() for logged-out users
       }
     </script>
+
+    <script src="../static/main.js" defer></script>
+    <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+
   </body>
 </html>
