@@ -92,6 +92,10 @@ def view_list():
 
     filtered = []
     for name, info in items:
+        if not isinstance(info, dict):
+            print("⚠ 잘못된 item 데이터:", name, type(info), info)
+            continue
+            
         seller = info.get("seller", "")
         if q:
             if (q.lower() not in name.lower()) and (q.lower() not in seller.lower()):
@@ -293,16 +297,25 @@ def wishlist():
     if not heart_data:
         items = []
     else:
-        liked_items = [name for name, val in heart_data.items()
-                       if val.get("interested") == "Y"]
+        liked_items = []
 
+        for name, val in heart_data.items():
+            if isinstance(val, dict):
+                flag = val.get("interested")
+            else:
+                flag = val
+
+            if flag == "Y":
+                liked_items.append(name)
+        
         all_items = DB.get_items() or {}
         
         items = []
         for k, v in all_items.items():
             if k in liked_items:
-                v["interested"] = "Y"   # 추가
-                items.append((k, v))
+                info=dict(v)
+                info["interested"] = "Y"   # 추가
+                items.append((k, info))
 
     # --- 페이지네이션 ---
     page = request.args.get("page", 1, type=int)
