@@ -6,40 +6,12 @@
 <h2 class="page-title">이화마켓 리뷰 목록</h2>
 
 <style>
-  * {
-    box-sizing: border-box;
-  }
-
-  .item-grid-wrapper {
-    margin: 0 auto;
-    max-width: 1800px;
-  }
-
-  .item-grid {
-    display: grid;
-    grid-template-columns: repeat(5, minmax(190px, 1fr));
-    gap: 10px;
-  }
-
-  .item-card {
-    width: 100%;
-    padding: 9px;
-    text-align: left;
-    border: 1px solid #eee;
-    background: #fff;
-  }
-
-  .item-card img {
-    width: 100%;
-    height: 160px;
-    object-fit: cover;
-  }
-  .pager {
-    margin-top: 24px;
-    margin-bottom: 80px;
-  }
+  .item-grid-wrapper { margin: 30 auto; max-width: 1800px; }
+  .item-grid { display: grid; grid-template-columns: repeat(5, minmax(190px, 1fr)); }
+  .item-card { width: 100%; text-align: left; border: 1px solid #eee; background: #fff; }
+  .item-card img { width: 100%; height: 160px; object-fit: cover; }
+  .pager { margin-top: 24px; margin-bottom: 80px; }
 </style>
-
 
 <div class="search-bar">
   <form class="search-form" method="GET" action="/list">
@@ -54,75 +26,76 @@
 </div>
 
 {% if total > 0 %}
-    <p>{{ total }}개 등록됨</p>
+<p>{{ total }}개 등록됨</p>
 
 <!-- 리뷰 카드 리스트 -->
 <ul class="card-list">
-    {% for key, review in datas %}
-    <li class="card"
-        onclick="location.href='{{ url_for('view_review_detail', name=key) }}';"
-        style="cursor:pointer">
+  {% for key, review in datas %}
+  <li class="card" onclick="location.href='{{ url_for('view_review_detail', name=key) }}';" style="cursor:pointer">
 
-      <div>
-        <div class="review-header">
-          <div class="profile-pic">
-            <img src="/static/images/{{ review.img_path }}" alt="프로필" />
-          </div>
+    <div>
+      <div class="review-header">
 
-          <div>
-            <!-- DB에 없는 값은 기본값(예시값) -->
-            <div class="review-user">
-              @{{ review.user | default("ewha_user") }}
-            </div>
-
-            <div class="review-rating">
-              ⭐️⭐️⭐️⭐️⭐️ <span>{{ review.rate | default(5) }}</span>
-            </div>
-          </div>
+        <!-- 작성자 프로필 이미지 -->
+        <div class="profile-pic">
+          <img src="/static/images/{{ review.profile_img }}" alt="프로필" />
         </div>
 
-        <div class="review-content">
-          <strong>“{{ review.title | default("판매자가 친절했어요!") }}”</strong>
-          <p>
-            {{ review.review | default("아직 리뷰 내용이 없습니다.") }}
-          </p>
-        </div>
+        <div>
+          <!-- 작성자 아이디 -->
+          <div class="review-user">
+            @{{ review.user }}
+          </div>
 
-        {% if review.img_path %}
-        <a class="thumb">
-          <img src="/static/images/{{ review.img_path }}" alt="리뷰 이미지" />
-        </a>
-        {% endif %}
-
-        <div class="hashtags">
-          <span>#친절해요</span>
-          <span>#시간약속지켜요</span>
+          <!-- ⭐ 실제 별점 수만큼 별 표시 -->
+          <div class="review-rating">
+            {% for i in range(review.rate | int) %}
+              ⭐
+            {% endfor %}
+            <span>{{ review.rate }}</span>
+          </div>
         </div>
       </div>
 
-      <div class="review-footer">
-        <div class="helpful">
-          도움돼요 {{ review.helpful | default(0) }}
-        </div>
-        <div class="review-date">
-          {{ review.date | default("2025.01.01") }}
-        </div>
+      <!-- 제목 + 내용 -->
+      <div class="review-content">
+        <strong>“{{ review.title }}”</strong>
+        <p>{{ review.review }}</p>
       </div>
 
-    </li>
-    {% endfor %}
-  </ul>
+      <!-- 리뷰 이미지 -->
+      {% if review.img_path %}
+      <a class="thumb">
+        <img src="/static/images/{{ review.img_path }}" alt="리뷰 이미지" />
+      </a>
+      {% endif %}
 
+      <!-- 해시태그 (pros 값 활용) -->
+      {% if review.pros %}
+      <div class="hashtags">
+      {% for tag in review.pros.split(", ") %}
+      <span>#{{ tag }}</span>
+      {% endfor %}
+      </div>
+      {% endif %}
+
+    </div>
+
+    <div class="review-footer">
+      <div class="helpful">도움돼요 {{ review.helpful }}</div>
+      <div class="review-date">{{ review.date }}</div>
+    </div>
+
+  </li>
+  {% endfor %}
+</ul>
 
 <!-- 페이지네이션 -->
 <div class="pager">
-
-  {# 이전 버튼 #}
   {% if page > 1 %}
-  <a href="{{ url_for('view_review', page=page-1) }}"
-     class="page-ctrl" aria-label="이전">&laquo;</a>
+    <a href="{{ url_for('view_review', page=page-1) }}" class="page-ctrl" aria-label="이전">&laquo;</a>
   {% else %}
-  <span class="page-ctrl disabled" aria-label="이전">&laquo;</span>
+    <span class="page-ctrl disabled" aria-label="이전">&laquo;</span>
   {% endif %}
 
   <ol class="page-list">
@@ -133,12 +106,10 @@
     {% endfor %}
   </ol>
 
-  {# 다음 버튼 #}
   {% if page < page_count %}
-  <a href="{{ url_for('view_review', page=page+1) }}"
-     class="page-ctrl" aria-label="다음">&raquo;</a>
+    <a href="{{ url_for('view_review', page=page+1) }}" class="page-ctrl" aria-label="다음">&raquo;</a>
   {% else %}
-  <span class="page-ctrl disabled" aria-label="다음">&raquo;</span>
+    <span class="page-ctrl disabled" aria-label="다음">&raquo;</span>
   {% endif %}
 </div>
 

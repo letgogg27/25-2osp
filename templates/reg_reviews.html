@@ -2,16 +2,34 @@
 {% block title %} 리뷰 작성하기 {% endblock %}
 {% block content %}
 
+<style>
+  #drop-preview {
+    width: 100%;
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  #drop-preview img {
+    width: 120px;
+    height: 120px;
+    border-radius: 8px;
+    object-fit: cover;
+    border: 1px solid #ddd;
+  }
+</style>
+
 <main class="reg-review-container">
   <h2>거래 후기 작성</h2>
 
-  <!-- 🟢 상품 및 판매자 정보 -->
+  <!-- 상품 정보 -->
   <section class="info-box review">
     <div class="product-info-box review">
       <div class="product-thumb review">
         <img src="{{ url_for('static', filename='images/' ~ data.img_path) }}" alt="상품이미지">
       </div>
-
       <div class="product-info review">
         <p class="product-title review">{{ name }}</p>
         <p class="product-price review">₩{{ data.price }}</p>
@@ -27,29 +45,25 @@
     </div>
   </section>
 
-  <!-- 🟢 리뷰 등록 폼 시작 -->
+  <!-- 리뷰 작성 폼 -->
   <form class="review-box" method="post" action="/reg_review" enctype="multipart/form-data">
 
-    <!-- 🔥 상품명 전달 (form 내부로 이동!!) -->
     <input type="hidden" name="name" value="{{ name }}">
 
-    <!-- ⭐ 별점 -->
+    <!-- 별점 -->
     <fieldset>
       <legend><i class="fa-regular fa-star"></i>별점을 주세요!</legend>
-
-      <div class="stars" id="stars" role="radiogroup">
+      <div class="stars" id="stars">
         {% for i in range(1, 6) %}
         <button type="button" class="star-btn" data-value="{{ i }}">★</button>
         {% endfor %}
       </div>
-
       <input type="hidden" name="rating" id="rating" value="0" />
     </fieldset>
 
-    <!-- 👍 어떤 점이 좋았나요 -->
+    <!-- 좋았던 점 -->
     <fieldset>
       <legend><i class="fa-solid fa-t"></i>어떤 점이 좋았나요?</legend>
-
       <div class="chips" id="chipGroup">
         <span class="chip">친절했어요</span>
         <span class="chip">시간 약속을 잘 지켜요</span>
@@ -58,43 +72,70 @@
         <span class="chip">상품 상태가 좋아요</span>
         <span class="chip">좋은 가격이에요</span>
       </div>
-
-      <input type="hidden" name="pros" id="pros" value="">
+      <input type="hidden" name="pros" id="pros">
     </fieldset>
 
-    <!-- 🖼 리뷰 이미지 업로드 -->
+    <!-- 이미지 업로드 -->
     <fieldset>
       <legend><i class="fa-regular fa-image"></i> 리뷰 이미지 업로드</legend>
 
-      <label class="drop" for="file">
+      <label class="drop" for="images">
         <div><i class="fa-solid fa-plus"></i></div>
         <div class="text-main">이미지를 업로드하세요.</div>
         <div class="text-sub">JPG, PNG만 가능</div>
 
-        <!-- 백엔드가 단일 이미지만 받으므로 name="file"로 변경 -->
-        <input id="file" name="file" type="file" accept="image/png,image/jpeg" />
+        <!-- ⭐ 미리보기 컨테이너 -->
+        <div id="drop-preview"></div>
+
+        <!-- ⭐ 여러 장 업로드 -->
+        <input
+          id="images"
+          name="images[]"
+          type="file"
+          accept="image/png,image/jpeg"
+          multiple
+        />
       </label>
+
     </fieldset>
 
-    <!-- 📝 리뷰 제목 -->
+    <!-- 제목 -->
     <fieldset>
       <legend><i class="fa-regular fa-message"></i>리뷰 제목</legend>
-      <textarea class="textarea" name="title" placeholder="리뷰의 제목을 작성해주세요."></textarea>
+      <textarea class="textarea" name="title"></textarea>
     </fieldset>
 
-    <!-- 📝 리뷰 내용 -->
+    <!-- 내용 -->
     <fieldset>
       <legend><i class="fa-regular fa-message"></i>리뷰 내용</legend>
-      <textarea class="textarea" name="content" placeholder="상품에 대한 솔직한 후기를 작성해주세요."></textarea>
+      <textarea class="textarea" name="content"></textarea>
     </fieldset>
 
-    <!-- 제출/취소 -->
     <div class="reg-review-btn-actions">
       <button type="reset" class="reg-review-btn secondary">취소</button>
       <button type="submit" class="reg-review-btn primary">후기 등록하기</button>
     </div>
-
   </form>
 </main>
+
+<!-- ⭐ 이미지 미리보기 스크립트 (최종 정리본) -->
+<script>
+document.getElementById("images").addEventListener("change", function (event) {
+  const preview = document.getElementById("drop-preview");
+  preview.innerHTML = "";  // 이전 이미지 전부 삭제
+
+  const files = [...event.target.files];
+
+  files.forEach(file => {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = document.createElement("img");
+      img.src = e.target.result;
+      preview.appendChild(img);
+    };
+    reader.readAsDataURL(file);
+  });
+});
+</script>
 
 {% endblock %}

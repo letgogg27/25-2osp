@@ -343,6 +343,7 @@ def reg_review():
             img_names.append(filename)
 
     review_info = {
+        "user": session["id"], 
         "title": data.get("title", ""),
         "review": data.get("content", ""),
         "rate": data.get("rating", "0"),
@@ -359,9 +360,16 @@ def reg_review():
 
 @app.route("/review/<name>/")
 def view_review_detail(name):
-    data = DB.get_review_byname(str(name))
-    return render_template("review_detail.html", name=name, data=data)
+    review = DB.get_review_byname(name)   # 리뷰 데이터
+    item = DB.get_item_byname(name)       # 해당 상품 데이터 가져오기
 
+    return render_template(
+        "review_detail.html",
+        name=name,
+        data=review,
+        item=item
+    )
+    
 @app.route("/review", strict_slashes=False)
 def view_review():
     page = request.args.get("page", 1, type=int)
@@ -384,7 +392,7 @@ def view_review():
 
     converted = []
     for key, rv in page_items:
-        rv = rv or {}  # ⭐ rv가 None이어도 OK
+        rv = rv or {}
 
         converted.append(
             (
@@ -396,7 +404,10 @@ def view_review():
                     "user": rv.get("user") or "ewha_user",
                     "title": rv.get("title") or "제목 없음",
                     "profile_img": rv.get("profile_img") or "fake_profile.png",
-                    "tags": rv.get("tags") or ["친절해요", "시간약속지켜요"],
+
+                    # ⭐⭐⭐ 해시태그 추가!!
+                    "pros": rv.get("pros") or "",
+
                     "helpful": rv.get("helpful") or 0,
                     "date": rv.get("date") or "2025.01.01",
                 }
