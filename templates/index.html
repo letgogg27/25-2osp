@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -108,7 +108,9 @@
           >
         </div>
         <div>
-          <a href="{{ url_for('wishlist') }}"><i class="fa-solid fa-heart"></i> 찜 목록</a>
+          <a href="{{ url_for('wishlist') }}"
+            ><i class="fa-solid fa-heart"></i> 찜 목록</a
+          >
         </div>
 
         <div>
@@ -124,7 +126,6 @@
         </div>
       </div>
     </nav>
-
     <!-- ✅ 여기에 페이지 내용 들어감 -->
     <main>{% block content %} {% endblock %}</main>
 
@@ -137,15 +138,12 @@
       </div>
       <p class="footer-copy">©2025 Ewha Market. All rights reserved.</p>
     </footer>
-
+    <!--  Add Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
 
-    <script src="{{url_for('static', filename='main.js')}}"></script>
-
+    <!-- Initialize Firebase with config -->
     <script>
-      // This code will run *after* the SDKs and main.js are loaded.
       const firebaseConfig = {
         apiKey: "AIzaSyAR5OuTcrbMHcbv_v4iKABSs0xOJsjde3o",
         authDomain: "osp-4313f.firebaseapp.com",
@@ -156,34 +154,14 @@
         appId: "1:344792589315:web:dcf2a6fee14609776eda36",
       };
 
-      // Now 'firebase' is defined
+      // Initialize Firebase
       const app = firebase.initializeApp(firebaseConfig);
 
-      // We must define these variables *globally* so main.js can see them
+      // Make the database variable available for main.js to use
       const database = firebase.database();
-      const auth = firebase.auth();
-
-      // Get the token
-      const firebaseToken = {% if session['firebase_token'] %}{{ session['firebase_token'] | tojson }}{% else %}null{% endif %};
-
-      if (firebaseToken) {
-        auth.signInWithCustomToken(firebaseToken)
-          .then((userCredential) => {
-            console.log("✅ Firebase auth successful. User:", userCredential.user.uid);
-            startApp(); // <-- Call startApp() on success
-          })
-          .catch((error) => {
-            console.error("❌ Firebase custom auth error:", error);
-            startApp(); // <-- Call startApp() even on failure
-          });
-      } else {
-        console.log("No Firebase token found. User is not logged in.");
-        startApp(); // <-- Call startApp() for logged-out users
-      }
     </script>
 
-    <script src="../static/main.js" defer></script>
+    <script src="{{url_for('static', filename='main.js')}}" defer></script>
     <script src="https://code.jquery.com/jquery-latest.min.js"></script>
-
   </body>
 </html>

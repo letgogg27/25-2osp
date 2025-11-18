@@ -5,6 +5,19 @@ import firebase_admin
 from firebase_admin import credentials, auth
 
 class DBhandler:
+    # def __init__(self):
+    #     """
+    #     Firebase 인증 파일(firebase_auth.json)을 읽고
+    #     데이터베이스 객체(self.db)를 초기화하는 부분
+    #     """
+    #     with open('./authentication/firebase_auth.json') as f:
+    #         config = json.load(f)
+
+    #     # Firebase 연결 초기화
+    #     firebase = pyrebase.initialize_app(config)
+    #     self.db = firebase.database()
+    #     print("✅ Firebase 연결 완료")
+
     def __init__(self):
         with open('./authentication/firebase_auth.json') as f:
             config = json.load(f)
@@ -133,6 +146,9 @@ class DBhandler:
 
     # Add a message to a conversation
     def add_message(self, conversation_id, sender_id, text, image_url=None):
+        """
+        Saves a new message to a specific conversation node in Firebase.
+        """
         try:
             timestamp = datetime.datetime.utcnow().isoformat()
             message_data = {
@@ -151,6 +167,9 @@ class DBhandler:
 
 #  Get all messages for a conversation
     def get_messages(self, conversation_id):
+        """
+        Retrieves all messages for a specific conversation_id.
+        """
         try:
             messages = self.db.child("conversations").child(conversation_id).get().val()
             
@@ -159,40 +178,20 @@ class DBhandler:
             print(f"⚠️ Error fetching messages: {e}")
             return {}
         
-    
     # Save a link so the user can see this chat in their inbox
-    def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id, is_new_message_for_this_user):
+    def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id):
         try:
-            chat_info_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
-            chat_info = chat_info_ref.get().val()
-
-            if chat_info:
-                # Existing link -> only touch unread_count when needed
-                if is_new_message_for_this_user:
-                    current = chat_info.get("unread_count", 0)
-                    try:
-                        current = int(current)
-                    except (TypeError, ValueError):
-                        current = 0
-                    chat_info_ref.update({"unread_count": current + 1})
-                return True
-            else:
-                # New chat link
-                new_chat_info = {
-                    "conversation_id": conversation_id,
-                    "item_name": item_name,
-                    "with_user": other_user_id,
-                    "unread_count": 1 if is_new_message_for_this_user else 0,
-                    "last_message": "",
-                }
-                chat_info_ref.set(new_chat_info)
-                print(f"✅ NEW link for user {user_id} to {conversation_id}")
-                return True
-
+            chat_info = {
+                "conversation_id": conversation_id,
+                "item_name": item_name,
+                "with_user": other_user_id
+            }
+            # Save under "user_chats/USER_ID/CONVERSATION_ID"
+            self.db.child("user_chats").child(user_id).child(conversation_id).set(chat_info)
+            return True
         except Exception as e:
-            print(f"❌ Error linking/incrementing user to chat: {e}")
+            print(f"❌ Error linking user to chat: {e}")
             return False
-
 
     #  Get the list of chats for the Inbox page
     def get_user_conversations(self, user_id):
@@ -201,13 +200,7 @@ class DBhandler:
             return conversations or {}
         except Exception as e:
             print(f"❌ Error fetching user chats: {e}")
-            return {}
-        
-    def clear_unread_count(self, user_id, conversation_id):
-        chat_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
-        chat_ref.child("unread_count").set(0)
-        print(f"✅ Cleared unread count for user {user_id}")
-        return True
+            return {}  
 
 # 특정 유저의 특정 상품 하트 상태 가져오기
     # heart/{user_id}/{item} = {"interested": "Y" or "N"}
