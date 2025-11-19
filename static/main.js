@@ -235,14 +235,25 @@ function initChatFeature() {
   const SELLER_ID = chatModal.dataset.sellerId;
   const CURRENT_USER_ID = chatModal.dataset.currentUserId;
 
-  // Create the Conversation ID
+  // URL 파라미터: ?chat=true&with=어떤유저
+  const urlParams = new URLSearchParams(window.location.search);
+  const OTHER_USER_ID = urlParams.get("with"); // my_messages 에서 넘어오는 상대 ID
+
+  if (!ITEM_NAME || !SELLER_ID || !CURRENT_USER_ID) {
+    // 필수 데이터 없으면 채팅 기능 끔
+    return;
+  }
+
+  // 방 ID: 항상 (두 유저 + 아이템) 조합
+  // - buyer가 상품 상세에서 시작: 상대는 SELLER_ID
+  // - seller가 My Messages에서 들어올 때: 상대는 OTHER_USER_ID (buyer)
   let conversationId;
-  if (CURRENT_USER_ID && SELLER_ID) {
-    const userIds = [CURRENT_USER_ID, SELLER_ID].sort();
+  if (OTHER_USER_ID) {
+    const userIds = [CURRENT_USER_ID, OTHER_USER_ID].sort();
     conversationId = `${userIds[0]}_${userIds[1]}_${ITEM_NAME}`;
   } else {
-    // User is not logged in-> can't start a chat
-    return;
+    const userIds = [CURRENT_USER_ID, SELLER_ID].sort();
+    conversationId = `${userIds[0]}_${userIds[1]}_${ITEM_NAME}`;
   }
 
   function openChat() {
@@ -256,6 +267,7 @@ function initChatFeature() {
     if (currentMessageListener) {
       currentConversationRef.off("value", currentMessageListener);
     }
+
     currentMessageListener = currentConversationRef.on(
       "value",
       (snapshot) => {
@@ -351,32 +363,24 @@ function initChatFeature() {
   function addMessage(content, senderId) {
     if (!messagesContainer) return;
 
-    // --- [NEW DEBUG CODE] ---
-    // Let's print the variables to the console to see what's happening
-    console.log("--- New Message ---");
-    console.log(`Message Sender ID (senderId): ${senderId}`);
-    console.log(`My Browser's ID (CURRENT_USER_ID): ${CURRENT_USER_ID}`);
-    // --- [END DEBUG CODE] ---
-
     const role = senderId === CURRENT_USER_ID ? "sender" : "receiver";
-
-    // --- [NEW DEBUG CODE] ---
-    console.log(`Resulting Role (left/right): ${role}`);
-    console.log("-------------------");
-    // --- [END DEBUG CODE] ---
 
     const { text, imageURL } = content;
     const hasImage = !!imageURL;
     const hasText = !!text && text.trim().length > 0;
     if (!hasImage && !hasText) return;
+
     const row = document.createElement("div");
     row.classList.add("message-row", role);
+
     const avatar = document.createElement("div");
     avatar.classList.add("message-avatar");
-    avatar.textContent = role === "receiver" ? "E" : "K";
+    avatar.textContent = role === "receiver" ? "R" : "S";
     avatar.classList.add(role);
+
     const bubble = document.createElement("div");
     bubble.classList.add("message-bubble", role);
+
     if (hasImage) {
       const img = document.createElement("img");
       img.src = imageURL;
@@ -391,6 +395,7 @@ function initChatFeature() {
       textElement.style.margin = "0";
       bubble.appendChild(textElement);
     }
+
     if (role === "receiver") {
       row.appendChild(avatar);
       row.appendChild(bubble);
@@ -398,38 +403,46 @@ function initChatFeature() {
       row.appendChild(bubble);
       row.appendChild(avatar);
     }
+
     messagesContainer.appendChild(row);
     scrollToBottom();
   }
+
+  // 메시지 보내기
   async function handleSend() {
     const text = chatInput.value;
-    const file = currentFileToSend; // 나중에 넣을 예정
 
-    if (!text.trim() && !file) return;
+    if (!text.trim()) return;
 
-    // 1. Create the message data object
-    const messageData = {
-      sender: CURRENT_USER_ID,
-      text: text,
-      image: "", // 나중에 넣을 예정
-      timestamp: firebase.database.ServerValue.TIMESTAMP, // Firebase will set the time
-    };
-
-    // 2. Clear the input *before* sending
+    // 입력 비우기
     chatInput.value = "";
     if (fileInput) fileInput.value = null;
     renderChatPreview(null);
 
-    // 3.  Send to Firebase using push()
     try {
-      const convoRef = database.ref("conversations/" + conversationId);
-      await convoRef.push(messageData);
+      const response = await fetch(`/api/chat/send/${ITEM_NAME}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          text: text,
+          // seller가 My Messages에서 들어온 경우: with=buyer_id 가 넘어옴
+          other_user_id: OTHER_USER_ID || null,
+        }),
+      });
 
-      await fetch(`/api/chat/link_inbox/${ITEM_NAME}`, { method: "POST" });
+      const result = await response.json();
+
+      if (result.error) {
+        console.error("Server failed:", result.error);
+        chatInput.value = text; // Put back on error
+        alert("Failed to send message: " + result.error);
+      }
     } catch (error) {
-      console.error("Error sending message:", error);
-      // If it fails, maybe add the text back?
+      console.error("Network error:", error);
       chatInput.value = text;
+      alert("Network error. Please try again.");
     }
   }
 
@@ -479,6 +492,15 @@ function initChatFeature() {
       console.log("Emoji picker toggle");
       chatInput.focus();
     });
+  }
+
+  // URL ?chat=true 이면 자동으로 열기 (상품 상세 / My Messages 둘 다 공통)
+  if (urlParams.get("chat") === "true") {
+    setTimeout(() => {
+      if (openChatButton) {
+        openChatButton.click();
+      }
+    }, 300);
   }
 }
 

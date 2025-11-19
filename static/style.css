@@ -605,6 +605,23 @@ button:hover,
   color: #ffffff;
 }
 
+.message-row.sender { 
+    justify-content: flex-end; 
+}
+.message-row.sender .message-bubble { 
+      background: #00462a;
+  color: #ffffff;
+}
+
+/* RECEIVER (Other) - Left Side */
+.message-row.receiver { 
+    justify-content: flex-start; 
+}
+.message-row.receiver .message-bubble { 
+  background: #d8dadf;
+  color: #050505;
+}
+
 /* CHAT FOOTER & INPUT  */
 .chat-footer {
   display: flex;

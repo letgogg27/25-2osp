@@ -135,7 +135,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     style="display: none"
     data-item-name="{{ name }}"
     data-seller-id="{{ data.seller }}"
-    data-current-user-id="{{ session.get('id', '') }}"
+    data-current-user-id="{{ session['id'] }}"
   >
     <div class="chat-window">
       <!-- Header -->
