@@ -1208,30 +1208,27 @@ legend i {
   background: #333;
 }
 
-/* 카드 리스트 (3×2) */
+/* 카드 리스트 */
 .card-list {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 5px;              /* 카드 간 간격 좁게 */
+  padding: 0 100px;        /* 좌우 여백 넉넉하게 */
+  margin: 20px 0 0 0;     /* 위쪽만 약간 여백 */
   list-style: none;
-  padding: 0;
-  margin: 0;
 }
 
 .card {
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
   padding: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: 0.2s ease;
 }
-
 .card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-3px);
 }
 
 /* 작성자 정보 */
@@ -1302,7 +1299,7 @@ legend i {
 .thumb {
   display: block;
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 4/3;
   overflow: hidden;
   border-radius: 8px;
   margin-top: 8px;

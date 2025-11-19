@@ -1,62 +1,115 @@
-{% extends "index.html" %} {% block title %}Ewha Market - Review detail{%
-endblock %} {% block content %}
+{% extends "index.html" %}
+{% block title %}Ewha Market - Review detail{% endblock %}
+{% block content %}
 
 <div class="review-detail">
   <h1 class="review-title">이화마켓 리뷰 상세</h1>
 
-  <!-- 판매자 정보 -->
+  <!-- 🔹 판매자 + 상품 정보 -->
   <div class="seller-box box">
     <div class="seller-info">
+      <!-- 판매자 프로필 (고정 이미지 유지) -->
       <div class="profile-pic">
         <img src="/static/images/fake_profile.png" alt="판매자 프로필" />
       </div>
+
+      <!-- 판매자 / 위치 / 평점 -->
       <div class="seller-meta">
-        <strong>@ewha_seller</strong><br />
-        <span class="location-box"
-          ><i class="fa-solid fa-location-dot"></i> 신촌</span
-        >
+        <strong>@{{ item.seller or 'ewha_seller' }}</strong><br />
+        {% if item.addr %}
+        <span class="location-box">
+          <i class="fa-solid fa-location-dot"></i> {{ item.addr }}
+        </span><br />
+        {% endif %}
+
+        <!-- 이 부분은 예시값 그대로 두고, 별점은 리뷰 rate 사용 -->
+        {% set rate = (data.rate or 0) | int %}
         총 거래 횟수: 20회<br />
-        평점: <span class="stars">⭐⭐⭐⭐⭐</span> 5.0
+        평점:
+        <span class="stars">
+          {% for _ in range(rate) %}⭐{% endfor %}
+          {% for _ in range(5 - rate) %}☆{% endfor %}
+        </span>
+        {{ "%.1f"|format(rate|float) }}
       </div>
-      <div class="product-name">거래 제품명: 레드 겨울 자켓</div>
+
+      <!-- 거래 상품 정보 -->
+      <div class="product-name">
+        거래 제품명: {{ name }}<br />
+        {% if item.img_path %}
+        <img
+          src="{{ url_for('static', filename='images/' ~ item.img_path) }}"
+          alt="거래 상품 이미지"
+          style="width:80px;height:80px;object-fit:cover;border-radius:8px;margin-top:6px;"
+        />
+        {% endif %}
+      </div>
     </div>
+
     <div class="divider"></div>
-    <div class="hashtags">
-      <span>#친절해요</span><span>#시간 약속을 잘 지켜요</span>
-    </div>
+
+    
   </div>
 
-  <!-- 리뷰 본문 -->
+  <!-- 🔹 리뷰 본문 -->
   <div class="review-container box">
     <div class="review-header">
       <div class="user-info">
+        <!-- 작성자 프로필 (고정 이미지 유지) -->
         <img src="/static/images/fake_profile.png" alt="작성자 프로필" />
         <div>
-          <div class="review-user">@ewha123</div>
-          <div class="review-rating">⭐⭐⭐⭐⭐ <span>별점: 5.0</span></div>
+          <div class="review-user">@{{ data.user or 'ewha_user' }}</div>
+          <div class="review-rating">
+            {% set rate = (data.rate or 0) | int %}
+            {% for _ in range(rate) %}⭐{% endfor %}
+            {% for _ in range(5 - rate) %}☆{% endfor %}
+            <span>별점: {{ rate }}</span>
+          </div>
         </div>
       </div>
-      <div class="review-meta">2024.05.20</div>
+      <div class="review-meta">
+        {{ data.date or '' }}
+      </div>
     </div>
 
+    
     <div class="review-images">
-      <img src="/static/images/fake_image.png" alt="리뷰 이미지" />
-      <img src="/static/images/fake_image.png" alt="리뷰 이미지" />
-      <img src="/static/images/fake_image.png" alt="리뷰 이미지" />
+      {% if data.img_path %}
+      <img
+        src="{{ url_for('static', filename='images/' ~ data.img_path) }}"
+        alt="리뷰 이미지"
+      />
+      {% endif %}
     </div>
 
+    <!-- 🔹 텍스트 리뷰 내용 -->
     <div class="review-content-box">
-      <strong>판매자님이 정말 친절하세요!</strong>
-      <p>
-        판매자님이 매우 친절하시고 상품 상태도 최상이었습니다. 약속 시간도 잘
-        지켜주셔서 신뢰가 갔어요!
-      </p>
+      <strong>{{ data.title or '제목 없음' }}</strong>
+      <p>{{ data.review or '(리뷰 내용 없음)' }}</p>
     </div>
 
     <div class="helpful-section">
       <button>👍</button>
       <span>리뷰가 도움이 되었어요</span>
     </div>
+
+
+<!-- 🔹 pros → 해시태그 -->
+    {% set pros_raw = data.pros or '' %}
+    {% set tags = pros_raw.split(',') %}
+    <div class="hashtags">
+      {% for t in tags %}
+        {% set label = t.strip() %}
+        {% if label %}
+          <span>#{{ label }}</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+
   </div>
+
+
+  
 </div>
+
 {% endblock %}
