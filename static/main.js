@@ -1,15 +1,13 @@
 /** main.js **/
 
-function startApp() {
-  console.log("Firebase login complete. Running app...");
+document.addEventListener("DOMContentLoaded", () => {
   initImageUploadFeature();
   initStarRating();
   initChips();
   initFormReset();
   initChatFeature();
-  initMyMessagesPage();
   initAutoResizeTextarea();
-}
+});
 
 /* =========================
     IMAGE UPLOAD + PREVIEW
@@ -203,6 +201,7 @@ function initFormReset() {
     if (previewContainer) previewContainer.innerHTML = "";
   });
 }
+
 //* ==============
 //  Real-time CHAT MODAL
 //============== *//
@@ -232,46 +231,26 @@ function initChatFeature() {
     return;
   }
 
-  // Get data from the HTML
   const ITEM_NAME = chatModal.dataset.itemName;
   const SELLER_ID = chatModal.dataset.sellerId;
   const CURRENT_USER_ID = chatModal.dataset.currentUserId;
 
-  // Get the "chat_with" user from the URL (if it exists)
-  const urlParams = new URLSearchParams(window.location.search);
-  const chatWithUser = urlParams.get("chat_with");
-
+  // Create the Conversation ID
   let conversationId;
-
-  if (!CURRENT_USER_ID) {
-    return; // Not logged in
-  }
-
-  // the other person chat
-  let otherUserId;
-
-  if (chatWithUser) {
-    //  a Seller (or Buyer) clicking from their inbox.
-    otherUserId = chatWithUser;
+  if (CURRENT_USER_ID && SELLER_ID) {
+    const userIds = [CURRENT_USER_ID, SELLER_ID].sort();
+    conversationId = `${userIds[0]}_${userIds[1]}_${ITEM_NAME}`;
   } else {
-    // This is a Buyer starting a new chat.
-    otherUserId = SELLER_ID;
+    // User is not logged in-> can't start a chat
+    return;
   }
-
-  const userIds = [CURRENT_USER_ID, otherUserId].sort();
-  conversationId = `${userIds[0]}_${userIds[1]}_${ITEM_NAME}`;
 
   function openChat() {
-    fetch("/api/chat/clear_unread", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ conversation_id: conversationId }),
-    }).catch((e) => console.error("Could not clear unread count", e));
-
     chatModal.style.display = "flex";
     bodyElement.classList.add("no-scroll");
     if (messagesContainer) messagesContainer.innerHTML = "Loading chat...";
 
+    // Get the database reference for this specific chat
     currentConversationRef = database.ref("conversations/" + conversationId);
 
     if (currentMessageListener) {
@@ -281,9 +260,12 @@ function initChatFeature() {
       "value",
       (snapshot) => {
         if (!messagesContainer) return;
-        messagesContainer.innerHTML = "";
-        const messages = snapshot.val();
+        messagesContainer.innerHTML = ""; // Clear "Loading..."
+
+        const messages = snapshot.val(); // Get all messages as an object
+
         if (messages) {
+          // Loop through all messages
           Object.keys(messages).forEach((key) => {
             const msg = messages[key];
             addMessage(
@@ -292,17 +274,21 @@ function initChatFeature() {
             );
           });
         } else {
+          // No messages yet
           messagesContainer.innerHTML =
             "<div class='chat-system-message'>This is the beginning of your conversation.</div>";
         }
+
         scrollToBottom();
       },
       (error) => {
+        // Handle errors
         console.error("Firebase read error:", error);
         if (messagesContainer)
           messagesContainer.innerHTML = "Error loading chat.";
       }
     );
+
     scrollToBottom();
   }
 
@@ -365,18 +351,19 @@ function initChatFeature() {
   function addMessage(content, senderId) {
     if (!messagesContainer) return;
 
-    // Let's print the variables to the console to see what's happening // just to check and debug
+    // --- [NEW DEBUG CODE] ---
+    // Let's print the variables to the console to see what's happening
     console.log("--- New Message ---");
     console.log(`Message Sender ID (senderId): ${senderId}`);
     console.log(`My Browser's ID (CURRENT_USER_ID): ${CURRENT_USER_ID}`);
-    // END DEBUG
+    // --- [END DEBUG CODE] ---
 
     const role = senderId === CURRENT_USER_ID ? "sender" : "receiver";
 
-    // Start DEBUG CODE
+    // --- [NEW DEBUG CODE] ---
     console.log(`Resulting Role (left/right): ${role}`);
     console.log("-------------------");
-    // END DEBUG CODE
+    // --- [END DEBUG CODE] ---
 
     const { text, imageURL } = content;
     const hasImage = !!imageURL;
@@ -416,38 +403,36 @@ function initChatFeature() {
   }
   async function handleSend() {
     const text = chatInput.value;
-    const file = currentFileToSend;
+    const file = currentFileToSend; // 나중에 넣을 예정
 
     if (!text.trim() && !file) return;
 
+    // 1. Create the message data object
     const messageData = {
       sender: CURRENT_USER_ID,
       text: text,
-      image: "",
-      timestamp: firebase.database.ServerValue.TIMESTAMP,
+      image: "", // 나중에 넣을 예정
+      timestamp: firebase.database.ServerValue.TIMESTAMP, // Firebase will set the time
     };
 
+    // 2. Clear the input *before* sending
     chatInput.value = "";
     if (fileInput) fileInput.value = null;
     renderChatPreview(null);
 
+    // 3.  Send to Firebase using push()
     try {
-      // Push the message to Firebase
       const convoRef = database.ref("conversations/" + conversationId);
       await convoRef.push(messageData);
 
-      await fetch(`/api/chat/link_inbox/${ITEM_NAME}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ other_user_id: otherUserId }),
-      });
+      await fetch(`/api/chat/link_inbox/${ITEM_NAME}`, { method: "POST" });
     } catch (error) {
       console.error("Error sending message:", error);
+      // If it fails, maybe add the text back?
       chatInput.value = text;
     }
   }
+
   // Open / close modal
   openChatButton.addEventListener("click", openChat);
   if (closeChatButton) closeChatButton.addEventListener("click", closeChat);
@@ -495,90 +480,6 @@ function initChatFeature() {
       chatInput.focus();
     });
   }
-}
-
-/**
- * =========================
- * MY MESSAGES-INBOX PAGE
- * =========================
- */
-function initMyMessagesPage() {
-  const messagesPage = document.getElementById("my-messages-page");
-  const listContainer = document.getElementById("chat-list-container");
-
-  if (!messagesPage || !listContainer) {
-    return;
-  }
-
-  const CURRENT_USER_ID = messagesPage.dataset.currentUserId;
-  if (!CURRENT_USER_ID) {
-    listContainer.innerHTML = "<p>Error: Not logged in.</p>";
-    return;
-  }
-  const userChatsRef = database.ref(`user_chats/${CURRENT_USER_ID}`);
-
-  userChatsRef.on("value", (snapshot) => {
-    const chats = snapshot.val();
-
-    listContainer.innerHTML = "";
-
-    if (!chats) {
-      listContainer.innerHTML = "<p>You have no messages yet.</p>";
-      return;
-    }
-
-    Object.keys(chats).forEach((key) => {
-      const chat = chats[key];
-
-      const chatLink = document.createElement("a");
-      chatLink.href = `/view_detail/${chat.item_name}/?chat_with=${chat.with_user}`;
-      chatLink.style.textDecoration = "none";
-      chatLink.style.color = "inherit";
-
-      const itemBox = document.createElement("div");
-      itemBox.style.cssText =
-        "border: 1px solid #eee; padding: 1rem; margin-bottom: 1rem; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: white;";
-
-      const infoDiv = document.createElement("div");
-
-      const itemName = document.createElement("h4");
-      itemName.style.cssText = "margin: 0 0 0.5rem 0; font-size: 16px;";
-      itemName.textContent = `Item: ${chat.item_name}`;
-
-      const withUser = document.createElement("p");
-      withUser.style.cssText = "margin: 0; color: #555; font-size: 14px;";
-      withUser.innerHTML = `Chat with: <strong>@${chat.with_user}</strong>`;
-
-      infoDiv.appendChild(itemName);
-      infoDiv.appendChild(withUser);
-
-      const unreadBadge = document.createElement("div");
-      if (chat.unread_count > 0) {
-        unreadBadge.textContent = chat.unread_count;
-        unreadBadge.style.cssText = `
-          background-color: #d93025; 
-          color: white; 
-          border-radius: 50%; 
-          width: 24px; 
-          height: 24px; 
-          display: flex; 
-          align-items: center; 
-          justify-content: center; 
-          font-size: 12px; 
-          font-weight: bold;
-        `;
-      } else {
-        unreadBadge.innerHTML = "&rarr;";
-        unreadBadge.style.cssText =
-          "color: #00462a; font-weight: bold; font-size: 18px;";
-      }
-
-      itemBox.appendChild(infoDiv);
-      itemBox.appendChild(unreadBadge);
-      chatLink.appendChild(itemBox);
-      listContainer.appendChild(chatLink);
-    });
-  });
 }
 
 /* =========================

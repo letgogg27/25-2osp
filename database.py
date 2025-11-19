@@ -5,11 +5,20 @@ import firebase_admin
 from firebase_admin import credentials, auth
 
 class DBhandler:
+    # def __init__(self):
+    #     """
+    #     Firebase 인증 파일(firebase_auth.json)을 읽고
+    #     데이터베이스 객체(self.db)를 초기화하는 부분
+    #     """
+    #     with open('./authentication/firebase_auth.json') as f:
+    #         config = json.load(f)
+
+    #     # Firebase 연결 초기화
+    #     firebase = pyrebase.initialize_app(config)
+    #     self.db = firebase.database()
+    #     print("✅ Firebase 연결 완료")
+
     def __init__(self):
-        """
-        Firebase 인증 파일(firebase_auth.json)을 읽고
-        데이터베이스 객체(self.db)를 초기화하는 부분
-        """
         with open('./authentication/firebase_auth.json') as f:
             config = json.load(f)
 
@@ -28,9 +37,6 @@ class DBhandler:
             print("✅ Firebase Admin (Server) connected.")
 
     def create_custom_token(self, user_id):
-        """
-        Creates a Firebase Custom Token for a given user_id.
-        """
         try:
             # Create a token that expires in 1 hour 
             custom_token = auth.create_custom_token(user_id, {'expiresIn': 3600})
@@ -41,10 +47,6 @@ class DBhandler:
 
     # [과제1] 상품 정보 삽입 함수
     def insert_item(self, name, data, img_path):
-        """
-        전달받은 상품 데이터를 JSON 형태로 구성하여
-        Firebase DB의 'item' 노드에 저장
-        """
         if isinstance(img_path, list):
             img_list = img_path
         else:
@@ -52,6 +54,8 @@ class DBhandler:
 
         raw_price = data.get('price', '')
         digits_only = ''.join(ch for ch in str(raw_price) if ch.isdigit())
+
+        created_at = datetime.datetime.utcnow().timestamp()
 
         item_info = {
             "seller": data.get('seller', ''),
@@ -67,19 +71,16 @@ class DBhandler:
             
             "img_paths": img_list,
             "img_path": img_list[0], 
+
+            "created_at": created_at,
         }
 
-        # "item" 노드 아래 상품 이름(name)을 키로 데이터 저장
         self.db.child("item").child(name).set(item_info)
         print(f"✅ 상품 '{name}' 등록 완료")
         return True
 
     # [과제2] ID 중복 체크 함수
     def user_duplicate_check(self, id_string):
-        """
-        'user' 노드를 조회하여 동일한 ID가 이미 존재하는지 확인
-        존재하면 False, 없으면 True 반환
-        """
         users = self.db.child("user").get()
 
         # 첫 번째 회원가입일 경우(None)
@@ -99,11 +100,6 @@ class DBhandler:
 
     # [과제2] 회원 등록 함수
     def insert_user(self, form_data, pw_hash):
-        """
-        form_data: request.form (signup.html의 name 속성 기준)
-        - userID, password, passwordConfirm, email, emailDomain, tel1, tel2, tel3, ...
-        pw_hash: app.py에서 SHA-256 등으로 해시된 비밀번호 문자열
-        """
         # 폼 명칭과 백엔드 키 맞추기 (userID 사용)
         user_id = form_data.get('userID', '').strip()
 
@@ -147,6 +143,7 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+
     # Add a message to a conversation
     def add_message(self, conversation_id, sender_id, text, image_url=None):
         """
@@ -181,44 +178,20 @@ class DBhandler:
             print(f"⚠️ Error fetching messages: {e}")
             return {}
         
-    
     # Save a link so the user can see this chat in their inbox
-    def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id, is_new_message_for_this_user):
-        """
-        Saves a reference to a conversation under a user's ID.
-        If it's a new message, increments unread_count for that user.
-        """
+    def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id):
         try:
-            chat_info_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
-            chat_info = chat_info_ref.get().val()
-
-            if chat_info:
-                # Existing link -> only touch unread_count when needed
-                if is_new_message_for_this_user:
-                    current = chat_info.get("unread_count", 0)
-                    try:
-                        current = int(current)
-                    except (TypeError, ValueError):
-                        current = 0
-                    chat_info_ref.update({"unread_count": current + 1})
-                return True
-            else:
-                # New chat link
-                new_chat_info = {
-                    "conversation_id": conversation_id,
-                    "item_name": item_name,
-                    "with_user": other_user_id,
-                    "unread_count": 1 if is_new_message_for_this_user else 0,
-                    "last_message": "",
-                }
-                chat_info_ref.set(new_chat_info)
-                print(f"✅ NEW link for user {user_id} to {conversation_id}")
-                return True
-
+            chat_info = {
+                "conversation_id": conversation_id,
+                "item_name": item_name,
+                "with_user": other_user_id
+            }
+            # Save under "user_chats/USER_ID/CONVERSATION_ID"
+            self.db.child("user_chats").child(user_id).child(conversation_id).set(chat_info)
+            return True
         except Exception as e:
-            print(f"❌ Error linking/incrementing user to chat: {e}")
+            print(f"❌ Error linking user to chat: {e}")
             return False
-
 
     #  Get the list of chats for the Inbox page
     def get_user_conversations(self, user_id):
@@ -227,12 +200,30 @@ class DBhandler:
             return conversations or {}
         except Exception as e:
             print(f"❌ Error fetching user chats: {e}")
-            return {}
-        
-    def clear_unread_count(self, user_id, conversation_id):
-        chat_ref = self.db.child("user_chats").child(user_id).child(conversation_id)
-        chat_ref.child("unread_count").set(0)
-        print(f"✅ Cleared unread count for user {user_id}")
+            return {}  
+
+# 특정 유저의 특정 상품 하트 상태 가져오기
+    # heart/{user_id}/{item} = {"interested": "Y" or "N"}
+    def get_heart_byname(self, uid, name):
+        snap = self.db.child("heart").child(uid).child(name).get()
+        val = snap.val()
+
+        if not val:
+            return {"interested": "N"}
+
+        return val
+
+    # 하트 업데이트 (Y or N)
+    def update_heart(self, user_id, isHeart, item):
+        heart_info = {
+            "interested": isHeart
+        }
+        self.db.child("heart").child(user_id).child(item).set(heart_info)
+        return True
+
+    # 찜목록 기능
+    def add_wishlist(self, user_id: str, product_key: str):
+        self.db.child("wishlist").child(user_id).child(product_key).set(True)
         return True
 
     def reg_review(self, data, img_path):

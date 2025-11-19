@@ -1,10 +1,17 @@
 /*** Navbar ***/
 
 body {
-  padding-top: 100px;
-  padding-bottom: 60px;
   margin: 0;
+  padding-top: 100px;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
 }
+
+main {
+  flex-grow: 1;
+}
+
 /*공통 textarea font*/
 textarea,
 textarea::placeholder {
@@ -95,11 +102,6 @@ nav {
   padding: 25px 0 15px;
   font-family: "Noto Sans KR", sans-serif;
   font-size: 14px;
-  position: fixed;
-  z-index: 999;
-  bottom: 0;
-  left: 0;
-  right: 0;
   width: 100%;
 }
 
@@ -319,7 +321,6 @@ button:hover,
   color: darkred;
 }
 
-/* 이전 거래 후기 */
 .item-seller-review {
   box-shadow: 2px 2px 8px rgba(137, 113, 113, 0.2);
   padding: 10px;
@@ -2166,6 +2167,12 @@ textarea {
   margin: 0 auto 60px;
 }
 
+.item-count-text {
+  margin: 0 0 12px 0;
+  text-align: center;
+  font-weight: 500;
+}
+
 .item-card {
   border: 1px solid #e5e5e5;
   border-radius: 10px;
@@ -2270,3 +2277,14 @@ textarea {
   color: #aaa;
   opacity: 1;
 }*/
+<<<<<<< HEAD
+=======
+
+.fa-heart {
+  font-size: 22px;
+  color: grey;
+}
+.fa-heart.red {
+  color: red;
+}
+>>>>>>> chaeeun

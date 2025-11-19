@@ -25,7 +25,9 @@ content %}
     text-align: left;
     border: 1px solid #eee;
     background: #fff;
-  }
+    border-radius: 10px;
+    position: relative;
+}
 
   .item-card img {
     width: 100%;
@@ -35,51 +37,65 @@ content %}
   .pager {
     margin-top: 24px;
     margin-bottom: 80px;
-  }
+}
+.heart-icon {
+  font-size: 22px;
+  cursor: pointer;
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  color: grey;
+}
 </style>
 
 <div class="search-bar">
-  <form class="search-form" method="GET" action="/list">
-    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색" />
-    <select name="sort">
-      <option value="">최신순</option>
-      <option value="price_asc">가격 낮은 순</option>
-      <option value="price_desc">가격 높은 순</option>
+  <form class="search-form" method="GET" action="{{ url_for('view_list') }}">
+    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색" value="{{ q or '' }}"/>
+
+    <select name="sort" onchange="this.form.submit()">
+      <option value="" {% if not sort %}selected{% endif %}>최신순</option>
+      <option value="price_asc" {% if sort == 'price_asc' %}selected{% endif %}>가격 낮은 순</option>
+      <option value="price_desc" {% if sort == 'price_desc' %}selected{% endif %}>가격 높은 순</option>
     </select>
     <button type="submit">검색</button>
   </form>
 </div>
 
 {% if total > 0 %}
-<p>{{ total }}개 상품 등록됨</p>
 <div class="item-grid-wrapper">
-  <div class="item-grid">
-    {% for key, value in datas %}
-    <div
-      class="item-card"
-      onclick="location.href='{{ url_for('view_item_detail', name=key) }}';"
-      style="cursor: pointer"
-    >
-      <img src="static/images/{{ value.img_path }}" />
-      <div class="item-info">
-        <h3>{{ key }}</h3>
-        <p>{{ value.price }}원</p>
-        <p>{{ value.addr }}</p>
+  <p class="item-count-text">{{ total }}개 상품 등록됨</p>
+    <div class="item-grid">
+
+      {% for key, value in datas %}
+      <div class="item-card">
+        <!-- 클릭 영역 -->
+        <div onclick="location.href='{{ url_for('view_item_detail', name=key) }}'"
+            style="cursor:pointer;">
+            <img src="static/images/{{ value.img_path }}" />
+            <div class="item-info">
+                <h3>{{ key }}</h3>
+                <p>{{ value.price }}원</p>
+                <p>{{ value.addr }}</p>
+            </div>
+        </div>
+
+        <!-- 하트 -->
+        <i class="fa fa-heart heart-icon"
+          id="heart-{{ key }}"
+          onclick="onHeartClick(event, '{{ key }}')"></i>
       </div>
-      <span class="like-btn">♡</span>
+      {% endfor %}
     </div>
-    {% endfor %}
-  </div>
 </div>
+
 
 <div class="pager">
   {# 이전 버튼 #} {% if page > 1 %}
   <a
-    href="{{ url_for('view_list', page=page-1) }}"
+    href="{{ url_for('view_list', page=page-1, q=q, sort=sort) }}"
     class="page-ctrl"
     aria-label="이전"
-    >&laquo;</a
-  >
+    >&laquo;</a>
   {% else %}
   <span class="page-ctrl" aria-label="이전">&laquo;</span>
   {% endif %}
@@ -87,23 +103,92 @@ content %}
   <ol class="page-list">
     {% for i in range(1, page_count + 1) %}
     <li class="{% if i == page %}on{% endif %}">
-      <a href="{{ url_for('view_list', page=i) }}">{{ i }}</a>
+      <a href="{{ url_for('view_list', page=i, q=q, sort=sort) }}">{{ i }}</a>
     </li>
     {% endfor %}
   </ol>
 
   {# 다음 버튼 #} {% if page < page_count %}
   <a
-    href="{{ url_for('view_list', page=page+1) }}"
+    href="{{ url_for('view_list', page=page+1, q=q, sort=sort) }}"
     class="page-ctrl"
     aria-label="다음"
-    >&raquo;</a
-  >
+    >&raquo;</a>
   {% else %}
   <span class="page-ctrl" aria-label="다음">&raquo;</span>
   {% endif %}
 </div>
 
 {% else %}
-<p>등록된 상품이 없습니다.</p>
-{% endif %} {% endblock %}
+<p style="text-align:center; margin-top:50px;">등록된 상품이 없습니다.</p>
+{% endif %}
+
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+
+<script>
+$(document).ready(function () {
+
+    // 페이지 로딩 시, 전체 상품에 대해 좋아요 상태 확인
+    {% for key, value in datas %}
+        showHeart("{{ key }}");
+    {% endfor %}
+});
+
+/* 교수님 구조 그대로 가져온 showHeart() */
+function showHeart(pid) {
+
+    $.ajax({
+        type: 'GET',
+        url: '/show_heart/' + pid + '/',
+        data: {},
+        success: function (response) {
+
+            let my_heart = response['my_heart'];
+
+            if (my_heart['interested'] == 'Y') {
+                $("#heart-" + pid).css("color", "red");
+                $("#heart-" + pid).attr("onclick", "unlike('" + pid + "')");
+            } else {
+                $("#heart-" + pid).css("color", "grey");
+                $("#heart-" + pid).attr("onclick", "like('" + pid + "')");
+            }
+        }
+    });
+}
+
+/* 교수님 방식: 좋아요 등록 */
+function like(pid) {
+
+    $.ajax({
+        type: 'POST',
+        url: '/like/' + pid + '/',
+        data: { interested: "Y" },
+        success: function (response) {
+            alert(response['msg']);
+            window.location.reload();
+        }
+    });
+}
+
+/* 교수님 방식: 좋아요 취소 */
+function unlike(pid) {
+
+    $.ajax({
+        type: 'POST',
+        url: '/unlike/' + pid + '/',
+        data: { interested: "N" },
+        success: function (response) {
+            alert(response['msg']);
+            window.location.reload();
+        }
+    });
+}
+
+/* 카드 클릭과 하트 클릭 구분하기 */
+function onHeartClick(event, pid) {
+    event.stopPropagation();   // 상세페이지 이동 막기
+}
+</script>
+
+{% endblock %}

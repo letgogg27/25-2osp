@@ -9,7 +9,6 @@ from flask import (
     jsonify,
     abort,
 )
-
 import hashlib
 from database import DBhandler
 import os
@@ -19,6 +18,7 @@ import sys
 import datetime
 from flask import abort
 from flask import jsonify
+import re
 
 
 app = Flask(__name__, template_folder="templates", static_folder="static")
@@ -45,6 +45,11 @@ PRODUCTS = [
 
 PAGE_SIZE = 8
 
+def sanitize_key(key_str):
+    if not key_str:
+        return "_"
+    # Replicates the JS regex: /[.#$\[\]/]/g
+    return re.sub(r'[.#$\[\]/]', '_', key_str)[:100]
 
 def render_list():
     page = int(request.args.get("page", 1))
@@ -92,10 +97,6 @@ def view_list():
 
     filtered = []
     for name, info in items:
-        if not isinstance(info, dict):
-            print("⚠ 잘못된 item 데이터:", name, type(info), info)
-            continue
-            
         seller = info.get("seller", "")
         if q:
             if (q.lower() not in name.lower()) and (q.lower() not in seller.lower()):
@@ -138,6 +139,13 @@ def view_list():
         q=q,
         sort=sort,
     )
+
+
+@app.route("/review", methods=["GET"], strict_slashes=False)
+def review():
+    page = request.args.get("page", 1, type=int)
+    page_count = 1
+    return render_template("review.html", page=page, page_count=page_count)
 
 
 @app.route("/register_items", methods=["GET", "POST"], strict_slashes=False)
@@ -246,7 +254,8 @@ def reg_item_submit_post():
     if not item_name:
         flash("상품 이름을 입력해주세요.")
         return redirect(url_for("register_items"))
-
+    
+    # item_name = item_name.replace(" ", "_").replace(".", "_")
     # 가격: 숫자만 추출해서 DB에는 "1000000" 형태로 저장
     raw_price = (form.get("item_price") or "").strip()
     digits_only = "".join(ch for ch in raw_price if ch.isdigit())
@@ -290,25 +299,16 @@ def wishlist():
     if not heart_data:
         items = []
     else:
-        liked_items = []
+        liked_items = [name for name, val in heart_data.items()
+                       if val.get("interested") == "Y"]
 
-        for name, val in heart_data.items():
-            if isinstance(val, dict):
-                flag = val.get("interested")
-            else:
-                flag = val
-
-            if flag == "Y":
-                liked_items.append(name)
-        
         all_items = DB.get_items() or {}
         
         items = []
         for k, v in all_items.items():
             if k in liked_items:
-                info=dict(v)
-                info["interested"] = "Y"   # 추가
-                items.append((k, info))
+                v["interested"] = "Y"   # 추가
+                items.append((k, v))
 
     # --- 페이지네이션 ---
     page = request.args.get("page", 1, type=int)
@@ -359,90 +359,73 @@ def view_item_detail(name):
     return render_template("item_detail.html", name=name, data=data)
 
 
-# Gets the message history for a chat
-@app.route("/api/chat/history/<item_name>")
-def get_chat_history(item_name):
-    # Check if user is logged in
-    if 'id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
+@app.route("/api/chat/link_inbox/<item_name>", methods=['POST'])
+def link_chat_to_inbox():
+    # if 'id' not in session:
+    #     return jsonify({"error": "Unauthorized"}), 401
 
-    # Get seller ID from the item
-    item_data = DB.get_item_byname(item_name)
-    if not item_data:
-        return jsonify({"error": "Item not found"}), 404
+    if "id" not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for("login"))
+    
+    try:
+        data = request.json
+        other_user_id = data.get('other_user_id') #  the RECEIVER
+        item_name = data.get('item_name')
+        current_user_id = session['id']           #  the SENDER
 
-    seller_id = item_data.get("seller")
-    buyer_id = session['id']
+        if not other_user_id or not item_name:
+            return jsonify({"error": "Missing other_user_id or item_name"}), 400
 
-    # Create a unique conversation ID
-    user_ids = sorted([buyer_id, seller_id])
-    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+        user_ids = sorted([current_user_id, other_user_id])
+        safe_item_key = sanitize_key(item_name)
+        conversation_id = f"{user_ids[0]}_{user_ids[1]}_{safe_item_key}"
+        
+        # Link to Sender's Inbox 
+        DB.link_user_to_conversation(
+            user_id=current_user_id, 
+            conversation_id=conversation_id, 
+            item_name=item_name, 
+            other_user_id=other_user_id,
+            is_new_message_for_this_user=False 
+        )
+        # Link to Receiver's Inbox
+        DB.link_user_to_conversation(
+            user_id=other_user_id, 
+            conversation_id=conversation_id, 
+            item_name=item_name, 
+            other_user_id=current_user_id,
+            is_new_message_for_this_user=True #  a new msg for the receiver
+        )
+        
+        return jsonify({"status": "success", "message": "Inbox linked/incremented"})
 
-    # Fetch messages from DB
-    messages = DB.get_messages(conversation_id)
+    except Exception as e:
+        print(f"⚠️ Error linking inbox: {e}")
+        return jsonify({"error": "Failed to link inbox"}), 500
 
-    # Send messages back to the JavaScript as JSON
-    return jsonify(messages)
+@app.route("/api/chat/clear_unread", methods=['POST'])
+def clear_unread():
+    # if 'id' not in session:
+    #     return jsonify({"error": "Unauthorized"}), 401
+    if "id" not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for("login"))
+    
+    try:
+        data = request.json
+        conversation_id = data.get('conversation_id')
+        current_user_id = session['id']
 
-# Sends a new message
-@app.route("/api/chat/send/<item_name>", methods=['POST'])
-def send_chat_message(item_name):
-    # Check if user is logged in
-    if 'id' not in session:
-        return jsonify({"error": "Unauthorized"}), 401
+        if not conversation_id:
+            return jsonify({"error": "Missing conversation_id"}), 400
 
-    # Get data from the JavaScript request
-    data = request.json
-    text = data.get("text")
+        DB.clear_unread_count(current_user_id, conversation_id)
+        return jsonify({"status": "success", "message": "Count cleared"})
 
-    # 나중에 Image sending 
-
-    if not text:
-        return jsonify({"error": "Empty message"}), 400
-
-    # Get seller and buyer IDs
-    item_data = DB.get_item_byname(item_name)
-    if not item_data:
-        return jsonify({"error": "Item not found"}), 404
-
-    item_owner_id = item_data.get("seller") 
-    current_user_id = session['id']          
-
-    # Create the conversation ID
-    user_ids = sorted([current_user_id, item_owner_id]) 
-
-    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
-
-    # Save the message to the database
-    success = DB.add_message(
-        conversation_id=conversation_id,
-        sender_id=current_user_id,  
-        text=text
-    )
-
-    if success:
-        try:
-            
-            # Link to the Current User's Inbox
-            DB.link_user_to_conversation(
-                user_id=current_user_id, 
-                conversation_id=conversation_id, 
-                item_name=item_name, 
-                other_user_id=item_owner_id
-            )
-            # Link to the Item Owner's Inbox
-            DB.link_user_to_conversation(
-                user_id=item_owner_id,
-                conversation_id=conversation_id, 
-                item_name=item_name, 
-                other_user_id=current_user_id
-            )
-        except Exception as e:
-            print(f"⚠️ Error linking chats: {e}")
-
-        return jsonify({"status": "success", "message": "Message sent"})
-    else:
-        return jsonify({"error": "Failed to send message"}), 500
+    except Exception as e:
+        print(f"⚠️ Error clearing count: {e}")
+        return jsonify({"error": "Failed to clear count"}), 500
     
 @app.route("/my_messages")
 def my_messages():
@@ -450,114 +433,8 @@ def my_messages():
         flash("Please log in first.")
         return redirect(url_for('login'))
     
-    my_id = session['id']
-    
-    # Get list of chats from DB
-    conversations_dict = DB.get_user_conversations(my_id)
-    
-    # Convert to a list for the HTML loop
-    conversations_list = list(conversations_dict.values()) if conversations_dict else []
-    
-    return render_template("my_messages.html", conversations=conversations_list)
-
-@app.route("/reg_review_init/<name>/")
-def reg_review_init(name):
-    data = DB.get_item_byname(name)   # ⭐ 상품 상세 정보 가져오기
-    return render_template("reg_reviews.html", name=name, data=data)
-
-
-@app.route("/reg_review", methods=['POST'])
-def reg_review():
-    data = request.form
-    files = request.files.getlist("images[]")
-
-    # 이미지 저장
-    img_names = []
-    for f in files:
-        if f and f.filename:
-            filename = secure_filename(f.filename)
-            f.save(os.path.join("static/images", filename))
-            img_names.append(filename)
-
-    review_info = {
-        "user": session["id"], 
-        "title": data.get("title", ""),
-        "review": data.get("content", ""),
-        "rate": data.get("rating", "0"),
-        "pros": data.get("pros", ""),
-        "date": datetime.datetime.now().strftime("%Y-%m-%d"),
-        "img_path": img_names[0] if img_names else ""
-    }
-
-    item_name = data.get("name")   # ★ 반드시 form에서 넘어와야 함
-
-    DB.db.child("review").child(item_name).set(review_info)
-
-    return redirect(url_for("view_review"))
-
-@app.route("/review/<name>/")
-def view_review_detail(name):
-    review = DB.get_review_byname(name)   # 리뷰 데이터
-    item = DB.get_item_byname(name)       # 해당 상품 데이터 가져오기
-
-    return render_template(
-        "review_detail.html",
-        name=name,
-        data=review,
-        item=item
-    )
-    
-@app.route("/review", strict_slashes=False)
-def view_review():
-    page = request.args.get("page", 1, type=int)
-
-    per_page = 15  
-
-    raw = DB.get_reviews() or {}
-    items = list(raw.items())
-    item_counts = len(items)
-
-    page_count = (item_counts + per_page - 1) // per_page or 1
-
-    if page < 1:
-        page = 1
-    if page > page_count:
-        page = page_count
-
-    start_idx = (page - 1) * per_page
-    page_items = items[start_idx : start_idx + per_page]
-
-    converted = []
-    for key, rv in page_items:
-        rv = rv or {}
-
-        converted.append(
-            (
-                key,
-                {
-                    "img_path": rv.get("img_path") or "no_image.png",
-                    "rate": rv.get("rate") or 0,
-                    "review": rv.get("review") or "(리뷰 내용 없음)",
-                    "user": rv.get("user") or "ewha_user",
-                    "title": rv.get("title") or "제목 없음",
-                    "profile_img": rv.get("profile_img") or "fake_profile.png",
-
-                    # ⭐⭐⭐ 해시태그 추가!!
-                    "pros": rv.get("pros") or "",
-
-                    "helpful": rv.get("helpful") or 0,
-                    "date": rv.get("date") or "2025.01.01",
-                }
-            )
-        )
-
-    return render_template(
-        "review.html",
-        datas=converted,
-        page=page,
-        page_count=page_count,
-        total=item_counts,
-    )
+    return render_template("my_messages.html")
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+
