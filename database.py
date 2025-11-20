@@ -27,7 +27,7 @@ class DBhandler:
         self.db = firebase.database()
         print("✅ Pyrebase (Web) connected.")
 
-        # 3. Initialize Firebase Admin (for creating tokens)
+        # Initialize Firebase Admin (for creating tokens)
         if not firebase_admin._apps:
             cred = credentials.Certificate('./authentication/serviceAccountKey.json')
             
@@ -200,7 +200,36 @@ class DBhandler:
             return conversations or {}
         except Exception as e:
             print(f"❌ Error fetching user chats: {e}")
-            return {}  
+            return {} 
+
+    # Set typing status for a conversation
+    def set_typing_status(self, conversation_id, sender_id, is_typing: bool):
+        """
+        Updates the typing status of a user in the 'typing_status' node.
+        
+        Data structure:
+        typing_status/CONVERSATION_ID/SENDER_ID = True/False
+        """
+        try:
+            #  only store the status if it's True. remove if False.
+            if is_typing:
+                self.db.child("typing_status").child(conversation_id).child(sender_id).set(True)
+                print(f"Typing status set to TRUE for user {sender_id} in chat {conversation_id}")
+            else:
+                self.db.child("typing_status").child(conversation_id).child(sender_id).remove()
+                print(f" Typing status removed for user {sender_id} in chat {conversation_id}")
+            return True
+        except Exception as e:
+            print(f"⚠️ Error setting typing status: {e}")
+            return False
+            
+    # Get typing status
+    def get_typing_status(self, conversation_id):
+        try:
+            return self.db.child("typing_status").child(conversation_id).get().val() or {}
+        except Exception as e:
+            print(f"⚠️ Error getting typing status: {e}")
+            return {} 
 
 # 특정 유저의 특정 상품 하트 상태 가져오기
     # heart/{user_id}/{item} = {"interested": "Y" or "N"}

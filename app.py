@@ -477,5 +477,46 @@ def my_messages():
     
     return render_template("my_messages.html", conversations=conversations_list)
 
+# Toggles the typing status for a conversation
+@app.route("/api/chat/typing/<item_name>", methods=['POST'])
+def toggle_typing_status(item_name):
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.json or {}
+    is_typing = data.get("is_typing", False)  
+    other_user_id = data.get("other_user_id") 
+
+    # 상품 정보 (Conversation ID 생성에 필요)
+    item_data = DB.get_item_byname(item_name)
+    if not item_data:
+        return jsonify({"error": "Item not found"}), 404
+
+    item_owner_id = item_data.get("seller")
+    current_user_id = session['id']
+
+    # 대화 상대 결정 
+    if current_user_id != item_owner_id:
+        # 구매자 입장: 상대는 seller
+        other_for_link = item_owner_id
+    else:
+        # 판매자 입장: 상대는 other_user_id (buyer)
+        if not other_user_id:
+            return jsonify({"error": "Missing other_user_id for seller chat"}), 400
+        other_for_link = other_user_id
+    
+    # Conversation ID 생성
+    user_ids = sorted([current_user_id, other_for_link])
+    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+    
+    # DB 핸들러 호출
+    DB.set_typing_status(
+        conversation_id=conversation_id,
+        sender_id=current_user_id,
+        is_typing=is_typing
+    )
+    
+    return jsonify({"status": "success", "is_typing": is_typing})
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

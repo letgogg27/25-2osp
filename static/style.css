@@ -700,6 +700,35 @@ body.no-scroll {
   overflow: hidden;
 }
 
+/* Typing Indicator CSS */
+.typing-dots {
+    display: inline-block;
+    width: 0.5em; /* Space for the dots */
+    text-align: left;
+    overflow: hidden;
+    vertical-align: bottom;
+    line-height: 1;
+}
+
+.typing-dots::after {
+    content: '...'; /* Start with three dots */
+    animation: dot-animation 1.5s infinite steps(4);
+}
+
+@keyframes dot-animation {
+    0% {
+        content: '.';
+    }
+    33% {
+        content: '..';
+    }
+    66% {
+        content: '...';
+    }
+    100% {
+        content: '...'; /* Keep 3 dots for 1/4 of the time */
+    }
+}
 /*item-detail-explanation-box*/
 .item-detail-explanation-box {
   width: 100%;

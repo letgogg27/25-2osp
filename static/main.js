@@ -256,6 +256,13 @@ function initChatFeature() {
     conversationId = `${userIds[0]}_${userIds[1]}_${ITEM_NAME}`;
   }
 
+  let typingTimeout = null;
+  const TYPING_DELAY = 3000; // 3 seconds after last keypress
+  let isTyping = false;
+  const typingIndicatorElement = document.getElementById("typing-indicator");
+  // Determine who the receiver is
+  const RECEIVER_ID = CURRENT_USER_ID === SELLER_ID ? OTHER_USER_ID : SELLER_ID;
+
   function openChat() {
     chatModal.style.display = "flex";
     bodyElement.classList.add("no-scroll");
@@ -302,9 +309,15 @@ function initChatFeature() {
     );
 
     scrollToBottom();
+    startTypingListener();
   }
 
   function closeChat() {
+    if (typingListener) {
+      typingListener.off();
+      typingListener = null;
+    }
+    sendTypingStatus(false);
     // Turn off the real-time listener
     if (currentConversationRef && currentMessageListener) {
       currentConversationRef.off("value", currentMessageListener);
@@ -445,6 +458,75 @@ function initChatFeature() {
       alert("Network error. Please try again.");
     }
   }
+  //  Sends typing status to the Flask server
+  async function sendTypingStatus(status) {
+    if (status === isTyping) return;
+    isTyping = status;
+
+    const endpoint = `/api/chat/typing/${ITEM_NAME}`;
+
+    try {
+      await fetch(endpoint, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          is_typing: status,
+          other_user_id: OTHER_USER_ID || null,
+        }),
+      });
+    } catch (error) {
+      console.error("Failed to send typing status:", error);
+    }
+  }
+
+  //for keypresses
+  function handleTyping() {
+    if (typingTimeout) {
+      clearTimeout(typingTimeout);
+    }
+
+    // Send START typing signal
+    if (!isTyping) {
+      sendTypingStatus(true);
+    }
+
+    // Set timeout to send STOP typing signal
+    typingTimeout = setTimeout(() => {
+      sendTypingStatus(false);
+    }, TYPING_DELAY);
+  }
+
+  // Real-time listener for the OTHER user's typing status
+  let typingListener = null;
+
+  function startTypingListener() {
+    if (typingListener) {
+      typingListener.off();
+    }
+
+    const otherUserId =
+      CURRENT_USER_ID === SELLER_ID ? OTHER_USER_ID : SELLER_ID;
+
+    typingListener = database.ref("typing_status/" + conversationId);
+
+    typingListener.on("value", (snapshot) => {
+      if (!typingIndicatorElement) return;
+
+      const statuses = snapshot.val();
+      const receiverIsTyping = statuses && statuses[RECEIVER_ID] === true;
+
+      if (receiverIsTyping) {
+        typingIndicatorElement.style.display = "block";
+        // update the displayed name:
+        typingIndicatorElement.querySelector(
+          ".user-id"
+        ).textContent = `@${RECEIVER_ID}`;
+        scrollToBottom();
+      } else {
+        typingIndicatorElement.style.display = "none";
+      }
+    });
+  }
 
   // Open / close modal
   openChatButton.addEventListener("click", openChat);
@@ -467,6 +549,7 @@ function initChatFeature() {
 
   // Send message via Enter key
   if (chatInput) {
+    chatInput.addEventListener("input", handleTyping); // Fires on every keypress
     chatInput.addEventListener("keydown", (event) => {
       if (event.key === "Enter") {
         event.preventDefault();
@@ -474,6 +557,9 @@ function initChatFeature() {
       }
     });
   }
+  // if (chatInput) {
+  // chatInput.addEventListener("input", handleTyping); // Fires on every keypress
+  // }
 
   // Photo Upload Trigger
   if (photoBtn && fileInput) {

@@ -154,6 +154,20 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
 
       <!-- Messages area -->
       <div class="chat-body">
+        <div
+          id="typing-indicator"
+          style="
+            display: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #666;
+          "
+        >
+          <span class="user-id">@{{ data.seller }}</span> is typing<span
+            class="typing-dots"
+            >...</span
+          >
+        </div>
         <div class="chat-messages" id="chat-messages">
           <!-- Example receiver message -->
           <div class="message-row receiver">
