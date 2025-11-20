@@ -81,8 +81,9 @@ content %}
 
         <!-- 하트 -->
         <i class="fa fa-heart heart-icon"
-           id="heart-{{ key }}"
-           onclick="onHeartClick(event)"></i>
+          id="heart-{{ loop.index }}"
+          data-name="{{ key }}"
+          onclick="onHeartClick(event)"></i>
       </div>
       {% endfor %}
     </div>
@@ -129,40 +130,41 @@ content %}
 <script>
 $(document).ready(function () {
 
-    // 페이지 로딩 시, 전체 상품에 대해 좋아요 상태 확인
     {% for key, value in datas %}
-        showHeart("{{ key }}");
+        showHeart("heart-{{ loop.index }}", "{{ key }}");
     {% endfor %}
 });
 
-/* 교수님 구조 그대로 가져온 showHeart() */
-function showHeart(pid) {
+/* 좋아요 상태 표시 */
+function showHeart(domId, itemName) {
 
     $.ajax({
         type: 'GET',
-        url: '/show_heart/' + pid + '/',
-        data: {},
+        url: '/show_heart/' + itemName + '/',
         success: function (response) {
 
             let my_heart = response['my_heart'];
 
-            if (my_heart['interested'] == 'Y') {
-                $("#heart-" + pid).css("color", "red");
-                $("#heart-" + pid).attr("onclick", "unlike('" + pid + "')");
+            if (my_heart && my_heart['interested'] === 'Y') {
+                $("#" + domId).css("color", "red")
+                              .attr("onclick", "unlike('" + itemName + "')");
             } else {
-                $("#heart-" + pid).css("color", "grey");
-                $("#heart-" + pid).attr("onclick", "like('" + pid + "')");
+                $("#" + domId).css("color", "grey")
+                              .attr("onclick", "like('" + itemName + "')");
             }
+        },
+        error: function(xhr, status, error) {
+            console.error("showHeart error:", domId, status, error);
         }
     });
 }
 
-/* 교수님 방식: 좋아요 등록 */
-function like(pid) {
+/* 좋아요 등록 */
+function like(itemName) {
 
     $.ajax({
         type: 'POST',
-        url: '/like/' + pid + '/',
+        url: '/like/' + itemName + '/',
         data: { interested: "Y" },
         success: function (response) {
             alert(response['msg']);
@@ -171,12 +173,12 @@ function like(pid) {
     });
 }
 
-/* 교수님 방식: 좋아요 취소 */
-function unlike(pid) {
+/* 좋아요 취소 */
+function unlike(itemName) {
 
     $.ajax({
         type: 'POST',
-        url: '/unlike/' + pid + '/',
+        url: '/unlike/' + itemName + '/',
         data: { interested: "N" },
         success: function (response) {
             alert(response['msg']);
@@ -185,11 +187,11 @@ function unlike(pid) {
     });
 }
 
-/* 카드 클릭과 하트 클릭 구분하기 */
-function onHeartClick(event, pid) {
-    event.stopPropagation();   // 상세페이지 이동 막기
+/* 카드 클릭과 하트 클릭 구분 */
+function onHeartClick(event) {
+    event.stopPropagation();   
 }
-
 </script>
+
 
 {% endblock %}
