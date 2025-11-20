@@ -80,9 +80,7 @@ content %}
         </div>
 
         <!-- 하트 -->
-        <i class="fa fa-heart heart-icon"
-          id="heart-{{ key }}"
-          onclick="onHeartClick(event, '{{ key }}')"></i>
+        <i class="fa fa-heart heart-icon" id="heart-{{ key }}"></i>
       </div>
       {% endfor %}
     </div>
@@ -189,6 +187,12 @@ function unlike(pid) {
 function onHeartClick(event, pid) {
     event.stopPropagation();   // 상세페이지 이동 막기
 }
+
+<!-- jQuery로 하트 클릭 시 상세페이지 이동 막기 -->
+$(document).on("click", ".heart-icon", function(event) {
+    event.stopPropagation();
+});
+
 </script>
 
 {% endblock %}
