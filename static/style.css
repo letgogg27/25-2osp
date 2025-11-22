@@ -536,6 +536,7 @@ button:hover,
   background: #f0f2f5;
   padding: 12px;
   overflow-y: auto;
+  max-height: 60vh;       
 }
 
 .chat-body::-webkit-scrollbar {

@@ -64,10 +64,9 @@ function startStatusListener(otherUserId) {
 
     const now = Date.now(); // ms
 
-    // Normalize lastKnownActiveTime
     let ts = lastKnownActiveTime;
 
-    // If it's a string, try converting
+    // If it's a string, convert to int
     if (typeof ts === "string") {
       const numeric = Number(ts);
       if (!isNaN(numeric)) {
@@ -84,7 +83,6 @@ function startStatusListener(otherUserId) {
       }
     }
 
-    // If it's clearly in seconds (10^12 is about 2001 in ms)
     if (ts < 1e12) {
       ts = ts * 1000; // seconds → ms
     }
@@ -340,6 +338,8 @@ function initChatFeature() {
   const emojiBtn = document.getElementById("emoji-btn");
   const chatPreviewContainer = document.getElementById("chat-image-preview");
 
+  const scrollContainer =
+    document.querySelector(".chat-body") || messagesContainer;
   // If this page has no chat, skip
   if (!openChatButton || !chatModal) {
     return;
@@ -415,7 +415,7 @@ function initChatFeature() {
             "<div class='chat-system-message'>This is the beginning of your conversation.</div>";
         }
 
-        scrollToBottom();
+        scrollToBottom(scrollContainer);
       },
       (error) => {
         // Handle errors
@@ -425,7 +425,7 @@ function initChatFeature() {
       }
     );
 
-    scrollToBottom();
+    scrollToBottom(scrollContainer);
     startTypingListener();
     startStatusListener(RECEIVER_ID);
   }
@@ -461,10 +461,10 @@ function initChatFeature() {
     if (messagesContainer) messagesContainer.innerHTML = "";
   }
 
-  function scrollToBottom() {
-    if (!messagesContainer) return;
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-  }
+  // function scrollToBottom() {
+  //   if (!messagesContainer) return;
+  //   messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  // }
 
   function renderChatPreview(file) {
     if (!chatPreviewContainer || !chatInput) return;
@@ -545,7 +545,7 @@ function initChatFeature() {
     }
 
     messagesContainer.appendChild(row);
-    scrollToBottom();
+    scrollToBottom(scrollContainer);
   }
 
   // 메시지 보내기
@@ -651,9 +651,10 @@ function initChatFeature() {
         typingIndicatorElement.querySelector(
           ".user-id"
         ).textContent = `@${RECEIVER_ID}`;
-        scrollToBottom();
+        scrollToBottom(scrollContainer);
       } else {
         typingIndicatorElement.style.display = "none";
+        scrollToBottom(scrollContainer);
       }
     });
   }
@@ -718,6 +719,15 @@ function initChatFeature() {
       }
     }, 300);
   }
+}
+
+function scrollToBottom(containerElement) {
+  if (!containerElement) return;
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      containerElement.scrollTop = containerElement.scrollHeight;
+    });
+  });
 }
 
 /* =========================
