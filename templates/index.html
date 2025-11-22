@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}Ewha Market {% endblock %}</title>
+    {% if session['id'] %}
+    <meta name="current-user-id" content="{{ session['id'] }}" />
+    {% endif %}
 
     <!-- FontAwesome -->
     <link
@@ -94,7 +97,8 @@
               alt="star-rating"
               class="review-icon"
             />
-            리뷰</a>
+            리뷰</a
+          >
         </div>
         <div>
           <a href="{{url_for('register_items')}}"

@@ -1,6 +1,7 @@
 ﻿import pyrebase
 import json
 import datetime
+from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, auth
 
@@ -55,7 +56,7 @@ class DBhandler:
         raw_price = data.get('price', '')
         digits_only = ''.join(ch for ch in str(raw_price) if ch.isdigit())
 
-        created_at = datetime.datetime.utcnow().timestamp()
+        created_at = datetime.utcnow().timestamp()
 
         item_info = {
             "seller": data.get('seller', ''),
@@ -150,7 +151,7 @@ class DBhandler:
         Saves a new message to a specific conversation node in Firebase.
         """
         try:
-            timestamp = datetime.datetime.utcnow().isoformat()
+            timestamp = datetime.utcnow().isoformat()
             message_data = {
                 "sender": sender_id,
                 "text": text,
@@ -230,6 +231,34 @@ class DBhandler:
         except Exception as e:
             print(f"⚠️ Error getting typing status: {e}")
             return {} 
+    
+    # New: Set user's last activity time
+    def set_user_activity(self, user_id,timestamp=None):
+        """
+        Updates a user's 'last_active' timestamp in Firebase.
+        """
+        try:
+            if timestamp is None:
+                utc_now = datetime.datetime.now(datetime.timezone.utc)
+                timestamp = int(round(utc_now.timestamp() * 1000))
+            self.db.child("user_status").child(user_id).update({"last_active": timestamp})
+            print(f"✅ Activity updated for user: {user_id}, last_active={timestamp}")
+            return True
+        except Exception as e:
+            print(f"⚠️ Error setting user activity: {e}")
+            return False
+            
+    # New: Get a user's last activity time
+    def get_user_activity(self, user_id):
+        """
+        Retrieves a user's 'last_active' timestamp.
+        """
+        try:
+            status_data = self.db.child("user_status").child(user_id).get().val()
+            return status_data.get("last_active") if status_data else None
+        except Exception as e:
+            print(f"⚠️ Error getting user activity: {e}")
+            return None
 
 # 특정 유저의 특정 상품 하트 상태 가져오기
     # heart/{user_id}/{item} = {"interested": "Y" or "N"}
@@ -261,7 +290,7 @@ class DBhandler:
             "rate": data['rating'],
             "review": data['content'],
             "img_path": img_path,
-            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "date": datetime.now().strftime("%Y-%m-%d"),
             "pros": data.get("pros", ""),
         }
         self.db.child("review").child(data['name']).set(review_info)

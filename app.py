@@ -17,6 +17,7 @@ import uuid
 from werkzeug.utils import secure_filename
 import sys
 import datetime
+from datetime import datetime as dt, timezone
 from flask import abort
 from flask import jsonify
 
@@ -511,6 +512,22 @@ def toggle_typing_status(item_name):
     
     return jsonify({"status": "success", "is_typing": is_typing})
 
+# NEW: Update user's last active time
+@app.route("/api/user/active", methods=['POST'])
+def update_user_activity():
+    data = request.get_json() or {}
+    user_id = data.get("user_id")
+
+    if not user_id:
+        return jsonify({"status": "ignored", "reason": "missing user_id"}), 400
+    print("🔥 Presence update from:", user_id)
+    print(f"{dt.now(timezone.utc).timestamp()*1000}")
+    timestamp = int(dt.now(timezone.utc).timestamp() * 1000)
+    # Update Firebase presence
+    success = DB.set_user_activity(user_id, timestamp)
+
+    return jsonify({"status": "updated" if success else "failed", "user_id": user_id, "timestamp": timestamp})
+
 @app.route("/reg_review_init/<name>/")
 def reg_review_init(name):
     data = DB.get_item_byname(name)   # ⭐ 상품 상세 정보 가져오기
@@ -613,3 +630,4 @@ def view_review():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
+

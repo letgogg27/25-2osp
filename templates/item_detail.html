@@ -109,7 +109,11 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         <button class="item-detail-btn to-chat" id="open-chat-btn">
           채팅하러 가기
         </button>
-        <button class="item-detail-btn to-chat" id="reg-riview-btn" onclick="location.href='/reg_review_init/{{name}}/';">
+        <button
+          class="item-detail-btn to-chat"
+          id="reg-riview-btn"
+          onclick="location.href='/reg_review_init/{{name}}/';"
+        >
           리뷰 등록하기
         </button>
         <button class="item-detail-btn to-wishlist">
@@ -145,7 +149,9 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
           <div class="chat-header-avatar">{{ seller_initial }}</div>
           <div class="chat-header-info">
             <div class="chat-header-name user-id">@{{ data.seller }}</div>
-            <div class="chat-header-status">현재 활동 중</div>
+            <div class="chat-header-status" id="chat-header-status">
+              Loading Status...
+            </div>
           </div>
         </div>
         <button id="close-chat-btn" class="chat-header-close">

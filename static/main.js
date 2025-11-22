@@ -1,13 +1,127 @@
 /** main.js **/
+let statusListener = null;
+let statusCheckInterval = null;
+let lastKnownActiveTime = null;
+let presencePingInterval = null;
+// Pings the Flask server periodically to update the user's last_active time
+function startPresencePing(currentUserId) {
+  if (!currentUserId) return;
 
-document.addEventListener("DOMContentLoaded", () => {
-  initImageUploadFeature();
-  initStarRating();
-  initChips();
-  initFormReset();
-  initChatFeature();
-  initAutoResizeTextarea();
-});
+  const sendActivity = () => {
+    console.log("presence ping for:", currentUserId);
+    fetch("/api/user/active", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: currentUserId }),
+    }).catch((error) => {
+      console.error("Presence ping failed:", error);
+    });
+  };
+
+  // send once immediately
+  sendActivity();
+
+  const PING_INTERVAL_MS = 30000; // 30 seconds
+
+  // clear old presence ping if any
+  if (presencePingInterval) {
+    clearInterval(presencePingInterval);
+  }
+  // start new dedicated presence interval
+  presencePingInterval = setInterval(sendActivity, PING_INTERVAL_MS);
+}
+
+// Real-time listener to check if the other user is online and display the status
+function startStatusListener(otherUserId) {
+  if (!otherUserId) return;
+
+  // Clear any existing listener
+  if (statusListener) {
+    statusListener.off();
+    statusListener = null;
+  }
+  // Clear the periodic check timer
+  if (statusCheckInterval) {
+    clearInterval(statusCheckInterval);
+    statusCheckInterval = null;
+  }
+
+  // Listen to the other user's status node in Firebase
+  statusListener = database.ref(`user_status/${otherUserId}`);
+
+  const ACTIVE_THRESHOLD_MS = 5 * 60 * 1000; // 5 minutes
+
+  // Function that checks stored lastKnownActiveTime and updates UI
+  const checkAndDisplayStatus = () => {
+    const statusElement = document.getElementById("chat-header-status");
+    if (!statusElement) return;
+
+    if (lastKnownActiveTime == null) {
+      statusElement.textContent = "⚫ Offline";
+      statusElement.style.color = "#666";
+      return;
+    }
+
+    const now = Date.now(); // ms
+
+    // Normalize lastKnownActiveTime
+    let ts = lastKnownActiveTime;
+
+    // If it's a string, try converting
+    if (typeof ts === "string") {
+      const numeric = Number(ts);
+      if (!isNaN(numeric)) {
+        ts = numeric;
+      } else {
+        const parsedDate = Date.parse(ts);
+        if (!isNaN(parsedDate)) {
+          ts = parsedDate; // already ms
+        } else {
+          statusElement.textContent = "⚫ Offline";
+          statusElement.style.color = "#666";
+          return;
+        }
+      }
+    }
+
+    // If it's clearly in seconds (10^12 is about 2001 in ms)
+    if (ts < 1e12) {
+      ts = ts * 1000; // seconds → ms
+    }
+
+    const diff = now - ts;
+    console.log("Presence check:", {
+      otherUserId,
+      now,
+      lastActive: ts,
+      diff,
+    });
+
+    if (diff < ACTIVE_THRESHOLD_MS) {
+      statusElement.textContent = "🟢 Active Now";
+      statusElement.style.color = "#36AE92";
+    } else {
+      statusElement.textContent = "⚫ Offline";
+      statusElement.style.color = "#666";
+    }
+  };
+
+  // Firebase listener – update lastKnownActiveTime when DB changes
+  statusListener.on("value", (snapshot) => {
+    const statusData = snapshot.val();
+    if (statusData && statusData.last_active) {
+      lastKnownActiveTime = statusData.last_active;
+    } else {
+      lastKnownActiveTime = null;
+    }
+
+    // Run immediately after each DB update
+    checkAndDisplayStatus();
+  });
+
+  // Also run periodic checks
+  statusCheckInterval = setInterval(checkAndDisplayStatus, 10000);
+}
 
 /* =========================
     IMAGE UPLOAD + PREVIEW
@@ -268,6 +382,9 @@ function initChatFeature() {
     bodyElement.classList.add("no-scroll");
     if (messagesContainer) messagesContainer.innerHTML = "Loading chat...";
 
+    if (CURRENT_USER_ID) {
+      startPresencePing(CURRENT_USER_ID);
+    }
     // Get the database reference for this specific chat
     currentConversationRef = database.ref("conversations/" + conversationId);
 
@@ -310,6 +427,7 @@ function initChatFeature() {
 
     scrollToBottom();
     startTypingListener();
+    startStatusListener(RECEIVER_ID);
   }
 
   function closeChat() {
@@ -318,6 +436,15 @@ function initChatFeature() {
       typingListener = null;
     }
     sendTypingStatus(false);
+
+    if (statusListener) {
+      statusListener.off();
+      statusListener = null;
+    }
+    if (statusCheckInterval) {
+      clearInterval(statusCheckInterval);
+      statusCheckInterval = null;
+    }
     // Turn off the real-time listener
     if (currentConversationRef && currentMessageListener) {
       currentConversationRef.off("value", currentMessageListener);
@@ -431,7 +558,10 @@ function initChatFeature() {
     chatInput.value = "";
     if (fileInput) fileInput.value = null;
     renderChatPreview(null);
-
+    console.log("ITEM_NAME:", ITEM_NAME);
+    console.log("CURRENT_USER_ID:", CURRENT_USER_ID);
+    console.log("OTHER_USER_ID sent:", OTHER_USER_ID);
+    console.log("OTHER_USER_ID (from URL 'with'):", OTHER_USER_ID);
     try {
       const response = await fetch(`/api/chat/send/${ITEM_NAME}`, {
         method: "POST",
@@ -609,3 +739,22 @@ function initAutoResizeTextarea() {
     });
   });
 }
+document.addEventListener("DOMContentLoaded", () => {
+  initImageUploadFeature();
+  initStarRating();
+  initChips();
+  initFormReset();
+  initChatFeature();
+  initAutoResizeTextarea();
+  const currentUserIdMeta = document.querySelector(
+    'meta[name="current-user-id"]'
+  );
+  console.log("Meta Tag Element:", currentUserIdMeta);
+  console.log(
+    "User ID Read:",
+    currentUserIdMeta ? currentUserIdMeta.content : "NOT FOUND"
+  );
+  if (currentUserIdMeta && currentUserIdMeta.content) {
+    startPresencePing(currentUserIdMeta.content);
+  }
+});
