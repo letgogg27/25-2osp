@@ -15,6 +15,7 @@ main {
 /*공통 textarea font*/
 textarea,
 textarea::placeholder {
+  font-family: "Noto Sans KR", sans-serif;
   font-size: 15px;
 }
 nav {
