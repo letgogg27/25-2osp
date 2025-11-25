@@ -82,7 +82,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             @ {{data.seller}}
           </p>
           <small class="item-detail-seller-address" style="font-size: 14px">
-            <i class="fa-solid fa-star" style="color: #ffc700"></i>평점 4.9 |
+            <i class="fa-solid fa-star" style="color: #ffc700"></i>평점 {{
+            review_stats.average_rating | default("0.0") }}|
             <i class="fa-solid fa-location-dot" style="color: darkred"></i>
             {{data.addr}}
           </small>

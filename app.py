@@ -357,7 +357,12 @@ def DynamicUrl(varible_name):
 @app.route("/view_detail/<name>/")
 def view_item_detail(name):
     data = DB.get_item_byname(str(name))
-    return render_template("item_detail.html", name=name, data=data)
+    seller_id = data.get('seller')
+    if seller_id:
+        review_stats = DB.get_seller_review_stats(seller_id)
+    else:
+        review_stats = {"average_rating": 0.0, "total_reviews": 0}
+    return render_template("item_detail.html", name=name, data=data, review_stats=review_stats)
 
 
 # Gets the message history for a chat
