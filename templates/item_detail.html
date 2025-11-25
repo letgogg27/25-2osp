@@ -82,7 +82,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             @ {{data.seller}}
           </p>
           <small class="item-detail-seller-address" style="font-size: 14px">
-            <i class="fa-solid fa-star" style="color: #ffc700"></i>평점 4.9 |
+            <i class="fa-solid fa-star" style="color: #ffc700"></i>평점 {{
+            review_stats.average_rating | default("0.0") }}|
             <i class="fa-solid fa-location-dot" style="color: darkred"></i>
             {{data.addr}}
           </small>
@@ -109,7 +110,11 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         <button class="item-detail-btn to-chat" id="open-chat-btn">
           채팅하러 가기
         </button>
-        <button class="item-detail-btn to-chat" id="reg-riview-btn" onclick="location.href='/reg_review_init/{{name}}/';">
+        <button
+          class="item-detail-btn to-chat"
+          id="reg-riview-btn"
+          onclick="location.href='/reg_review_init/{{name}}/';"
+        >
           리뷰 등록하기
         </button>
         <button class="item-detail-btn to-wishlist">
@@ -136,7 +141,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     style="display: none"
     data-item-name="{{ name }}"
     data-seller-id="{{ data.seller }}"
-    data-current-user-id="{{ session.get('id', '') }}"
+    data-current-user-id="{{ session['id'] }}"
   >
     <div class="chat-window">
       <!-- Header -->
@@ -145,7 +150,9 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
           <div class="chat-header-avatar">{{ seller_initial }}</div>
           <div class="chat-header-info">
             <div class="chat-header-name user-id">@{{ data.seller }}</div>
-            <div class="chat-header-status">현재 활동 중</div>
+            <div class="chat-header-status" id="chat-header-status">
+              Loading Status...
+            </div>
           </div>
         </div>
         <button id="close-chat-btn" class="chat-header-close">
@@ -171,6 +178,20 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             </div>
             <div class="message-avatar sender">K</div>
           </div>
+        </div>
+        <div
+          id="typing-indicator"
+          style="
+            display: none;
+            padding: 10px 15px;
+            font-size: 14px;
+            color: #666;
+          "
+        >
+          <span class="user-id">@{{ data.seller }}</span> is typing<span
+            class="typing-dots"
+            >...</span
+          >
         </div>
       </div>
 

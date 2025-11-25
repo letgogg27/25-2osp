@@ -537,6 +537,7 @@ button:hover,
   background: #f0f2f5;
   padding: 12px;
   overflow-y: auto;
+  max-height: 60vh;       
 }
 
 .chat-body::-webkit-scrollbar {
@@ -604,6 +605,23 @@ button:hover,
 .message-bubble.sender {
   background: #00462a;
   color: #ffffff;
+}
+
+.message-row.sender { 
+    justify-content: flex-end; 
+}
+.message-row.sender .message-bubble { 
+      background: #00462a;
+  color: #ffffff;
+}
+
+/* RECEIVER (Other) - Left Side */
+.message-row.receiver { 
+    justify-content: flex-start; 
+}
+.message-row.receiver .message-bubble { 
+  background: #d8dadf;
+  color: #050505;
 }
 
 /* CHAT FOOTER & INPUT  */
@@ -684,6 +702,35 @@ body.no-scroll {
   overflow: hidden;
 }
 
+/* Typing Indicator CSS */
+.typing-dots {
+    display: inline-block;
+    width: 0.5em; /* Space for the dots */
+    text-align: left;
+    overflow: hidden;
+    vertical-align: bottom;
+    line-height: 1;
+}
+
+.typing-dots::after {
+    content: '...'; /* Start with three dots */
+    animation: dot-animation 1.5s infinite steps(4);
+}
+
+@keyframes dot-animation {
+    0% {
+        content: '.';
+    }
+    33% {
+        content: '..';
+    }
+    66% {
+        content: '...';
+    }
+    100% {
+        content: '...'; /* Keep 3 dots for 1/4 of the time */
+    }
+}
 /*item-detail-explanation-box*/
 .item-detail-explanation-box {
   width: 100%;

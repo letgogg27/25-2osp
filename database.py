@@ -1,6 +1,7 @@
 ﻿import pyrebase
 import json
 import datetime
+from datetime import datetime
 import firebase_admin
 from firebase_admin import credentials, auth
 
@@ -27,7 +28,7 @@ class DBhandler:
         self.db = firebase.database()
         print("✅ Pyrebase (Web) connected.")
 
-        # 3. Initialize Firebase Admin (for creating tokens)
+        # Initialize Firebase Admin (for creating tokens)
         if not firebase_admin._apps:
             cred = credentials.Certificate('./authentication/serviceAccountKey.json')
             
@@ -55,7 +56,7 @@ class DBhandler:
         raw_price = data.get('price', '')
         digits_only = ''.join(ch for ch in str(raw_price) if ch.isdigit())
 
-        created_at = datetime.datetime.utcnow().timestamp()
+        created_at = datetime.utcnow().timestamp()
 
         item_info = {
             "seller": data.get('seller', ''),
@@ -150,7 +151,7 @@ class DBhandler:
         Saves a new message to a specific conversation node in Firebase.
         """
         try:
-            timestamp = datetime.datetime.utcnow().isoformat()
+            timestamp = datetime.utcnow().isoformat()
             message_data = {
                 "sender": sender_id,
                 "text": text,
@@ -200,7 +201,64 @@ class DBhandler:
             return conversations or {}
         except Exception as e:
             print(f"❌ Error fetching user chats: {e}")
-            return {}  
+            return {} 
+
+    # Set typing status for a conversation
+    def set_typing_status(self, conversation_id, sender_id, is_typing: bool):
+        """
+        Updates the typing status of a user in the 'typing_status' node.
+        
+        Data structure:
+        typing_status/CONVERSATION_ID/SENDER_ID = True/False
+        """
+        try:
+            #  only store the status if it's True. remove if False.
+            if is_typing:
+                self.db.child("typing_status").child(conversation_id).child(sender_id).set(True)
+                print(f"Typing status set to TRUE for user {sender_id} in chat {conversation_id}")
+            else:
+                self.db.child("typing_status").child(conversation_id).child(sender_id).remove()
+                print(f" Typing status removed for user {sender_id} in chat {conversation_id}")
+            return True
+        except Exception as e:
+            print(f"⚠️ Error setting typing status: {e}")
+            return False
+            
+    # Get typing status
+    def get_typing_status(self, conversation_id):
+        try:
+            return self.db.child("typing_status").child(conversation_id).get().val() or {}
+        except Exception as e:
+            print(f"⚠️ Error getting typing status: {e}")
+            return {} 
+    
+    # New: Set user's last activity time
+    def set_user_activity(self, user_id,timestamp=None):
+        """
+        Updates a user's 'last_active' timestamp in Firebase.
+        """
+        try:
+            if timestamp is None:
+                utc_now = datetime.datetime.now(datetime.timezone.utc)
+                timestamp = int(round(utc_now.timestamp() * 1000))
+            self.db.child("user_status").child(user_id).update({"last_active": timestamp})
+            print(f"✅ Activity updated for user: {user_id}, last_active={timestamp}")
+            return True
+        except Exception as e:
+            print(f"⚠️ Error setting user activity: {e}")
+            return False
+            
+    # New: Get a user's last activity time
+    def get_user_activity(self, user_id):
+        """
+        Retrieves a user's 'last_active' timestamp.
+        """
+        try:
+            status_data = self.db.child("user_status").child(user_id).get().val()
+            return status_data.get("last_active") if status_data else None
+        except Exception as e:
+            print(f"⚠️ Error getting user activity: {e}")
+            return None
 
 # 특정 유저의 특정 상품 하트 상태 가져오기
     # heart/{user_id}/{item} = {"interested": "Y" or "N"}
@@ -232,7 +290,7 @@ class DBhandler:
             "rate": data['rating'],
             "review": data['content'],
             "img_path": img_path,
-            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "date": datetime.now().strftime("%Y-%m-%d"),
             "pros": data.get("pros", ""),
         }
         self.db.child("review").child(data['name']).set(review_info)
@@ -252,3 +310,47 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+    def get_seller_review_stats(self, seller_id):
+        """
+        Calculates the average star rating and total count for a seller's reviews.
+        This searches through all 'review' nodes that match the seller_id in 'item' nodes.
+        """
+        try:
+            all_items = self.db.child("item").get().val() or {}
+            seller_items = [
+                name for name, info in all_items.items()
+                if isinstance(info, dict) and info.get('seller') == seller_id
+            ]
+
+            if not seller_items:
+                return {"average_rating": 0.0, "total_reviews": 0}
+
+            all_reviews = self.db.child("review").get().val() or {}
+            
+            total_rate = 0
+            review_count = 0
+            
+            for item_name in seller_items:
+                review_data = all_reviews.get(item_name)
+                if isinstance(review_data, dict):
+                    try:
+                        rate = float(review_data.get('rate', 0))
+                        if rate > 0:
+                            total_rate += rate
+                            review_count += 1
+                    except ValueError:
+                        pass
+
+            if review_count == 0:
+                return {"average_rating": 0.0, "total_reviews": 0}
+
+            average_rating = total_rate / review_count
+            
+            return {
+                "average_rating": round(average_rating, 1),
+                "total_reviews": review_count
+            }
+
+        except Exception as e:
+            print(f"❌ Error getting seller review stats for {seller_id}: {e}")
+            return {"average_rating": 0.0, "total_reviews": 0}
