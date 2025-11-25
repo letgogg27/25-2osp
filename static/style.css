@@ -225,6 +225,70 @@ button:hover,
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
   padding: 24px 18px 5px 18px;
   box-sizing: border-box;
+  position: relative;
+}
+
+.item-more-menu {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+}
+
+.item-more-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-shadow: none;
+}
+
+.item-more-btn:hover {
+  transform: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  background: #f5f5f5;
+}
+
+.item-more-btn i {
+  font-size: 16px;
+  color: #888;
+}
+
+.item-more-dropdown {
+  position: absolute;
+  top: 36px;   /* 버튼 바로 아래 */
+  right: 0;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 6px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  padding: 4px 0;
+  display: none;
+  z-index: 20;
+
+  display: none;
+  flex-direction: row;
+  gap: 4px;
+}
+
+.item-more-dropdown button {
+  width: auto;
+  min-width: 60px;
+  padding: 6px 10px;
+  border: none;
+  background: #ffffff;
+  text-align: center;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.item-more-dropdown button:hover {
+  background: #f5f5f5;
 }
 
 .item-info-container-box h2,

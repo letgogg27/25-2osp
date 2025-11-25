@@ -37,6 +37,19 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     </aside>
 
     <aside class="item-info-container-box">
+      {# 판매자 본인인 경우에만 점3개 메뉴 표시 #}
+      {% if session.get('id', '') == data.seller %}
+      <div class="item-more-menu">
+        <button type="button" class="item-more-btn" id="item-more-btn">
+          <i class="fa-solid fa-ellipsis"></i>
+        </button>
+        <div class="item-more-dropdown" id="item-more-dropdown">
+          <button type="button" onclick="deleteItem('{{ name }}')">삭제</button>
+          <button type="button" onclick="completeItem('{{ name }}')">거래완료</button>
+        </div>
+      </div>
+      {% endif %}
+
       <div class="item-title-conditon-box">
         <h2>{{ name }}</h2>
         <small class="item-condition">

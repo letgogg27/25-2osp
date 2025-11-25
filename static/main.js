@@ -7,7 +7,27 @@ document.addEventListener("DOMContentLoaded", () => {
   initFormReset();
   initChatFeature();
   initAutoResizeTextarea();
+  initItemMoreMenu();
 });
+
+function initItemMoreMenu() {
+  const moreBtn = document.getElementById("item-more-btn");
+  const dropdown = document.getElementById("item-more-dropdown");
+  if (!moreBtn || !dropdown) return;
+  moreBtn.addEventListener("click", (e) => {
+    e.stopPropagation(); // 문서 클릭 이벤트로 바로 닫히는 것 방지
+    dropdown.style.display =
+      dropdown.style.display === "block" ? "none" : "block";
+  });
+
+  dropdown.addEventListener("click", (e) => {
+    e.stopPropagation();
+  });
+
+  document.addEventListener("click", () => {
+    dropdown.style.display = "none";
+  });
+}
 
 /* =========================
     IMAGE UPLOAD + PREVIEW
