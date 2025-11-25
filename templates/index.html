@@ -88,14 +88,13 @@
           <a href="{{url_for('home')}}"><i class="fa-solid fa-house"></i> 홈</a>
         </div>
         <div>
-          <a href="{{url_for('review')}}"
+          <a href="{{url_for('view_review')}}"
             ><img
               src="{{ url_for('static', filename='images/icons/star-rating.png') }}"
               alt="star-rating"
               class="review-icon"
             />
-            리뷰</a
-          >
+            리뷰</a>
         </div>
         <div>
           <a href="{{url_for('register_items')}}"
@@ -103,8 +102,8 @@
           >
         </div>
         <div>
-          <a href="{{url_for('register_reviews')}}"
-            ><i class="fa-solid fa-pen-to-square"></i>거래후기</a
+          <a href="{{url_for('reg_review')}}"
+            ><i class="fa-solid fa-pen-to-square"></i>후기등록</a
           >
         </div>
         <div>
@@ -126,7 +125,6 @@
         </div>
       </div>
     </nav>
-    <!-- ✅ 여기에 페이지 내용 들어감 -->
     <main>{% block content %} {% endblock %}</main>
 
     <footer class="footer">

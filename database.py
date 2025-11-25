@@ -226,40 +226,29 @@ class DBhandler:
         self.db.child("wishlist").child(user_id).child(product_key).set(True)
         return True
 
-
-    def remove_wishlist(self, user_id: str, product_key: str):
-        self.db.child("wishlist").child(user_id).child(product_key).remove()
+    def reg_review(self, data, img_path):
+        review_info = {
+            "title": data['title'],
+            "rate": data['rating'],
+            "review": data['content'],
+            "img_path": img_path,
+            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+            "pros": data.get("pros", ""),
+        }
+        self.db.child("review").child(data['name']).set(review_info)
         return True
 
-    def get_wishlist_ids(self, user_id: str):
-        snap = self.db.child("wishlist").child(user_id).get()
-        val = snap.val()
-
-        if not val:
-            return []
-
-        if isinstance(val, dict):
-            return list(val.keys())
-
-        if isinstance(val, list):
-            return [i for i, v in enumerate(val) if v]
-
-        return []
-
-    def is_in_wishlist(self, user_id: str, product_key: str) -> bool:
-        val = self.db.child("wishlist").child(user_id).child(product_key).get().val()
-        return bool(val)
-
-    # 로그인 검증
-    def find_user(self, id_string, pw_hash):
-        users = self.db.child("user").get()
-
-        if users.val() is None:
-            return False
-
-        for res in users.each():
-            v = res.val()
-            if v['id'] == id_string and v['pw'] == pw_hash:
-                return True
-
-        return False
+    
+    def get_reviews(self):
+        reviews = self.db.child("review").get().val()
+        return reviews
+    
+    def get_review_byname(self, name):
+        reviews = self.db.child("review").get()
+        target_value=""
+        print("###########",name)
+        for res in reviews.each():
+            key_value = res.key()
+            if key_value == name:
+                target_value=res.val()
+        return target_value
