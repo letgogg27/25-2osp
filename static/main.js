@@ -57,7 +57,7 @@ function startStatusListener(otherUserId) {
     if (!statusElement) return;
 
     if (lastKnownActiveTime == null) {
-      statusElement.textContent = "⚫ Offline";
+      statusElement.textContent = "Offline";
       statusElement.style.color = "#666";
       return;
     }
@@ -76,7 +76,7 @@ function startStatusListener(otherUserId) {
         if (!isNaN(parsedDate)) {
           ts = parsedDate; // already ms
         } else {
-          statusElement.textContent = "⚫ Offline";
+          statusElement.textContent = "Offline";
           statusElement.style.color = "#666";
           return;
         }
@@ -96,10 +96,10 @@ function startStatusListener(otherUserId) {
     });
 
     if (diff < ACTIVE_THRESHOLD_MS) {
-      statusElement.textContent = "🟢 Active Now";
+      statusElement.textContent = "Active Now";
       statusElement.style.color = "#36AE92";
     } else {
-      statusElement.textContent = "⚫ Offline";
+      statusElement.textContent = "Offline";
       statusElement.style.color = "#666";
     }
   };
