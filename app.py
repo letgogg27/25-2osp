@@ -279,6 +279,42 @@ def reg_item_submit_post():
     # 등록 결과 페이지 대신, 바로 상세 페이지로 이동
     return redirect(url_for("view_item_detail", name=item_name))
 
+@app.route("/item/delete/<name>/", methods=["POST"])
+def delete_item(name):
+    # 1. 로그인 확인
+    if "id" not in session:
+        return jsonify({"msg": "로그인 후 이용해주세요."}), 401
+
+    item = DB.get_item_byname(name)
+    if not item:
+        return jsonify({"msg": "해당 상품이 존재하지 않습니다."}), 404
+
+    # 2. 본인 상품인지 확인
+    if item.get("seller") != session["id"]:
+        return jsonify({"msg": "본인이 등록한 상품만 삭제할 수 있습니다."}), 403
+
+    # 3. DB에서 실제 삭제
+    DB.delete_item(name)   # ⭐ DBhandler에 이 메서드가 있어야 함
+
+    return jsonify({"msg": "상품이 삭제되었습니다."})
+
+@app.route("/item/complete/<name>/", methods=["POST"])
+def complete_item(name):
+    if "id" not in session:
+        return jsonify({"msg": "로그인 후 이용해주세요."}), 401
+
+    item = DB.get_item_byname(name)
+    if not item:
+        return jsonify({"msg": "해당 상품이 존재하지 않습니다."}), 404
+
+    if item.get("seller") != session["id"]:
+        return jsonify({"msg": "본인이 등록한 상품만 변경할 수 있습니다."}), 403
+
+    # 상태를 'sold' 로 표시
+    DB.db.child("item").child(name).update({"status": "sold"})
+
+    return jsonify({"msg": "거래완료로 표시되었습니다."})
+
 @app.route("/wishlist")
 def wishlist():
     user_id = current_user_id()

@@ -10,24 +10,55 @@ document.addEventListener("DOMContentLoaded", () => {
   initItemMoreMenu();
 });
 
-function initItemMoreMenu() {
-  const moreBtn = document.getElementById("item-more-btn");
-  const dropdown = document.getElementById("item-more-dropdown");
-  if (!moreBtn || !dropdown) return;
-  moreBtn.addEventListener("click", (e) => {
-    e.stopPropagation(); // 문서 클릭 이벤트로 바로 닫히는 것 방지
-    dropdown.style.display =
-      dropdown.style.display === "block" ? "none" : "block";
-  });
+/* =========================
+    ITEM DELETE / COMPLETE
+   ========================= */
 
-  dropdown.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
+// 삭제
+window.deleteItem = function (name) {
+  if (!confirm("정말 이 상품을 삭제하시겠습니까?")) return;
 
-  document.addEventListener("click", () => {
-    dropdown.style.display = "none";
-  });
-}
+  fetch(`/item/delete/${encodeURIComponent(name)}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("삭제 실패");
+      return res.json();
+    })
+    .then((data) => {
+      alert(data.msg || "상품이 삭제되었습니다.");
+      // 목록 페이지로 이동
+      window.location.href = "/list";
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("삭제 중 오류가 발생했습니다.");
+    });
+};
+
+// 거래완료 (원하면 나중에 구현)
+window.completeItem = function (name) {
+  if (!confirm("이 상품을 거래완료로 표시할까요?")) return;
+
+  fetch(`/item/complete/${encodeURIComponent(name)}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("거래완료 처리 실패");
+      return res.json();
+    })
+    .then((data) => {
+      alert(data.msg || "거래완료로 표시되었습니다.");
+      // 새로고침해서 상태 뱃지 업데이트
+      window.location.reload();
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("거래완료 처리 중 오류가 발생했습니다.");
+    });
+};
 
 /* =========================
     IMAGE UPLOAD + PREVIEW

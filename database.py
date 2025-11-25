@@ -252,3 +252,7 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+        
+def delete_item(self, name):
+    # Firebase에서 'item' 밑의 해당 상품 노드 제거
+    self.db.child("item").child(name).remove()

@@ -270,9 +270,13 @@ button:hover,
   display: none;
   z-index: 20;
 
-  display: none;
+  /*display: none;*/
   flex-direction: row;
   gap: 4px;
+}
+
+.item-more-dropdown.is-open {
+  display: flex;          /* ⭐ 이 클래스가 붙으면 보이게 */
 }
 
 .item-more-dropdown button {
