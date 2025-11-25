@@ -225,30 +225,43 @@ class DBhandler:
     def add_wishlist(self, user_id: str, product_key: str):
         self.db.child("wishlist").child(user_id).child(product_key).set(True)
         return True
+def reg_review(self, data, img_path):
+    review_info = {
+        "user": data.get("user", "unknown"),  
+        "title": data.get("title", ""),
+        "rate": data.get("rating", "0"),
+        "review": data.get("content", ""),
+        "img_path": img_path,
+        "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+        "pros": data.get("pros", ""),
+    }
 
-    def reg_review(self, data, img_path):
-        review_info = {
-            "title": data['title'],
-            "rate": data['rating'],
-            "review": data['content'],
-            "img_path": img_path,
-            "date": datetime.datetime.now().strftime("%Y-%m-%d"),
-            "pros": data.get("pros", ""),
-        }
-        self.db.child("review").child(data['name']).set(review_info)
-        return True
+   
+    self.db.child("review").child(data['name']).set(review_info)
+    return True
 
+def get_reviews(self):
+  
+    data = self.db.child("review").get().val() or {}
+    new_data = {}
+    for k, v in data.items():
+        # key가 숫자이면 item_name을 가져오거나 대체 이름으로 변환
+        if isinstance(k, str) and k.isdigit():
+            item_name = v.get("item_name", f"item_{k}")
+            new_data[item_name] = v
+        else:
+            new_data[k] = v
+
+    return new_data
     
-    def get_reviews(self):
-        reviews = self.db.child("review").get().val()
-        return reviews
-    
-    def get_review_byname(self, name):
-        reviews = self.db.child("review").get()
-        target_value=""
-        print("###########",name)
-        for res in reviews.each():
-            key_value = res.key()
-            if key_value == name:
-                target_value=res.val()
-        return target_value
+
+def get_review_byname(self, name):
+    reviews = self.db.child("review").get()
+    target_value = ""
+    for res in reviews.each():
+        if res.key() == name:
+            target_value = res.val()
+            break
+    return target_value
+
+
