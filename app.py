@@ -462,17 +462,8 @@ def my_messages():
 
 @app.route("/reg_review_init/<name>/")
 def reg_review_init(name):
-    data = DB.get_item_byname(name)   # ⭐ 상품 상세 정보 가져오기
+    data = DB.get_item_byname(name)   
     return render_template("reg_reviews.html", name=name, data=data)
-
-@app.route('/mypage')
-def mypage():
-    if 'id' not in session:
-        return redirect(url_for('login'))
-
-    user_id = session['id']
-
-    return render_template("mypage.html", user_id=user_id)
 
 
 @app.route("/reg_review", methods=['POST'])
