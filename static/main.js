@@ -348,12 +348,33 @@ function initChatFeature() {
   const typingIndicatorElement = document.getElementById("typing-indicator");
   const RECEIVER_ID = CURRENT_USER_ID === SELLER_ID ? OTHER_USER_ID : SELLER_ID;
 
+  // Initials for avatars
+  const currentUserInitial =
+    CURRENT_USER_ID && CURRENT_USER_ID.length > 0
+      ? CURRENT_USER_ID.charAt(0).toUpperCase()
+      : "?";
+
+  const receiverInitial =
+    RECEIVER_ID && RECEIVER_ID.length > 0
+      ? RECEIVER_ID.charAt(0).toUpperCase()
+      : "?";
+
   let typingTimeout = null;
   const TYPING_DELAY = 3000;
   let isTyping = false;
   let typingListener = null;
 
   function openChat() {
+    const headerAvatarEl = document.querySelector(".chat-header-avatar");
+    const headerNameEl = document.querySelector(".chat-header-name.user-id");
+
+    if (headerAvatarEl) {
+      headerAvatarEl.textContent = receiverInitial;
+    }
+    if (headerNameEl) {
+      headerNameEl.textContent = RECEIVER_ID ? `@${RECEIVER_ID}` : "@Unknown";
+    }
+
     chatModal.style.display = "flex";
     bodyElement.classList.add("no-scroll");
     if (messagesContainer) messagesContainer.innerHTML = "Loading chat...";
@@ -495,7 +516,8 @@ function initChatFeature() {
 
     const avatar = document.createElement("div");
     avatar.classList.add("message-avatar", role);
-    avatar.textContent = role === "receiver" ? "R" : "S";
+    avatar.textContent =
+      role === "receiver" ? receiverInitial : currentUserInitial;
 
     const bubble = document.createElement("div");
     bubble.classList.add("message-bubble", role);

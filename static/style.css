@@ -474,6 +474,7 @@ button:hover,
 .chat-header-avatar {
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 32px;
   height: 32px;
   border-radius: 50%;
