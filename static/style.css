@@ -735,6 +735,27 @@ body.no-scroll {
         content: '...'; /* Keep 3 dots for 1/4 of the time */
     }
 }
+.message-bubble img {
+    max_width: 200px;
+    max_height: 200px;
+    border-radius: 10px;
+    display: block;
+    margin-bottom: 5px;
+    cursor: pointer;
+}
+#chat-image-preview img {
+    height: 50px;
+    width: auto;
+    border-radius: 5px;
+    border: 2px solid #00462A;
+    margin-right: 10px;
+}
+.chat-input-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
 /*item-detail-explanation-box*/
 .item-detail-explanation-box {
   width: 100%;

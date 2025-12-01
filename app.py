@@ -459,6 +459,79 @@ def send_chat_message(item_name):
         print(f"⚠️ Error linking chats: {e}")
 
     return jsonify({"status": "success", "message": "Message sent"})
+@app.route("/api/chat/send_with_image/<item_name>", methods=["POST"])
+def send_chat_with_image(item_name):
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    text = (request.form.get("text") or "").strip()
+    other_user_id = request.form.get("other_user_id")
+    image_file = request.files.get("image")
+
+    if not text and not image_file:
+        return jsonify({"error": "Empty message"}), 400
+
+    item_data = DB.get_item_byname(item_name)
+    if not item_data:
+        return jsonify({"error": "Item not found"}), 404
+
+    item_owner_id = item_data.get("seller")
+    current_user_id = session["id"]
+
+    if current_user_id != item_owner_id:
+        user_ids = sorted([current_user_id, item_owner_id])
+        other_for_link = item_owner_id
+    else:
+        if not other_user_id:
+            return jsonify({"error": "Missing other_user_id for seller chat"}), 400
+        user_ids = sorted([item_owner_id, other_user_id])
+        other_for_link = other_user_id
+
+    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+
+    # ==== Save image ====
+    image_url = ""
+    if image_file and image_file.filename:
+        from werkzeug.utils import secure_filename
+        import uuid, os
+
+        filename = secure_filename(image_file.filename)
+        _, ext = os.path.splitext(filename)
+        unique_name = f"{uuid.uuid4().hex}{ext}"
+
+        save_dir = os.path.join(app.static_folder, "chat_images")
+        os.makedirs(save_dir, exist_ok=True)
+
+        save_path = os.path.join(save_dir, unique_name)
+        image_file.save(save_path)
+
+        image_url = url_for("static", filename=f"chat_images/{unique_name}", _external=False)
+
+    # ===== Save message to Firebase =====
+    success = DB.add_message(
+        conversation_id=conversation_id,
+        sender_id=current_user_id,
+        text=text,
+        image_url=image_url or None
+    )
+
+    if not success:
+        return jsonify({"error": "Failed to send message"}), 500
+
+    DB.link_user_to_conversation(
+        user_id=current_user_id,
+        conversation_id=conversation_id,
+        item_name=item_name,
+        other_user_id=other_for_link
+    )
+    DB.link_user_to_conversation(
+        user_id=other_for_link,
+        conversation_id=conversation_id,
+        item_name=item_name,
+        other_user_id=current_user_id
+    )
+
+    return jsonify({"status": "success", "message": "Message with image sent"})
 
 @app.route("/my_messages")
 def my_messages():
@@ -535,7 +608,7 @@ def update_user_activity():
 
 @app.route("/reg_review_init/<name>/")
 def reg_review_init(name):
-    data = DB.get_item_byname(name)   # ⭐ 상품 상세 정보 가져오기
+    data = DB.get_item_byname(name)   
     return render_template("reg_reviews.html", name=name, data=data)
 
 
@@ -635,4 +708,3 @@ def view_review():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
