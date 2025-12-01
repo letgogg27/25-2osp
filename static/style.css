@@ -789,6 +789,70 @@ body.no-scroll {
 .detail-body prep {
   font-size: 14px;
 }
+/*Item Detail image Preview*/
+.image-lightbox {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+
+  .image-lightbox-inner {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+  }
+
+  .image-lightbox-img {
+    max-width: 100%;
+    max-height: 90vh;
+    border-radius: 8px;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    background: #fff;
+  }
+
+  .image-lightbox-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #lightbox-prev { left: -50px; }
+  #lightbox-next { right: -50px; }
+
+  #lightbox-close {
+    position: absolute;
+    top: -45px;
+    right: -5px;
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 30px;
+    cursor: pointer;
+  }
+
+  @media (max-width: 768px) {
+    .image-lightbox-inner {
+      max-width: 95vw;
+      max-height: 80vh;
+    }
+    #lightbox-prev { left: 10px; }
+    #lightbox-next { right: 10px; }
+  }
 
 /* *** Start Reg review CSS ***/
 
