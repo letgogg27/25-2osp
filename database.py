@@ -283,74 +283,35 @@ class DBhandler:
     def add_wishlist(self, user_id: str, product_key: str):
         self.db.child("wishlist").child(user_id).child(product_key).set(True)
         return True
-
-    def reg_review(self, data, img_path):
+        
+     def reg_review(self, data, img_path):
         review_info = {
-            "title": data['title'],
-            "rate": data['rating'],
-            "review": data['content'],
+            "user": data.get("user", "unknown"),  
+            "title": data.get("title", ""),
+            "rate": data.get("rating", "0"),
+            "review": data.get("content", ""),
             "img_path": img_path,
             "date": datetime.now().strftime("%Y-%m-%d"),
             "pros": data.get("pros", ""),
         }
+
+   
         self.db.child("review").child(data['name']).set(review_info)
         return True
 
-    
     def get_reviews(self):
-        reviews = self.db.child("review").get().val()
+        reviews = self.db.child("review").get().val() or {}
         return reviews
-    
+
+        
+
     def get_review_byname(self, name):
         reviews = self.db.child("review").get()
-        target_value=""
-        print("###########",name)
+        target_value = ""
         for res in reviews.each():
-            key_value = res.key()
-            if key_value == name:
-                target_value=res.val()
+            if res.key() == name:
+                target_value = res.val()
+                break
         return target_value
-    def get_seller_review_stats(self, seller_id):
-        """
-        Calculates the average star rating and total count for a seller's reviews.
-        This searches through all 'review' nodes that match the seller_id in 'item' nodes.
-        """
-        try:
-            all_items = self.db.child("item").get().val() or {}
-            seller_items = [
-                name for name, info in all_items.items()
-                if isinstance(info, dict) and info.get('seller') == seller_id
-            ]
 
-            if not seller_items:
-                return {"average_rating": 0.0, "total_reviews": 0}
 
-            all_reviews = self.db.child("review").get().val() or {}
-            
-            total_rate = 0
-            review_count = 0
-            
-            for item_name in seller_items:
-                review_data = all_reviews.get(item_name)
-                if isinstance(review_data, dict):
-                    try:
-                        rate = float(review_data.get('rate', 0))
-                        if rate > 0:
-                            total_rate += rate
-                            review_count += 1
-                    except ValueError:
-                        pass
-
-            if review_count == 0:
-                return {"average_rating": 0.0, "total_reviews": 0}
-
-            average_rating = total_rate / review_count
-            
-            return {
-                "average_rating": round(average_rating, 1),
-                "total_reviews": review_count
-            }
-
-        except Exception as e:
-            print(f"❌ Error getting seller review stats for {seller_id}: {e}")
-            return {"average_rating": 0.0, "total_reviews": 0}

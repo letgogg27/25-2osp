@@ -535,7 +535,7 @@ def update_user_activity():
 
 @app.route("/reg_review_init/<name>/")
 def reg_review_init(name):
-    data = DB.get_item_byname(name)   # ⭐ 상품 상세 정보 가져오기
+    data = DB.get_item_byname(name)   
     return render_template("reg_reviews.html", name=name, data=data)
 
 
