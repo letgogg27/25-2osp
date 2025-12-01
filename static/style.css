@@ -660,13 +660,17 @@ button:hover,
   background: transparent;
   outline: none;
   font-size: 14px;
+  overflow: hidden;       /* prevents overflow */
+  min-width: 0;   
 }
 .chat-input {
-  flex: 1;
+  /* flex: 1; */
   border: none;
   background: transparent;
   outline: none;
   font-size: 14px;
+  width: 100%;            
+  min-width: 0;           
 }
 
 .chat-send-btn {

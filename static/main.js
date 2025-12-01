@@ -703,13 +703,13 @@ function initChatFeature() {
     });
   }
 
-  // Emoji Button Placeholder
-  if (emojiBtn) {
-    emojiBtn.addEventListener("click", () => {
-      console.log("Emoji picker toggle");
-      chatInput.focus();
-    });
-  }
+  // // Emoji Button Placeholder
+  // if (emojiBtn) {
+  //   emojiBtn.addEventListener("click", () => {
+  //     console.log("Emoji picker toggle");
+  //     chatInput.focus();
+  //   });
+  // }
 
   // URL ?chat=true 이면 자동으로 열기 (상품 상세 / My Messages 둘 다 공통)
   if (urlParams.get("chat") === "true") {
