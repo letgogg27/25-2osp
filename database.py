@@ -266,7 +266,7 @@ class DBhandler:
                 my_items[name] = info
         return my_items
 
-     def get_items_by_seller(self, seller_id):
+    def get_items_by_seller(self, seller_id):
         all_items = self.db.child("item").get().val() or {}
         my_items = {}
         for name, info in all_items.items():
@@ -331,3 +331,4 @@ class DBhandler:
 
         return result
         
+
