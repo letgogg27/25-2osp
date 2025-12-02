@@ -266,3 +266,31 @@ class DBhandler:
                 my_items[name] = info
         return my_items
 
+     def get_items_by_seller(self, seller_id):
+        all_items = self.db.child("item").get().val() or {}
+        my_items = {}
+        for name, info in all_items.items():
+            if info.get("seller") == seller_id:
+                my_items[name] = info
+        return my_items
+    
+
+    def get_item_byname(self, name):
+        try:
+            item_data = self.db.child("item").child(name).get().val()
+            return item_data or {}
+        except Exception as e:
+            print(f"❌ Error getting item '{name}': {e}")
+            return {}
+
+    def get_transactions_by_user(self, user_id):
+        data = self.db.child("transactions").get().val() or {}
+        user_transactions = {}
+
+        for item_name, info in data.items():
+            if info.get("status") == "sold":
+                if info.get("seller") == user_id or info.get("buyer") == user_id:
+                    user_transactions[item_name] = info
+
+        return user_transactions
+
