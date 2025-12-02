@@ -2313,21 +2313,20 @@ textarea {
 
 /* 프로필 박스 */
 .mypage-profile {
-  width: 100%;
+  max-width: 650px;
+  margin: 0 auto 30px;
   display: flex;
   align-items: center;
   gap: 20px;
   padding: 25px;
   border-radius: 18px;
   background: #00462a;       /* 초록 */
-  margin-bottom: 30px;
   color: white;
   box-sizing: border-box;
 }
 
 /* 프로필 이미지 */
 .profile-img {
-  width: 100px;
   height: 100px;
   border-radius: 50%;
   border: 3px solid white;   /* 흰색 테두리 */
@@ -2361,12 +2360,12 @@ textarea {
 
 /* 각각의 정보 섹션 박스 (내가 올린 상품 / 거래 내역) */
 .section-box {
-  width: 100%;
+  max-width: 650px;
+  margin: 0 auto 25px;
   padding: 22px 20px;
   border: 1px solid #ddd;
   border-radius: 16px;
   background: white;
-  margin-bottom: 25px;
   box-sizing: border-box;
 }
 
