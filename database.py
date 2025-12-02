@@ -257,3 +257,12 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+
+    def get_items_by_seller(self, seller_id):
+        all_items = self.db.child("item").get().val() or {}
+        my_items = {}
+        for name, info in all_items.items():
+            if info.get("seller") == seller_id:
+                my_items[name] = info
+        return my_items
+
