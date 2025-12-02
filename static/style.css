@@ -950,11 +950,11 @@ body.no-scroll {
   font-size: 14px;
   pointer-events: none;
 }
-/* .thumbnail-image-wrapper:empty {
+.thumbnail-image-wrapper:empty {
   display: none;
   margin: 0;
   padding: 0;
-} */
+}
 .thumbnail-image {
   position: relative; /*for overlay*/
   cursor: pointer;
