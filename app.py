@@ -500,8 +500,34 @@ def mypage():
         return redirect(url_for("login"))
 
     user_id = session["id"]
-    my_items = DB.get_items_by_seller(user_id)
-    return render_template("mypage.html", my_items=my_items)
+
+    # 내가 등록한 모든 상품
+    all_items = DB.get_items_by_seller(user_id)
+
+    # 거래 데이터 (status == sold만 가져오기)
+    transactions = DB.get_transactions_by_user(user_id)
+
+    sold_items = {}  # 내가 판 상품
+    bought_items = {}  # 내가 산 상품
+
+    for item_name, info in transactions.items():
+        if info.get("status") == "sold":
+            # 내가 판 상품
+            if info.get("seller") == user_id and item_name in all_items:
+                sold_items[item_name] = all_items[item_name]
+            # 내가 산 상품
+            elif info.get("buyer") == user_id:
+                item_data = DB.get_item_byname(item_name)
+                if item_data:
+                    bought_items[item_name] = item_data
+
+    return render_template(
+        "mypage.html",
+        my_items=all_items,
+        sold_items=sold_items,
+        bought_items=bought_items,
+        user_id=user_id
+    )
 
 @app.route("/reg_review_init/<name>/")
 def reg_review_init(name):
