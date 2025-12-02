@@ -473,9 +473,21 @@ def mypage():
         return redirect(url_for("login"))
 
     user_id = session["id"]
-    my_items = DB.get_items_by_seller(user_id)
-    return render_template("mypage.html", my_items=my_items)
 
+    # 내가 올린 상품
+    my_items = DB.get_items_by_seller(user_id)
+
+    # 판매자 평균 별점 + 리뷰 수
+    stats = DB.get_seller_review_stats(user_id)
+    avg_rating = stats["average_rating"]
+    review_count = stats["total_reviews"]
+
+    return render_template(
+        "mypage.html",
+        my_items=my_items,
+        avg_rating=avg_rating,
+        review_count=review_count
+    )
 
 
 @app.route("/reg_review", methods=['POST'])
