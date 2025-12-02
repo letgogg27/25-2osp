@@ -355,9 +355,6 @@ class DBhandler:
             print(f"❌ Error getting seller review stats for {seller_id}: {e}")
             return {"average_rating": 0.0, "total_reviews": 0}
         
-# database.py
-
-    # 1. Update Transaction Status (Writes to 'transactions' node)
     def update_transaction_status(self, item_name, status, buyer_id=None):
         update_data = {
             "status": status  # "reserved" or "sold"
@@ -365,16 +362,12 @@ class DBhandler:
         if buyer_id:
             update_data["buyer"] = buyer_id
             
-        # 🔥 CHANGE: We save this under "transactions", NOT "item"
         self.db.child("transactions").child(item_name).update(update_data)
         return True
 
-    # 2. Get Transaction Status (Reads from 'transactions' node)
     def get_transaction_status(self, item_name):
-        # Look inside "transactions" folder
         data = self.db.child("transactions").child(item_name).get().val()
         
-        # If no data exists in 'transactions', it means it's still 'active' (On Sale)
         if not data:
             return {"status": "active", "buyer": None}
             
