@@ -677,5 +677,21 @@ def view_review():
         sort=sort,
     )
 
+@app.route("/reg_review_able")
+def reg_review_able():
+    if "id" not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for("login"))
+
+    buyer_id = session["id"]
+    # 현재 로그인한 유저가 구매했고, 아직 리뷰가 없는 상품들
+    items_for_review = DB.get_items_for_review(buyer_id)
+
+    return render_template(
+        "reg_review_able.html",
+        items=items_for_review
+    )
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
