@@ -19,6 +19,11 @@ class DBhandler:
     #     self.db = firebase.database()
     #     print("✅ Firebase 연결 완료")
 
+
+    def delete_item(self, name):
+    # Firebase에서 'item' 밑의 해당 상품 노드 제거
+        self.db.child("item").child(name).remove()
+
     def __init__(self):
         with open('./authentication/firebase_auth.json') as f:
             config = json.load(f)
@@ -310,6 +315,7 @@ class DBhandler:
             if key_value == name:
                 target_value=res.val()
         return target_value
+
     def get_seller_review_stats(self, seller_id):
         """
         Calculates the average star rating and total count for a seller's reviews.
@@ -355,13 +361,13 @@ class DBhandler:
             print(f"❌ Error getting seller review stats for {seller_id}: {e}")
             return {"average_rating": 0.0, "total_reviews": 0}
         
+
     def update_transaction_status(self, item_name, status, buyer_id=None):
         update_data = {
             "status": status  # "reserved" or "sold"
         }
         if buyer_id:
             update_data["buyer"] = buyer_id
-            
         self.db.child("transactions").child(item_name).update(update_data)
         return True
 
@@ -372,3 +378,113 @@ class DBhandler:
             return {"status": "active", "buyer": None}
             
         return data
+
+
+    def get_items_by_seller(self, seller_id):
+        all_items = self.db.child("item").get().val() or {}
+        my_items = {}
+        for name, info in all_items.items():
+            if info.get("seller") == seller_id:
+                my_items[name] = info
+        return my_items
+
+    def get_items_by_seller(self, seller_id):
+        all_items = self.db.child("item").get().val() or {}
+        my_items = {}
+        for name, info in all_items.items():
+            if info.get("seller") == seller_id:
+                my_items[name] = info
+        return my_items
+    
+
+    def get_item_byname(self, name):
+        try:
+            item_data = self.db.child("item").child(name).get().val()
+            return item_data or {}
+        except Exception as e:
+            print(f"❌ Error getting item '{name}': {e}")
+            return {}
+        
+
+    def update_transaction_status(self, item_name, status, buyer_id=None):
+        # find out who the seller is from the item data
+        item_data = self.db.child("item").child(item_name).get().val()
+        seller_id = item_data.get("seller") if item_data else None
+
+        update_data = {
+            "status": status,    # "reserved" or "sold"
+            "seller": seller_id  # Save seller 
+        }
+        if buyer_id:
+            update_data["buyer"] = buyer_id
+            
+        self.db.child("transactions").child(item_name).update(update_data)
+        return True
+
+    def get_transaction_status(self, item_name):
+        data = self.db.child("transactions").child(item_name).get().val()
+        if not data:
+            return {"status": "active", "buyer": None}
+        return data
+
+    def get_transactions_by_user(self, user_id):
+        # Get all transactions
+        all_trans = self.db.child("transactions").get().val() or {}
+        user_trans = {}
+
+        # Get all items (to get image, price, etc.)
+        all_items = self.db.child("item").get().val() or {}
+
+        for item_name, trans_info in all_trans.items():
+            # Only care about SOLD items
+            if trans_info.get("status") == "sold":
+                buyer = trans_info.get("buyer")
+                seller = trans_info.get("seller")
+
+                # If I am the Buyer OR the Seller
+                if buyer == user_id or seller == user_id:
+                    item_details = all_items.get(item_name, {})
+                    combined = dict(trans_info)
+                    combined.update(item_details)
+                    
+                    user_trans[item_name] = combined
+
+        return user_trans
+
+    def get_items_for_review(self, buyer_id):
+        """
+        transactions/{item_name} = { buyer: ..., status: ... }
+        review/{item_name} 가 없고,
+        transactions의 buyer가 현재 로그인 유저인 item들만 골라서
+        (item_name, item_info) 리스트로 반환
+        """
+        # 거래 정보
+        txs = self.db.child("transactions").get().val() or {}
+        # 상품 정보
+        items_all = self.db.child("item").get().val() or {}
+        # 리뷰 정보
+        reviews_all = self.db.child("review").get().val() or {}
+
+        result = []
+        for item_name, tx in txs.items():
+            if not isinstance(tx, dict):
+                continue
+
+            # 내가 산 거래 + (선택) 거래 상태가 sold인 것만
+            if tx.get("buyer") != buyer_id:
+                continue
+            if tx.get("status") not in (None, "", "sold"):
+                continue
+
+            # 이미 리뷰가 있으면 스킵
+            if reviews_all and reviews_all.get(item_name):
+                continue
+
+            item_info = items_all.get(item_name)
+            if not item_info:
+                continue
+
+            result.append((item_name, item_info))
+
+        return result
+        

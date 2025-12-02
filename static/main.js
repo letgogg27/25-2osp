@@ -4,7 +4,6 @@ let statusCheckInterval = null;
 let lastKnownActiveTime = null;
 let presencePingInterval = null;
 
-// Pings the Flask server periodically to update the user's last_active time
 function startPresencePing(currentUserId) {
   if (!currentUserId) return;
 
@@ -114,6 +113,65 @@ function startStatusListener(otherUserId) {
   });
   statusCheckInterval = setInterval(checkAndDisplayStatus, 10000);
 }
+document.addEventListener("DOMContentLoaded", () => {
+  initImageUploadFeature();
+  initStarRating();
+  initChips();
+  initFormReset();
+  initChatFeature();
+  initAutoResizeTextarea();
+  initItemMoreMenu();
+});
+
+/* =========================
+    ITEM DELETE / COMPLETE
+   ========================= */
+
+// 삭제
+window.deleteItem = function (name) {
+  if (!confirm("정말 이 상품을 삭제하시겠습니까?")) return;
+
+  fetch(`/item/delete/${encodeURIComponent(name)}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("삭제 실패");
+      return res.json();
+    })
+    .then((data) => {
+      alert(data.msg || "상품이 삭제되었습니다.");
+      // 목록 페이지로 이동
+      window.location.href = "/list";
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("삭제 중 오류가 발생했습니다.");
+    });
+};
+
+// 거래완료 (원하면 나중에 구현)
+window.completeItem = function (name) {
+  if (!confirm("이 상품을 거래완료로 표시할까요?")) return;
+
+  fetch(`/item/complete/${encodeURIComponent(name)}/`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+  })
+    .then((res) => {
+      if (!res.ok) throw new Error("거래완료 처리 실패");
+      return res.json();
+    })
+    .then((data) => {
+      alert(data.msg || "거래완료로 표시되었습니다.");
+      // 새로고침해서 상태 뱃지 업데이트
+      window.location.reload();
+    })
+    .catch((err) => {
+      console.error(err);
+      alert("거래완료 처리 중 오류가 발생했습니다.");
+    });
+};
 
 /* =========================
     IMAGE UPLOAD + PREVIEW
