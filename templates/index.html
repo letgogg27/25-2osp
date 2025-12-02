@@ -81,7 +81,8 @@
       <div class="navbar_menu">
         {% if session['id'] %}
         <div class="welcome-message">
-          <b>{{ session['id'] }}님 반갑습니다!</b>
+          <a href="{{url_for('mypage')}}" class= "welcome-id">
+            {{ session['id'] }}</a>님 반갑습니다!
         </div>
         {% endif %}
         <div>

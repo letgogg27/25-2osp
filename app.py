@@ -508,6 +508,17 @@ def reg_review_init(name):
     return render_template("reg_reviews.html", name=name, data=data)
 
 
+@app.route('/mypage')
+def mypage():
+    if 'id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['id']
+
+    return render_template("mypage.html", user_id=user_id)
+
+
+
 @app.route("/reg_review", methods=['POST'])
 def reg_review():
     data = request.form
@@ -551,14 +562,64 @@ def view_review_detail(name):
     
 @app.route("/review", strict_slashes=False)
 def view_review():
+    # --- 쿼리 파라미터 ---
     page = request.args.get("page", 1, type=int)
+    q = request.args.get("q", "").strip()
+    sort = request.args.get("sort", "")
 
     per_page = 15  
 
+    # DB에서 전체 리뷰 가져오기: { item_name: review_info, ... }
     raw = DB.get_reviews() or {}
-    items = list(raw.items())
-    item_counts = len(items)
+    items = list(raw.items())   # [(item_name, review_dict), ...]
 
+    # --- 검색 필터링 ---
+    filtered = []
+    for item_name, rv in items:
+        rv = rv or {}
+        user = rv.get("user", "")
+        title = rv.get("title", "")
+
+        if q:
+            q_lower = q.lower()
+            # 상품명(item_name), 리뷰 작성자(user), 리뷰 제목(title)에서 검색
+            if (
+                q_lower not in item_name.lower()
+                and q_lower not in user.lower()
+                and q_lower not in title.lower()
+            ):
+                continue
+
+        filtered.append((item_name, rv))
+
+    # --- 정렬 ---
+    from datetime import datetime
+
+    def to_datetime_safe(s):
+        if not s:
+            return datetime.min
+        for fmt in ("%Y-%m-%d", "%Y.%m.%d"):
+            try:
+                return datetime.strptime(s, fmt)
+            except ValueError:
+                continue
+        return datetime.min
+
+    if sort == "star_asc":
+        # 별점 낮은 순
+        filtered.sort(key=lambda kv: safe_int(kv[1].get("rate")))
+    elif sort == "star_desc":
+        # 별점 높은 순
+        filtered.sort(key=lambda kv: safe_int(kv[1].get("rate")), reverse=True)
+    else:
+        # 최신순: date 기준 내림차순
+        filtered.sort(
+            key=lambda kv: to_datetime_safe(kv[1].get("date")),
+            reverse=True,
+        )
+
+    # --- 페이지네이션 ---
+    item_counts = len(filtered)
     page_count = (item_counts + per_page - 1) // per_page or 1
 
     if page < 1:
@@ -567,15 +628,16 @@ def view_review():
         page = page_count
 
     start_idx = (page - 1) * per_page
-    page_items = items[start_idx : start_idx + per_page]
+    page_items = filtered[start_idx : start_idx + per_page]
 
+    # --- 템플릿에 넘길 데이터 변환 ---
     converted = []
     for key, rv in page_items:
         rv = rv or {}
 
         converted.append(
             (
-                key,
+                key,  # item_name (리뷰/상품의 이름)
                 {
                     "img_path": rv.get("img_path") or "no_image.png",
                     "rate": rv.get("rate") or 0,
@@ -583,13 +645,10 @@ def view_review():
                     "user": rv.get("user") or "ewha_user",
                     "title": rv.get("title") or "제목 없음",
                     "profile_img": rv.get("profile_img") or "fake_profile.png",
-
-                    # ⭐⭐⭐ 해시태그 추가!!
-                    "pros": rv.get("pros") or "",
-
+                    "pros": rv.get("pros") or "",       # 해시태그
                     "helpful": rv.get("helpful") or 0,
                     "date": rv.get("date") or "2025.01.01",
-                }
+                },
             )
         )
 
@@ -599,6 +658,8 @@ def view_review():
         page=page,
         page_count=page_count,
         total=item_counts,
+        q=q,
+        sort=sort,
     )
 
 if __name__ == "__main__":
