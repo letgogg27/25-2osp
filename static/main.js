@@ -113,15 +113,6 @@ function startStatusListener(otherUserId) {
   });
   statusCheckInterval = setInterval(checkAndDisplayStatus, 10000);
 }
-document.addEventListener("DOMContentLoaded", () => {
-  initImageUploadFeature();
-  initStarRating();
-  initChips();
-  initFormReset();
-  initChatFeature();
-  initAutoResizeTextarea();
-  initItemMoreMenu();
-});
 
 /* =========================
     ITEM DELETE / COMPLETE
@@ -935,6 +926,7 @@ function initAutoResizeTextarea() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  // 공통 초기화
   initImageUploadFeature();
   initStarRating();
   initChips();
@@ -942,6 +934,12 @@ document.addEventListener("DOMContentLoaded", () => {
   initChatFeature();
   initAutoResizeTextarea();
 
+  // item 페이지에서만 쓰는 함수 있으면 여기서 호출
+  if (typeof initItemMoreMenu === "function") {
+    initItemMoreMenu();
+  }
+
+  // presence ping
   const currentUserIdMeta = document.querySelector(
     'meta[name="current-user-id"]'
   );
