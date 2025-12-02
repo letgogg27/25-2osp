@@ -466,6 +466,17 @@ def reg_review_init(name):
     return render_template("reg_reviews.html", name=name, data=data)
 
 
+@app.route('/mypage')
+def mypage():
+    if 'id' not in session:
+        return redirect(url_for('login'))
+
+    user_id = session['id']
+
+    return render_template("mypage.html", user_id=user_id)
+
+
+
 @app.route("/reg_review", methods=['POST'])
 def reg_review():
     data = request.form
