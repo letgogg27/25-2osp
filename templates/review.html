@@ -14,12 +14,12 @@
 </style>
 
 <div class="search-bar">
-  <form class="search-form" method="GET" action="/list">
-    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색" />
-    <select name="sort">
-      <option value="">최신순</option>
-      <option value="star_asc">별점 낮은 순</option>
-      <option value="star_desc">별점 높은 순</option>
+  <form class="search-form" method="GET" action="{{ url_for('view_review') }}">
+    <input type="text" name="q" placeholder="판매자명 또는 상품명 검색" value="{{ q | default('') }}"/> 
+    <select name="sort" onchange="this.form.submit()">
+      <option value="" {% if sort == '' %}selected{% endif %}>최신순</option>
+      <option value="star_asc" {% if sort == 'star_asc' %}selected{% endif %}>별점 낮은 순</option>
+      <option value="star_desc" {% if sort == 'star_desc' %}selected{% endif %}>별점 높은 순</option>
     </select>
     <button type="submit">검색</button>
   </form>
@@ -94,7 +94,7 @@
 <!-- 페이지네이션 -->
 <div class="pager">
   {% if page > 1 %}
-    <a href="{{ url_for('view_review', page=page-1) }}" class="page-ctrl" aria-label="이전">&laquo;</a>
+    <a href="{{ url_for('view_review', page=page-1, sort=sort, q=q) }}" class="page-ctrl" aria-label="이전">&laquo;</a>
   {% else %}
     <span class="page-ctrl disabled" aria-label="이전">&laquo;</span>
   {% endif %}
@@ -102,13 +102,13 @@
   <ol class="page-list">
     {% for i in range(1, page_count + 1) %}
     <li class="{% if i == page %}on{% endif %}">
-      <a href="{{ url_for('view_review', page=i) }}">{{ i }}</a>
+      <a href="{{ url_for('view_review', page=i, sort=sort, q=q) }}">{{ i }}</a>
     </li>
     {% endfor %}
   </ol>
 
   {% if page < page_count %}
-    <a href="{{ url_for('view_review', page=page+1) }}" class="page-ctrl" aria-label="다음">&raquo;</a>
+    <a href="{{ url_for('view_review', page=page+1, sort=sort, q=q) }}" class="page-ctrl" aria-label="다음">&raquo;</a>
   {% else %}
     <span class="page-ctrl disabled" aria-label="다음">&raquo;</span>
   {% endif %}
