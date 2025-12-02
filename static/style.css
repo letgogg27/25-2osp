@@ -2289,3 +2289,98 @@ textarea {
   color: red;
 }
 >>>>>>> chaeeun
+
+
+
+/* 마이페이지 전체 컨테이너 */
+.mypage-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 20px 60px;  /* 네비바 아래 여백 줄임 */
+  box-sizing: border-box;
+}
+
+/* 페이지 제목 */
+.mypage-title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #00462a;  
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+
+/* 프로필 박스 */
+.mypage-profile {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  border-radius: 18px;
+  background: #00462a;       /* 초록 */
+  margin-bottom: 30px;
+  color: white;
+  box-sizing: border-box;
+}
+
+/* 프로필 이미지 */
+.profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid white;   /* 흰색 테두리 */
+  object-fit: cover;
+}
+
+/* 프로필 텍스트 묶음 */
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;                   /* 아이디/별점 간격 좁게 */
+}
+
+.profile-text p {
+  margin: 0 !important;       /* 기본 p margin 제거 */
+  padding: 0 !important;
+}
+
+/* 아이디 */
+.user-id {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+}
+
+/* 별점 */
+.user-rating {
+  font-size: 16px;
+  color: white;
+}
+
+/* 각각의 정보 섹션 박스 (내가 올린 상품 / 거래 내역) */
+.section-box {
+  width: 100%;
+  padding: 22px 20px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: white;
+  margin-bottom: 25px;
+  box-sizing: border-box;
+}
+
+/* 섹션 제목 */
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #00462a;
+  margin-bottom: 10px;
+}
+
+/* 섹션 안 placeholder */
+.placeholder-text {
+  font-size: 15px;
+  color: #666;
+}
+
