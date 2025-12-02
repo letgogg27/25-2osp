@@ -493,14 +493,15 @@ def my_messages():
     return render_template("my_messages.html", conversations=conversations_list)
 
 
-@app.route('/mypage')
+@app.route("/mypage")
 def mypage():
-    if 'id' not in session:
-        return redirect(url_for('login'))
+    if "id" not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for("login"))
 
-    user_id = session['id']
-
-    return render_template("mypage.html", user_id=user_id)
+    user_id = session["id"]
+    my_items = DB.get_items_by_seller(user_id)
+    return render_template("mypage.html", my_items=my_items)
 
 @app.route("/reg_review_init/<name>/")
 def reg_review_init(name):
