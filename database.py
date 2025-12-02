@@ -260,3 +260,48 @@ class DBhandler:
             if info.get("seller") == seller_id:
                 my_items[name] = info
         return my_items
+
+def get_seller_review_stats(self, seller_id):
+        """
+        Calculates the average star rating and total count for a seller's reviews.
+        This searches through all 'review' nodes that match the seller_id in 'item' nodes.
+        """
+        try:
+            all_items = self.db.child("item").get().val() or {}
+            seller_items = [
+                name for name, info in all_items.items()
+                if isinstance(info, dict) and info.get('seller') == seller_id
+            ]
+
+            if not seller_items:
+                return {"average_rating": 0.0, "total_reviews": 0}
+
+            all_reviews = self.db.child("review").get().val() or {}
+            
+            total_rate = 0
+            review_count = 0
+            
+            for item_name in seller_items:
+                review_data = all_reviews.get(item_name)
+                if isinstance(review_data, dict):
+                    try:
+                        rate = float(review_data.get('rate', 0))
+                        if rate > 0:
+                            total_rate += rate
+                            review_count += 1
+                    except ValueError:
+                        pass
+
+            if review_count == 0:
+                return {"average_rating": 0.0, "total_reviews": 0}
+
+            average_rating = total_rate / review_count
+            
+            return {
+                "average_rating": round(average_rating, 1),
+                "total_reviews": review_count
+            }
+
+        except Exception as e:
+            print(f"❌ Error getting seller review stats for {seller_id}: {e}")
+            return {"average_rating": 0.0, "total_reviews": 0}
