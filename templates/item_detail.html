@@ -22,8 +22,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
 
       {% set total_imgs = imgs|length %} {% if total_imgs > 1 %}
       <div class="thumbnail-image-wrapper">
-        {% for img in imgs %} {# -------- CASE A: 1~3 images => show all
-        normally -------- #} {% if total_imgs <= 3 %}
+        {% for img in imgs %} {% if total_imgs <= 3 %}
         <div class="thumbnail-image">
           <img
             class="thumb-img"
@@ -32,9 +31,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             alt="{{ name }} {{ loop.index }}"
           />
         </div>
-
-        {# -------- CASE B: 4개 이상 => 최대 3개만 보여주기 -------- #} {% else
-        %} {# 첫 번째, 두 번째 썸네일: 그냥 보여주기 #} {% if loop.index0 < 2 %}
+        {% if loop.index0 < 2 %}
         <div class="thumbnail-image">
           <img
             class="thumb-img"
@@ -43,8 +40,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             alt="{{ name }} {{ loop.index }}"
           />
         </div>
-
-        {# 세 번째 썸네일: +N 오버레이 붙이기 #} {% elif loop.index0 == 2 %}
+        {% elif loop.index0 == 2 %}
         <div class="thumbnail-image thumbnail-more">
           <img
             class="thumb-img"
@@ -54,9 +50,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
           />
           <div class="thumbnail-overlay">+{{ total_imgs - 3 }}</div>
         </div>
-
-        {# index0 >= 3 인 것들은 아무것도 렌더 안 함 #} {% endif %} {% endif %}
-        {% endfor %}
+        {% endif %} {% endif %} {% endfor %}
       </div>
       {% endif %}
     </aside>
