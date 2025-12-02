@@ -950,33 +950,17 @@ body.no-scroll {
   font-size: 14px;
   pointer-events: none;
 }
-.thumbnail-image-wrapper:empty {
+/* .thumbnail-image-wrapper:empty {
   display: none;
   margin: 0;
   padding: 0;
-}
+} */
 .thumbnail-image {
   position: relative; /*for overlay*/
   cursor: pointer;
   overflow: hidden;
 }
 
-/* .thumbnail-overlay {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.6); 
-  color: white;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  font-size: 18px;
-  font-weight: bold;
-  z-index: 10;
-}
- */
 .reg-review-container {
   display: flex;
   justify-content: center;
