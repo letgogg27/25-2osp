@@ -46,9 +46,58 @@
 
   <!-- 거래 내역 -->
   <div class="section-box">
-    <h3 class="section-title">거래 내역</h3>
-    <p class="placeholder-text">여기에 거래 내역 정보.</p>
+    <h3 class="section-title">거래 완료된 상품</h3>
+
+    <!-- 내가 판 상품 -->
+    <h4 style="margin-bottom:8px; color:#00462a;">내가 판 상품</h4>
+    {% if sold_items %}
+    <div class="myitem-list">
+      {% for name, item in sold_items.items() %}
+      <a href="{{ url_for('view_item_detail', name=name) }}" class="myitem-row">
+        <div class="myitem-img">
+          <img src="{{ url_for('static', filename='images/' ~ item.img_path) }}" alt="{{ name }}">
+        </div>
+        <div class="myitem-info">
+          <h4 class="myitem-title">{{ name }}</h4>
+          <p class="myitem-price">{{ item.price }}원</p>
+        </div>
+        <div class="myitem-location">
+          <i class="fa-solid fa-location-dot"></i> {{ item.addr }}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="placeholder-text">거래 완료된 판매 상품이 없습니다.</p>
+    {% endif %}
+
+    <hr style="margin:20px 0; border:0.5px solid #ccc;">
+
+    <!-- 내가 산 상품 -->
+    <h4 style="margin-bottom:8px; color:#00462a;">내가 산 상품</h4>
+    {% if bought_items %}
+    <div class="myitem-list">
+      {% for name, item in bought_items.items() %}
+      <a href="{{ url_for('view_item_detail', name=name) }}" class="myitem-row">
+        <div class="myitem-img">
+          <img src="{{ url_for('static', filename='images/' ~ item.img_path) }}" alt="{{ name }}">
+        </div>
+        <div class="myitem-info">
+          <h4 class="myitem-title">{{ name }}</h4>
+          <p class="myitem-price">{{ item.price }}원</p>
+        </div>
+        <div class="myitem-location">
+          <i class="fa-solid fa-location-dot"></i> {{ item.addr }}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="placeholder-text">구매 완료된 상품이 없습니다.</p>
+    {% endif %}
   </div>
+  
 </div>
 
 {% endblock %}
+
