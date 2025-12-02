@@ -261,7 +261,8 @@ class DBhandler:
                 my_items[name] = info
         return my_items
 
-def get_seller_review_stats(self, seller_id):
+
+    def get_seller_review_stats(self, seller_id):
         """
         Calculates the average star rating and total count for a seller's reviews.
         This searches through all 'review' nodes that match the seller_id in 'item' nodes.
