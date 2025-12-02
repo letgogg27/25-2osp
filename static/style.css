@@ -2357,3 +2357,220 @@ textarea {
   color: red;
 }
 >>>>>>> chaeeun
+
+
+
+
+.mypage-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 20px 80px;
+}
+
+
+/* 프로필 박스 (초록 박스) */
+.mypage-profile {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  border-radius: 18px;
+  background: #00462a;
+  color: white;
+  margin-bottom: 40px;
+}
+
+.profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid white;
+  object-fit: cover;
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-id {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+}
+
+.user-rating {
+  font-size: 16px;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.user-rating img {
+  width: 20px;
+  margin-right: 6px;
+}
+
+/* 아래 섹션 박스 */
+.section-box {
+  width: 100%;
+  padding: 22px 20px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: white;
+  margin-bottom: 25px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #00462a;
+  margin-bottom: 10px;
+}
+
+.placeholder-text {
+  font-size: 15px;
+  color: #666;
+}
+
+
+
+.welcome-id {
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline !important;
+}
+
+
+
+.welcome-id:hover {
+  opacity: 0.8;
+}
+
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* 아이디 / 별점 간격 좁힘 */
+}
+.profile-text p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+.user-rating {
+  font-size: 16px;
+  color: white;
+}
+.mypage-container {
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 20px 20px 80px;
+}
+
+
+/* 프로필 박스 (초록 박스) */
+.mypage-profile {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 25px;
+  border-radius: 18px;
+  background: #00462a;
+  color: white;
+  margin-bottom: 40px;
+}
+
+.profile-img {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  border: 3px solid white;
+  object-fit: cover;
+}
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.user-id {
+  font-size: 24px;
+  font-weight: 700;
+  color: white;
+}
+
+.user-rating {
+  font-size: 16px;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.user-rating img {
+  width: 20px;
+  margin-right: 6px;
+}
+
+/* 아래 섹션 박스 */
+.section-box {
+  width: 100%;
+  padding: 22px 20px;
+  border: 1px solid #ddd;
+  border-radius: 16px;
+  background: white;
+  margin-bottom: 25px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #00462a;
+  margin-bottom: 10px;
+}
+
+.placeholder-text {
+  font-size: 15px;
+  color: #666;
+}
+
+
+
+.welcome-id {
+  color: white;
+  text-decoration: underline;
+  cursor: pointer;
+  display: inline !important;
+}
+
+
+
+.welcome-id:hover {
+  opacity: 0.8;
+}
+
+
+.profile-text {
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* 아이디 / 별점 간격 좁힘 */
+}
+.profile-text p {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+.user-rating {
+  font-size: 16px;
+  color: white;
+}
+
