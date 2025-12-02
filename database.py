@@ -294,3 +294,40 @@ class DBhandler:
 
         return user_transactions
 
+    def get_items_for_review(self, buyer_id):
+        """
+        transactions/{item_name} = { buyer: ..., status: ... }
+        review/{item_name} 가 없고,
+        transactions의 buyer가 현재 로그인 유저인 item들만 골라서
+        (item_name, item_info) 리스트로 반환
+        """
+        # 거래 정보
+        txs = self.db.child("transactions").get().val() or {}
+        # 상품 정보
+        items_all = self.db.child("item").get().val() or {}
+        # 리뷰 정보
+        reviews_all = self.db.child("review").get().val() or {}
+
+        result = []
+        for item_name, tx in txs.items():
+            if not isinstance(tx, dict):
+                continue
+
+            # 내가 산 거래 + (선택) 거래 상태가 sold인 것만
+            if tx.get("buyer") != buyer_id:
+                continue
+            if tx.get("status") not in (None, "", "sold"):
+                continue
+
+            # 이미 리뷰가 있으면 스킵
+            if reviews_all and reviews_all.get(item_name):
+                continue
+
+            item_info = items_all.get(item_name)
+            if not item_info:
+                continue
+
+            result.append((item_name, item_info))
+
+        return result
+        
