@@ -9,7 +9,6 @@
 
   <!-- 프로필 박스 -->
   <div class="mypage-profile">
-    <img src="{{ url_for('static', filename='images/profile_default.png') }}" class="profile-img">
     <div class="profile-text">
       <p class="user-id">@{{ session['id'] }}</p>
       <p class="user-rating">
@@ -32,4 +31,5 @@
 
 </div>
 {% endblock %}
+
 
