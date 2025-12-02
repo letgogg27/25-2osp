@@ -17,6 +17,7 @@ import uuid
 from werkzeug.utils import secure_filename
 import sys
 import datetime
+from datetime import datetime as dt, timezone
 from flask import abort
 from flask import jsonify
 
@@ -356,7 +357,12 @@ def DynamicUrl(varible_name):
 @app.route("/view_detail/<name>/")
 def view_item_detail(name):
     data = DB.get_item_byname(str(name))
-    return render_template("item_detail.html", name=name, data=data)
+    seller_id = data.get('seller')
+    if seller_id:
+        review_stats = DB.get_seller_review_stats(seller_id)
+    else:
+        review_stats = {"average_rating": 0.0, "total_reviews": 0}
+    return render_template("item_detail.html", name=name, data=data, review_stats=review_stats)
 
 
 # Gets the message history for a chat
@@ -387,63 +393,146 @@ def get_chat_history(item_name):
 # Sends a new message
 @app.route("/api/chat/send/<item_name>", methods=['POST'])
 def send_chat_message(item_name):
-    # Check if user is logged in
+    # 로그인 체크
     if 'id' not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
-    # Get data from the JavaScript request
-    data = request.json
-    text = data.get("text")
-
-    # 나중에 Image sending 
+    data = request.json or {}
+    text = (data.get("text") or "").strip()
+    other_user_id = data.get("other_user_id")  # JS 에서 같이 보낸 값
 
     if not text:
         return jsonify({"error": "Empty message"}), 400
 
-    # Get seller and buyer IDs
+    #  상품 정보
     item_data = DB.get_item_byname(item_name)
     if not item_data:
         return jsonify({"error": "Item not found"}), 404
 
-    item_owner_id = item_data.get("seller") 
-    current_user_id = session['id']          
+    item_owner_id = item_data.get("seller")
+    current_user_id = session['id']
 
-    # Create the conversation ID
-    user_ids = sorted([current_user_id, item_owner_id]) 
+    if not item_owner_id:
+        return jsonify({"error": "Item has no seller"}), 500
+
+    # 누가 누구랑 이야기하는지에 따라 방 ID 구성
+    #    - current_user != seller  → 구매자가 상품 상세에서 시작
+    #    - current_user == seller  → My Messages 에서 with=buyer 로 들어온 상태
+    if current_user_id != item_owner_id:
+        # 구매자 입장: 상대는 seller
+        user_ids = sorted([current_user_id, item_owner_id])
+        other_for_link = item_owner_id
+    else:
+        # 판매자 입장: 반드시 other_user_id(buyer)가 있어야 1:1 구분 가능
+        if not other_user_id:
+            return jsonify({"error": "Missing other_user_id for seller chat"}), 400
+        user_ids = sorted([item_owner_id, other_user_id])
+        other_for_link = other_user_id
 
     conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
 
-    # Save the message to the database
+    # 메시지 저장
     success = DB.add_message(
         conversation_id=conversation_id,
-        sender_id=current_user_id,  
+        sender_id=current_user_id,
         text=text
     )
 
-    if success:
-        try:
-            
-            # Link to the Current User's Inbox
-            DB.link_user_to_conversation(
-                user_id=current_user_id, 
-                conversation_id=conversation_id, 
-                item_name=item_name, 
-                other_user_id=item_owner_id
-            )
-            # Link to the Item Owner's Inbox
-            DB.link_user_to_conversation(
-                user_id=item_owner_id,
-                conversation_id=conversation_id, 
-                item_name=item_name, 
-                other_user_id=current_user_id
-            )
-        except Exception as e:
-            print(f"⚠️ Error linking chats: {e}")
-
-        return jsonify({"status": "success", "message": "Message sent"})
-    else:
+    if not success:
         return jsonify({"error": "Failed to send message"}), 500
-    
+
+    # 양쪽 인박스(user_chats)에 대화방 링크
+    try:
+        DB.link_user_to_conversation(
+            user_id=current_user_id,
+            conversation_id=conversation_id,
+            item_name=item_name,
+            other_user_id=other_for_link
+        )
+        DB.link_user_to_conversation(
+            user_id=other_for_link,
+            conversation_id=conversation_id,
+            item_name=item_name,
+            other_user_id=current_user_id
+        )
+    except Exception as e:
+        print(f"⚠️ Error linking chats: {e}")
+
+    return jsonify({"status": "success", "message": "Message sent"})
+@app.route("/api/chat/send_with_image/<item_name>", methods=["POST"])
+def send_chat_with_image(item_name):
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    text = (request.form.get("text") or "").strip()
+    other_user_id = request.form.get("other_user_id")
+    image_file = request.files.get("image")
+
+    if not text and not image_file:
+        return jsonify({"error": "Empty message"}), 400
+
+    item_data = DB.get_item_byname(item_name)
+    if not item_data:
+        return jsonify({"error": "Item not found"}), 404
+
+    item_owner_id = item_data.get("seller")
+    current_user_id = session["id"]
+
+    if current_user_id != item_owner_id:
+        user_ids = sorted([current_user_id, item_owner_id])
+        other_for_link = item_owner_id
+    else:
+        if not other_user_id:
+            return jsonify({"error": "Missing other_user_id for seller chat"}), 400
+        user_ids = sorted([item_owner_id, other_user_id])
+        other_for_link = other_user_id
+
+    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+
+    # ==== Save image ====
+    image_url = ""
+    if image_file and image_file.filename:
+        from werkzeug.utils import secure_filename
+        import uuid, os
+
+        filename = secure_filename(image_file.filename)
+        _, ext = os.path.splitext(filename)
+        unique_name = f"{uuid.uuid4().hex}{ext}"
+
+        save_dir = os.path.join(app.static_folder, "chat_images")
+        os.makedirs(save_dir, exist_ok=True)
+
+        save_path = os.path.join(save_dir, unique_name)
+        image_file.save(save_path)
+
+        image_url = url_for("static", filename=f"chat_images/{unique_name}", _external=False)
+
+    # ===== Save message to Firebase =====
+    success = DB.add_message(
+        conversation_id=conversation_id,
+        sender_id=current_user_id,
+        text=text,
+        image_url=image_url or None
+    )
+
+    if not success:
+        return jsonify({"error": "Failed to send message"}), 500
+
+    DB.link_user_to_conversation(
+        user_id=current_user_id,
+        conversation_id=conversation_id,
+        item_name=item_name,
+        other_user_id=other_for_link
+    )
+    DB.link_user_to_conversation(
+        user_id=other_for_link,
+        conversation_id=conversation_id,
+        item_name=item_name,
+        other_user_id=current_user_id
+    )
+
+    return jsonify({"status": "success", "message": "Message with image sent"})
+
 @app.route("/my_messages")
 def my_messages():
     if 'id' not in session:
@@ -460,7 +549,6 @@ def my_messages():
     
     return render_template("my_messages.html", conversations=conversations_list)
 
-
 @app.route('/mypage')
 def mypage():
     if 'id' not in session:
@@ -470,9 +558,65 @@ def mypage():
 
     return render_template("mypage.html", user_id=user_id)
 
+@app.route("/api/chat/typing/<item_name>", methods=['POST'])
+def toggle_typing_status(item_name):
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.json or {}
+    is_typing = data.get("is_typing", False)  
+    other_user_id = data.get("other_user_id") 
+
+    # 상품 정보 (Conversation ID 생성에 필요)
+    item_data = DB.get_item_byname(item_name)
+    if not item_data:
+        return jsonify({"error": "Item not found"}), 404
+
+    item_owner_id = item_data.get("seller")
+    current_user_id = session['id']
+
+    # 대화 상대 결정 
+    if current_user_id != item_owner_id:
+        # 구매자 입장: 상대는 seller
+        other_for_link = item_owner_id
+    else:
+        # 판매자 입장: 상대는 other_user_id (buyer)
+        if not other_user_id:
+            return jsonify({"error": "Missing other_user_id for seller chat"}), 400
+        other_for_link = other_user_id
+    
+    # Conversation ID 생성
+    user_ids = sorted([current_user_id, other_for_link])
+    conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+    
+    # DB 핸들러 호출
+    DB.set_typing_status(
+        conversation_id=conversation_id,
+        sender_id=current_user_id,
+        is_typing=is_typing
+    )
+    
+    return jsonify({"status": "success", "is_typing": is_typing})
+
+# NEW: Update user's last active time
+@app.route("/api/user/active", methods=['POST'])
+def update_user_activity():
+    data = request.get_json() or {}
+    user_id = data.get("user_id")
+
+    if not user_id:
+        return jsonify({"status": "ignored", "reason": "missing user_id"}), 400
+    print("🔥 Presence update from:", user_id)
+    print(f"{dt.now(timezone.utc).timestamp()*1000}")
+    timestamp = int(dt.now(timezone.utc).timestamp() * 1000)
+    # Update Firebase presence
+    success = DB.set_user_activity(user_id, timestamp)
+
+    return jsonify({"status": "updated" if success else "failed", "user_id": user_id, "timestamp": timestamp})
+
 @app.route("/reg_review_init/<name>/")
 def reg_review_init(name):
-    data = DB.get_item_byname(name)   # ⭐ 상품 상세 정보 가져오기
+    data = DB.get_item_byname(name)   
     return render_template("reg_reviews.html", name=name, data=data)
 
 
@@ -568,6 +712,62 @@ def view_review():
         page_count=page_count,
         total=item_counts,
     )
+
+
+# app.py
+
+@app.route("/api/item/status/<item_name>")
+def get_item_status(item_name):
+    # 1. Get Item Info (to find the seller)
+    item_data = DB.get_item_byname(item_name)
+    if not item_data:
+        return jsonify({"status": "unknown"})
+
+    # 2. Get Transaction Info (from the NEW separate node)
+    trans_data = DB.get_transaction_status(item_name)
+
+    return jsonify({
+        "status": trans_data.get("status", "active"), # active / reserved / sold
+        "buyer_id": trans_data.get("buyer", None),    # The buyer ID
+        "seller": item_data.get("seller")             # Seller ID (from item info)
+    })
+
+@app.route("/api/transaction/start", methods=["POST"])
+def start_transaction_route():
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    data = request.json
+    item_name = data.get("item_name")
+    buyer_id = data.get("buyer_id")
+    
+    # Check if I am the seller
+    item_data = DB.get_item_byname(item_name)
+    if item_data.get("seller") != session['id']:
+        return jsonify({"error": "Only seller can start transaction"}), 403
+
+    # 🔥 UPDATE: Save to 'transactions' node
+    DB.update_transaction_status(item_name, "reserved", buyer_id)
+    
+    return jsonify({"status": "success", "new_state": "reserved"})
+
+@app.route("/api/transaction/confirm", methods=["POST"])
+def confirm_transaction_route():
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.json
+    item_name = data.get("item_name")
+    
+    # Check if I am the assigned buyer
+    trans_data = DB.get_transaction_status(item_name)
+    if trans_data.get("buyer") != session['id']:
+        return jsonify({"error": "Only the assigned buyer can confirm"}), 403
+
+    # 🔥 UPDATE: Save to 'transactions' node
+    DB.update_transaction_status(item_name, "sold", session['id'])
+    
+    return jsonify({"status": "success", "new_state": "sold"})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
