@@ -67,23 +67,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
       </div>
 
       <div class="item-seller-info-box">
-        <div
-          class="seller-thumb-avatar"
-          style="
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #fee9e7;
-            color: #00462a;
-            border: 1px solid #00462a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 20px;
-          "
-        >
-          {{ seller_initial }}
+        <div class="seller-thumb-avatar">
+          <div class="profile-img profile-img--seller"></div>
         </div>
 
         <div class="item-detail-seller-info">

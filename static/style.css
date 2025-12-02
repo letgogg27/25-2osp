@@ -355,15 +355,12 @@ button:hover,
 .seller-thumb-avatar {
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: #fee9e7;
-  color: #00462a;
-  border: 1px solid #00462a;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 20px;
+  background: transparent;
+  border: none;
+  padding: 0;
 }
 
 .item-detail-seller-info {
@@ -2515,6 +2512,16 @@ textarea {
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.profile-img--seller {
+  width: 40px;
+  height: 40px;
+  border-width: 2px;
+}
+
+.profile-img--seller::before {
+  font-size: 22px;
 }
 
 .profile-text {
