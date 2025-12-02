@@ -19,9 +19,29 @@
   </div>
 
   <!-- 내가 올린 상품 -->
-  <div class="section-box">
+   <div class="section-box">
     <h3 class="section-title">내가 올린 상품</h3>
-    <p class="placeholder-text">여기에 상품 리스트.</p>
+
+    {% if my_items %}
+    <div class="myitem-list">
+      {% for name, item in my_items.items() %}
+      <a href="{{ url_for('view_item_detail', name=name) }}" class="myitem-row">
+        <div class="myitem-img">
+          <img src="{{ url_for('static', filename='images/' ~ item.img_path) }}" alt="{{ name }}">
+        </div>
+        <div class="myitem-info">
+          <h4 class="myitem-title">{{ name }}</h4>
+          <p class="myitem-price">{{ item.price }}원</p>
+        </div>
+        <div class="myitem-location">
+          <i class="fa-solid fa-location-dot"></i> {{ item.addr }}
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="placeholder-text">아직 등록한 상품이 없습니다.</p>
+    {% endif %}
   </div>
 
   <!-- 거래 내역 -->
@@ -30,4 +50,5 @@
     <p class="placeholder-text">여기에 거래 내역 정보.</p>
   </div>
 </div>
+
 {% endblock %}
