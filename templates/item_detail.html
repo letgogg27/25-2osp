@@ -20,9 +20,9 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         {% endif %}
       </div>
 
-      {% if imgs|length > 1 %}
+      {% set total_imgs = imgs|length %} {% if total_imgs > 1 %}
       <div class="thumbnail-image-wrapper">
-        {% for img in imgs %}
+        {% for img in imgs %} {% if total_imgs <= 3 %}
         <div class="thumbnail-image">
           <img
             class="thumb-img"
@@ -31,7 +31,26 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             alt="{{ name }} {{ loop.index }}"
           />
         </div>
-        {% endfor %}
+        {% if loop.index0 < 2 %}
+        <div class="thumbnail-image">
+          <img
+            class="thumb-img"
+            src="{{ url_for('static', filename='images/' ~ img) }}"
+            data-index="{{ loop.index0 }}"
+            alt="{{ name }} {{ loop.index }}"
+          />
+        </div>
+        {% elif loop.index0 == 2 %}
+        <div class="thumbnail-image thumbnail-more">
+          <img
+            class="thumb-img"
+            src="{{ url_for('static', filename='images/' ~ img) }}"
+            data-index="{{ loop.index0 }}"
+            alt="{{ name }} {{ loop.index }}"
+          />
+          <div class="thumbnail-overlay">+{{ total_imgs - 3 }}</div>
+        </div>
+        {% endif %} {% endif %} {% endfor %}
       </div>
       {% endif %}
     </aside>
@@ -44,7 +63,9 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         </button>
         <div class="item-more-dropdown" id="item-more-dropdown">
           <button type="button" onclick="deleteItem('{{ name }}')">삭제</button>
-          <button type="button" onclick="completeItem('{{ name }}')">거래완료</button>
+          <button type="button" onclick="completeItem('{{ name }}')">
+            거래완료
+          </button>
         </div>
       </div>
       {% endif %}
@@ -54,7 +75,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         <small class="item-condition">
           {% if data.status == 'new' %} 새상품(미사용) {% elif data.status ==
           'almost_new' %} 거의 새상품 {% elif data.status == 'used' %} 사용감
-          있음 {% elif data.status == 'sold' %} 거래완료 {% else %} 상태 미정 {% endif %}
+          있음 {% elif data.status == 'sold' %} 거래완료 {% else %} 상태 미정 {%
+          endif %}
         </small>
       </div>
 
@@ -248,149 +270,144 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
-  function showHeart() {
-    $.ajax({
-      type: "GET",
-      url: "/show_heart/{{name}}/",
-      data: {},
-      success: function (response) {
-        let my_heart = response["my_heart"];
+    function showHeart() {
+      $.ajax({
+        type: "GET",
+        url: "/show_heart/{{name}}/",
+        data: {},
+        success: function (response) {
+          let my_heart = response["my_heart"];
 
-        if (!my_heart || !my_heart["interested"]) {
-          $("#heart").css("color", "grey");
-          $("#heart").attr("onclick", "like()");
-          return;
-        }
+          if (!my_heart || !my_heart["interested"]) {
+            $("#heart").css("color", "grey");
+            $("#heart").attr("onclick", "like()");
+            return;
+          }
 
-        if (my_heart["interested"] === "Y") {
-          $("#heart").css("color", "red");
-          $("#heart").attr("onclick", "unlike()");
-        } else {
-          $("#heart").css("color", "grey");
-          $("#heart").attr("onclick", "like()");
-        }
-      },
-    });
-  }
-
-  function like() {
-    $.ajax({
-      type: "POST",
-      url: "/like/{{name}}/",
-      data: { interested: "Y" },
-      success: function (response) {
-        alert(response["msg"]);
-        window.location.reload();
-      },
-    });
-  }
-
-  function unlike() {
-    $.ajax({
-      type: "POST",
-      url: "/unlike/{{name}}/",
-      data: { interested: "N" },
-      success: function (response) {
-        alert(response["msg"]);
-        window.location.reload();
-      },
-    });
-  }
-
-  $(document).ready(function () {
-    showHeart();
-
-    // ---------- Image viewer / lightbox ----------
-    const imageUrls = [
-      {% for img in imgs %}
-      "{{ url_for('static', filename='images/' ~ img) }}"{% if not loop.last %},{% endif %}
-      {% endfor %}
-    ];
-
-    let currentIndex = 0;
-
-    const mainImg = document.getElementById("main-image");
-    const thumbImgs = document.querySelectorAll(".thumb-img");
-
-    const lightbox = document.getElementById("image-lightbox");
-    const lightboxImg = document.getElementById("lightbox-img");
-    const btnPrev = document.getElementById("lightbox-prev");
-    const btnNext = document.getElementById("lightbox-next");
-    const btnClose = document.getElementById("lightbox-close");
-
-    function updateMainImage(index) {
-      if (!mainImg || !imageUrls.length) return;
-      currentIndex = index;
-      mainImg.src = imageUrls[currentIndex];
-    }
-
-    function openLightbox(index) {
-      if (!imageUrls.length) return;
-      currentIndex = index;
-      lightboxImg.src = imageUrls[currentIndex];
-      lightbox.style.display = "flex";
-    }
-
-    function closeLightbox() {
-      lightbox.style.display = "none";
-    }
-
-    function showNext() {
-      if (!imageUrls.length) return;
-      currentIndex = (currentIndex + 1) % imageUrls.length;
-      lightboxImg.src = imageUrls[currentIndex];
-      updateMainImage(currentIndex);
-    }
-
-    function showPrev() {
-      if (!imageUrls.length) return;
-      currentIndex =
-        (currentIndex - 1 + imageUrls.length) % imageUrls.length;
-      lightboxImg.src = imageUrls[currentIndex];
-      updateMainImage(currentIndex);
-    }
-
-    // Main image click -> open lightbox
-    if (mainImg) {
-      mainImg.style.cursor = "zoom-in";
-      mainImg.addEventListener("click", function () {
-        openLightbox(currentIndex);
+          if (my_heart["interested"] === "Y") {
+            $("#heart").css("color", "red");
+            $("#heart").attr("onclick", "unlike()");
+          } else {
+            $("#heart").css("color", "grey");
+            $("#heart").attr("onclick", "like()");
+          }
+        },
       });
     }
 
-    // Thumbnails: change main + set index
-    thumbImgs.forEach((thumb, idx) => {
-      thumb.style.cursor = "pointer";
-      thumb.addEventListener("click", function () {
-        updateMainImage(idx);
+    function like() {
+      $.ajax({
+        type: "POST",
+        url: "/like/{{name}}/",
+        data: { interested: "Y" },
+        success: function (response) {
+          alert(response["msg"]);
+          window.location.reload();
+        },
       });
-      //double-click thumb opens lightbox directly
-      thumb.addEventListener("dblclick", function () {
-        openLightbox(idx);
+    }
+
+    function unlike() {
+      $.ajax({
+        type: "POST",
+        url: "/unlike/{{name}}/",
+        data: { interested: "N" },
+        success: function (response) {
+          alert(response["msg"]);
+          window.location.reload();
+        },
       });
+    }
+
+    $(document).ready(function () {
+      showHeart();
+
+      // ---------- Image viewer / lightbox ----------
+      const imageUrls = [
+        {% for img in imgs %}
+        "{{ url_for('static', filename='images/' ~ img) }}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+      ];
+
+      let currentIndex = 0;
+
+      const mainImg = document.getElementById("main-image");
+      const thumbImgs = document.querySelectorAll(".thumb-img");
+
+      const lightbox = document.getElementById("image-lightbox");
+      const lightboxImg = document.getElementById("lightbox-img");
+      const btnPrev = document.getElementById("lightbox-prev");
+      const btnNext = document.getElementById("lightbox-next");
+      const btnClose = document.getElementById("lightbox-close");
+
+      function updateMainImage(index) {
+        if (!mainImg || !imageUrls.length) return;
+        currentIndex = index;
+        mainImg.src = imageUrls[currentIndex];
+      }
+
+      function openLightbox(index) {
+        if (!imageUrls.length) return;
+        currentIndex = index;
+        lightboxImg.src = imageUrls[currentIndex];
+        lightbox.style.display = "flex";
+      }
+
+      function closeLightbox() {
+        lightbox.style.display = "none";
+      }
+
+      function showNext() {
+        if (!imageUrls.length) return;
+        currentIndex = (currentIndex + 1) % imageUrls.length;
+        lightboxImg.src = imageUrls[currentIndex];
+        updateMainImage(currentIndex);
+      }
+
+      function showPrev() {
+        if (!imageUrls.length) return;
+        currentIndex =
+          (currentIndex - 1 + imageUrls.length) % imageUrls.length;
+        lightboxImg.src = imageUrls[currentIndex];
+        updateMainImage(currentIndex);
+      }
+
+      // Main image click -> open lightbox
+      if (mainImg) {
+        mainImg.style.cursor = "zoom-in";
+        mainImg.addEventListener("click", function () {
+          openLightbox(currentIndex);
+        });
+      }
+
+  thumbImgs.forEach((thumb, idx) => {
+    thumb.style.cursor = "zoom-in";
+    thumb.addEventListener("click", function () {
+      openLightbox(idx);
     });
+  });
 
-    // Lightbox controls
-    if (btnNext) btnNext.addEventListener("click", showNext);
-    if (btnPrev) btnPrev.addEventListener("click", showPrev);
-    if (btnClose) btnClose.addEventListener("click", closeLightbox);
+      // Lightbox controls
+      if (btnNext) btnNext.addEventListener("click", showNext);
+      if (btnPrev) btnPrev.addEventListener("click", showPrev);
+      if (btnClose) btnClose.addEventListener("click", closeLightbox);
 
-    // Click outside image closes lightbox
-    if (lightbox) {
-      lightbox.addEventListener("click", function (e) {
-        if (e.target === lightbox) {
+      // Click outside image closes lightbox
+      if (lightbox) {
+        lightbox.addEventListener("click", function (e) {
+          if (e.target === lightbox) {
+            closeLightbox();
+          }
+        });
+      }
+
+      // "ESC" key closes lightbox
+      document.addEventListener("keydown", function (e) {
+        if (e.key === "Escape" && lightbox.style.display === "flex") {
           closeLightbox();
         }
       });
-    }
-
-    // "ESC" key closes lightbox
-    document.addEventListener("keydown", function (e) {
-      if (e.key === "Escape" && lightbox.style.display === "flex") {
-        closeLightbox();
-      }
     });
-  });
 </script>
 
 <script>
@@ -404,7 +421,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
 
     // 점세개 클릭하면 열기/닫기 토글
     moreBtn.addEventListener("click", function (e) {
-      e.stopPropagation();  // 바깥 클릭 이벤트로 바로 닫히는 거 방지
+      e.stopPropagation(); // 바깥 클릭 이벤트로 바로 닫히는 거 방지
       dropdown.classList.toggle("is-open");
     });
 
@@ -419,7 +436,5 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     });
   });
 </script>
-
-
 
 {%endblock%}

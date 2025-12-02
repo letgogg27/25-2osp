@@ -260,7 +260,7 @@ button:hover,
 
 .item-more-dropdown {
   position: absolute;
-  top: 36px;   /* 버튼 바로 아래 */
+  top: 36px; /* 버튼 바로 아래 */
   right: 0;
   background: #ffffff;
   border: 1px solid #dddddd;
@@ -276,7 +276,7 @@ button:hover,
 }
 
 .item-more-dropdown.is-open {
-  display: flex;          /* ⭐ 이 클래스가 붙으면 보이게 */
+  display: flex; /* ⭐ 이 클래스가 붙으면 보이게 */
 }
 
 .item-more-dropdown button {
@@ -603,7 +603,7 @@ button:hover,
   background: #f0f2f5;
   padding: 12px;
   overflow-y: auto;
-  max-height: 60vh;       
+  max-height: 60vh;
 }
 
 .chat-body::-webkit-scrollbar {
@@ -673,19 +673,19 @@ button:hover,
   color: #ffffff;
 }
 
-.message-row.sender { 
-    justify-content: flex-end; 
+.message-row.sender {
+  justify-content: flex-end;
 }
-.message-row.sender .message-bubble { 
-      background: #00462a;
+.message-row.sender .message-bubble {
+  background: #00462a;
   color: #ffffff;
 }
 
 /* RECEIVER (Other) - Left Side */
-.message-row.receiver { 
-    justify-content: flex-start; 
+.message-row.receiver {
+  justify-content: flex-start;
 }
-.message-row.receiver .message-bubble { 
+.message-row.receiver .message-bubble {
   background: #d8dadf;
   color: #050505;
 }
@@ -726,8 +726,8 @@ button:hover,
   background: transparent;
   outline: none;
   font-size: 14px;
-  overflow: hidden;       /* prevents overflow */
-  min-width: 0;   
+  overflow: hidden; /* prevents overflow */
+  min-width: 0;
 }
 .chat-input {
   /* flex: 1; */
@@ -735,8 +735,8 @@ button:hover,
   background: transparent;
   outline: none;
   font-size: 14px;
-  width: 100%;            
-  min-width: 0;           
+  width: 100%;
+  min-width: 0;
 }
 
 .chat-send-btn {
@@ -774,52 +774,52 @@ body.no-scroll {
 
 /* Typing Indicator CSS */
 .typing-dots {
-    display: inline-block;
-    width: 0.5em; /* Space for the dots */
-    text-align: left;
-    overflow: hidden;
-    vertical-align: bottom;
-    line-height: 1;
+  display: inline-block;
+  width: 0.5em; /* Space for the dots */
+  text-align: left;
+  overflow: hidden;
+  vertical-align: bottom;
+  line-height: 1;
 }
 
 .typing-dots::after {
-    content: '...'; /* Start with three dots */
-    animation: dot-animation 1.5s infinite steps(4);
+  content: "..."; /* Start with three dots */
+  animation: dot-animation 1.5s infinite steps(4);
 }
 
 @keyframes dot-animation {
-    0% {
-        content: '.';
-    }
-    33% {
-        content: '..';
-    }
-    66% {
-        content: '...';
-    }
-    100% {
-        content: '...'; /* Keep 3 dots for 1/4 of the time */
-    }
+  0% {
+    content: ".";
+  }
+  33% {
+    content: "..";
+  }
+  66% {
+    content: "...";
+  }
+  100% {
+    content: "..."; /* Keep 3 dots for 1/4 of the time */
+  }
 }
 .message-bubble img {
-    max_width: 200px;
-    max_height: 200px;
-    border-radius: 10px;
-    display: block;
-    margin-bottom: 5px;
-    cursor: pointer;
+  max_width: 200px;
+  max_height: 200px;
+  border-radius: 10px;
+  display: block;
+  margin-bottom: 5px;
+  cursor: pointer;
 }
 #chat-image-preview img {
-    height: 50px;
-    width: auto;
-    border-radius: 5px;
-    border: 2px solid #00462A;
-    margin-right: 10px;
+  height: 50px;
+  width: auto;
+  border-radius: 5px;
+  border: 2px solid #00462a;
+  margin-right: 10px;
 }
 .chat-input-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
+  display: flex;
+  align-items: center;
+  width: 100%;
 }
 
 /*item-detail-explanation-box*/
@@ -856,71 +856,127 @@ body.no-scroll {
 }
 /*Item Detail image Preview*/
 .image-lightbox {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.75);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  }
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
 
+.image-lightbox-inner {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.image-lightbox-img {
+  max-width: 100%;
+  max-height: 90vh;
+  border-radius: 8px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  background: #fff;
+}
+
+.image-lightbox-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#lightbox-prev {
+  left: -50px;
+}
+#lightbox-next {
+  right: -50px;
+}
+
+#lightbox-close {
+  position: absolute;
+  top: -45px;
+  right: -5px;
+  border: none;
+  background: transparent;
+  color: #fff;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
   .image-lightbox-inner {
-    position: relative;
-    max-width: 90vw;
-    max-height: 90vh;
+    max-width: 95vw;
+    max-height: 80vh;
   }
-
-  .image-lightbox-img {
-    max-width: 100%;
-    max-height: 90vh;
-    border-radius: 8px;
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-    background: #fff;
+  #lightbox-prev {
+    left: 10px;
   }
-
-  .image-lightbox-btn {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    border: none;
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  #lightbox-next {
+    right: 10px;
   }
-
-  #lightbox-prev { left: -50px; }
-  #lightbox-next { right: -50px; }
-
-  #lightbox-close {
-    position: absolute;
-    top: -45px;
-    right: -5px;
-    border: none;
-    background: transparent;
-    color: #fff;
-    font-size: 30px;
-    cursor: pointer;
-  }
-
-  @media (max-width: 768px) {
-    .image-lightbox-inner {
-      max-width: 95vw;
-      max-height: 80vh;
-    }
-    #lightbox-prev { left: 10px; }
-    #lightbox-next { right: 10px; }
-  }
+}
 
 /* *** Start Reg review CSS ***/
 
+.thumbnail-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.thumbnail-more img {
+  filter: brightness(0.7);
+}
+
+.thumbnail-overlay {
+  position: absolute;
+  inset: 0; /* top:0; right:0; bottom:0; left:0; */
+  background: rgba(0, 0, 0, 0.5);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  pointer-events: none;
+}
+.thumbnail-image-wrapper:empty {
+  display: none;
+  margin: 0;
+  padding: 0;
+}
+.thumbnail-image {
+  position: relative; /*for overlay*/
+  cursor: pointer;
+  overflow: hidden;
+}
+
+/* .thumbnail-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.6); 
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 10;
+}
+ */
 .reg-review-container {
   display: flex;
   justify-content: center;
@@ -1329,6 +1385,51 @@ legend i {
 
 /******* End of Reg review CSS ********/
 
+.upload-preview {
+  margin-top: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-height: 120px; /* limit height so card doesn't grow too much */
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.upload-preview-item {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  flex: 0 0 auto;
+}
+
+.upload-preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.upload-preview-delete {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+
 /**** Register form ****/
 .reg-form-container {
   padding-bottom: 60px;
@@ -1415,16 +1516,16 @@ legend i {
 .card-list {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 5px;              /* 카드 간 간격 좁게 */
-  padding: 0 100px;        /* 좌우 여백 넉넉하게 */
-  margin: 20px 0 0 0;     /* 위쪽만 약간 여백 */
+  gap: 5px; /* 카드 간 간격 좁게 */
+  padding: 0 100px; /* 좌우 여백 넉넉하게 */
+  margin: 20px 0 0 0; /* 위쪽만 약간 여백 */
   list-style: none;
 }
 
 .card {
   background: #fff;
   border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -2517,7 +2618,7 @@ textarea {
   text-align: center;
   font-size: 28px;
   font-weight: 700;
-  color: #00462a;  
+  color: #00462a;
   margin-top: 10px;
   margin-bottom: 20px;
 }
@@ -2537,9 +2638,9 @@ textarea {
   box-sizing: border-box;
 }
 
-.profile-img{
-  width:100px;
-  height:100px;
+.profile-img {
+  width: 100px;
+  height: 100px;
   border-radius: 50%;
   border: 3px solid white;
   background: #d9d9d9;
@@ -2562,7 +2663,7 @@ textarea {
 }
 
 .profile-text p {
-  margin: 0 !important;       /* 기본 p margin 제거 */
+  margin: 0 !important; /* 기본 p margin 제거 */
   padding: 0 !important;
 }
 
@@ -2750,12 +2851,12 @@ textarea {
   text-decoration: none;
   color: #000;
   transition: 0.2s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
 }
 
 .myitem-row:hover {
   transform: translateY(-3px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .myitem-img {
