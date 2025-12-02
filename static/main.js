@@ -359,6 +359,122 @@ function initChatFeature() {
       ? RECEIVER_ID.charAt(0).toUpperCase()
       : "?";
 
+  function checkTransactionStatus() {
+    // Call the API
+    $.ajax({
+      url: `/api/item/status/${ITEM_NAME}`,
+      type: "GET",
+      success: function (response) {
+        console.log("Status Response:", response); // Debugging
+
+        const status = response.status; // "active", "reserved", "sold"
+        const chosenBuyer = response.buyer_id; // The user ID selected by seller
+        const seller = response.seller;
+
+        // Determine who I am
+        const isMeSeller = CURRENT_USER_ID === seller;
+        const isMeBuyer = CURRENT_USER_ID === chosenBuyer;
+
+        const actionsDiv = document.getElementById("chat-actions");
+        const inputArea = document.querySelector(".chat-footer");
+
+        console.log("My ID:", CURRENT_USER_ID);
+        console.log("Chosen Buyer ID:", chosenBuyer);
+        console.log("Is Me Buyer?", CURRENT_USER_ID === chosenBuyer);
+
+        if (!actionsDiv) return;
+        actionsDiv.innerHTML = "";
+        inputArea.style.display = "flex"; // Default show
+
+        // --- CASE 1: Item is Active (Anyone can chat) ---
+        // We check for 'active' or legacy 'available' or 'used'/'new'
+        if (
+          status === "active" ||
+          status === "new" ||
+          status === "used" ||
+          status === "almost_new"
+        ) {
+          // Only Seller sees the "Request Deal" button, and only if chatting with a specific buyer
+          if (isMeSeller && RECEIVER_ID) {
+            const btn = document.createElement("button");
+            btn.innerText = "거래 완료 요청"; // Request Transaction
+            btn.className = "item-detail-btn";
+            btn.style.cssText =
+              "padding: 5px 10px; font-size: 12px; background: #00462A; color: white; border:none; border-radius:4px; cursor:pointer;";
+            btn.onclick = function () {
+              if (confirm(`@${RECEIVER_ID} 님과 거래를 진행하시겠습니까?`)) {
+                startTransaction(RECEIVER_ID);
+              }
+            };
+            actionsDiv.appendChild(btn);
+          }
+        }
+
+        // --- CASE 2: Reserved (Waiting for Buyer Confirmation) ---
+        else if (status === "reserved") {
+          if (isMeBuyer) {
+            // I am the chosen buyer -> Show "Confirm" button
+            const btn = document.createElement("button");
+            btn.innerText = "거래 확정 하기"; // Confirm Deal
+            btn.className = "item-detail-btn";
+            btn.style.cssText =
+              "padding: 5px 10px; font-size: 12px; background: #d32f2f; color: white; border:none; border-radius:4px; cursor:pointer;";
+            btn.onclick = confirmTransaction;
+            actionsDiv.appendChild(btn);
+          } else if (isMeSeller) {
+            // Seller sees waiting text
+            actionsDiv.innerHTML =
+              "<span style='font-size:12px; color:orange; font-weight:bold;'>거래 확정 대기중...</span>";
+          } else {
+            // Other random buyers -> Locked out
+            inputArea.style.display = "none";
+            actionsDiv.innerHTML =
+              "<span style='font-size:12px; color:gray;'>다른 사용자와 거래중입니다.</span>";
+          }
+        }
+
+        // --- CASE 3: Sold (Done) ---
+        else if (status === "sold") {
+          inputArea.style.display = "none"; // Chat locked
+          actionsDiv.innerHTML =
+            "<span style='font-size:12px; color:#00462A; font-weight:bold;'>거래 완료됨 (Sold)</span>";
+        }
+      },
+      error: function (err) {
+        console.error("Status check failed", err);
+      },
+    });
+  }
+
+  function startTransaction(buyerId) {
+    $.ajax({
+      url: "/api/transaction/start",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({
+        item_name: ITEM_NAME,
+        buyer_id: buyerId,
+      }),
+      success: function () {
+        alert("거래 완료 처리됨");
+        checkTransactionStatus();
+      },
+    });
+  }
+
+  function confirmTransaction() {
+    $.ajax({
+      url: "/api/transaction/confirm",
+      type: "POST",
+      contentType: "application/json",
+      data: JSON.stringify({ item_name: ITEM_NAME }),
+      success: function () {
+        alert("거래 확정되었습니다");
+        checkTransactionStatus();
+      },
+    });
+  }
+
   let typingTimeout = null;
   const TYPING_DELAY = 3000;
   let isTyping = false;
@@ -377,6 +493,8 @@ function initChatFeature() {
 
     chatModal.style.display = "flex";
     bodyElement.classList.add("no-scroll");
+
+    checkTransactionStatus();
     if (messagesContainer) messagesContainer.innerHTML = "Loading chat...";
 
     if (CURRENT_USER_ID) {

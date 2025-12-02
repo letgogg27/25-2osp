@@ -706,5 +706,60 @@ def view_review():
     )
 
 
+# app.py
+
+@app.route("/api/item/status/<item_name>")
+def get_item_status(item_name):
+    # 1. Get Item Info (to find the seller)
+    item_data = DB.get_item_byname(item_name)
+    if not item_data:
+        return jsonify({"status": "unknown"})
+
+    # 2. Get Transaction Info (from the NEW separate node)
+    trans_data = DB.get_transaction_status(item_name)
+
+    return jsonify({
+        "status": trans_data.get("status", "active"), # active / reserved / sold
+        "buyer_id": trans_data.get("buyer", None),    # The buyer ID
+        "seller": item_data.get("seller")             # Seller ID (from item info)
+    })
+
+@app.route("/api/transaction/start", methods=["POST"])
+def start_transaction_route():
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+        
+    data = request.json
+    item_name = data.get("item_name")
+    buyer_id = data.get("buyer_id")
+    
+    # Check if I am the seller
+    item_data = DB.get_item_byname(item_name)
+    if item_data.get("seller") != session['id']:
+        return jsonify({"error": "Only seller can start transaction"}), 403
+
+    # 🔥 UPDATE: Save to 'transactions' node
+    DB.update_transaction_status(item_name, "reserved", buyer_id)
+    
+    return jsonify({"status": "success", "new_state": "reserved"})
+
+@app.route("/api/transaction/confirm", methods=["POST"])
+def confirm_transaction_route():
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+
+    data = request.json
+    item_name = data.get("item_name")
+    
+    # Check if I am the assigned buyer
+    trans_data = DB.get_transaction_status(item_name)
+    if trans_data.get("buyer") != session['id']:
+        return jsonify({"error": "Only the assigned buyer can confirm"}), 403
+
+    # 🔥 UPDATE: Save to 'transactions' node
+    DB.update_transaction_status(item_name, "sold", session['id'])
+    
+    return jsonify({"status": "success", "new_state": "sold"})
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
