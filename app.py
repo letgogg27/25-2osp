@@ -280,6 +280,38 @@ def reg_item_submit_post():
     # 등록 결과 페이지 대신, 바로 상세 페이지로 이동
     return redirect(url_for("view_item_detail", name=item_name))
 
+@app.route("/item/delete/<name>/", methods=["POST"], strict_slashes=False)
+def delete_item(name):
+    # 1. 로그인 확인
+    if "id" not in session:
+        return jsonify({"msg": "로그인 후 이용해주세요."}), 401
+
+    # DB에서 실제 삭제
+    try:
+        DB.delete_item(name)
+    except Exception as e:
+        print("❌ delete_item error:", e)
+        return jsonify({"msg": "DB 삭제 중 오류가 발생했습니다."}), 500
+
+    return jsonify({"msg": "상품이 삭제되었습니다."})
+
+@app.route("/item/complete/<name>/", methods=["POST"])
+def complete_item(name):
+    if "id" not in session:
+        return jsonify({"msg": "로그인 후 이용해주세요."}), 401
+
+    item = DB.get_item_byname(name)
+    if not item:
+        return jsonify({"msg": "해당 상품이 존재하지 않습니다."}), 404
+
+    if item.get("seller") != session["id"]:
+        return jsonify({"msg": "본인이 등록한 상품만 변경할 수 있습니다."}), 403
+
+    # 상태를 'sold' 로 표시
+    DB.db.child("item").child(name).update({"status": "sold"})
+
+    return jsonify({"msg": "거래완료로 표시되었습니다."})
+
 @app.route("/wishlist")
 def wishlist():
     user_id = current_user_id()
@@ -380,85 +412,66 @@ def get_chat_history(item_name):
     seller_id = item_data.get("seller")
     buyer_id = session['id']
 
-    # Create a unique conversation ID
     user_ids = sorted([buyer_id, seller_id])
     conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
 
-    # Fetch messages from DB
     messages = DB.get_messages(conversation_id)
 
-    # Send messages back to the JavaScript as JSON
     return jsonify(messages)
 
 # Sends a new message
 @app.route("/api/chat/send/<item_name>", methods=['POST'])
 def send_chat_message(item_name):
-    # 로그인 체크
     if 'id' not in session:
         return jsonify({"error": "Unauthorized"}), 401
 
     data = request.json or {}
     text = (data.get("text") or "").strip()
-    other_user_id = data.get("other_user_id")  # JS 에서 같이 보낸 값
-
+    
     if not text:
         return jsonify({"error": "Empty message"}), 400
 
-    #  상품 정보
     item_data = DB.get_item_byname(item_name)
     if not item_data:
         return jsonify({"error": "Item not found"}), 404
-
-    item_owner_id = item_data.get("seller")
+    
+    seller_id = item_data.get("seller")
     current_user_id = session['id']
 
-    if not item_owner_id:
-        return jsonify({"error": "Item has no seller"}), 500
+    trans_data = DB.get_transaction_status(item_name)
+    status = trans_data.get("status")
+    reserved_buyer = trans_data.get("buyer")
 
-    # 누가 누구랑 이야기하는지에 따라 방 ID 구성
-    #    - current_user != seller  → 구매자가 상품 상세에서 시작
-    #    - current_user == seller  → My Messages 에서 with=buyer 로 들어온 상태
-    if current_user_id != item_owner_id:
-        # 구매자 입장: 상대는 seller
-        user_ids = sorted([current_user_id, item_owner_id])
-        other_for_link = item_owner_id
+    if status == "sold":
+        return jsonify({"error": "거래가 완료된 상품입니다. 채팅 불가."}), 403
+    
+    if status == "reserved":
+        # If I am NOT the seller AND NOT the chosen buyer, block me
+        if current_user_id != seller_id and current_user_id != reserved_buyer:
+            return jsonify({"error": "다른 사용자와 거래 진행중입니다."}), 403
+
+    other_user_id = data.get("other_user_id")
+    
+    if current_user_id != seller_id:
+        user_ids = sorted([current_user_id, seller_id])
+        other_for_link = seller_id
     else:
-        # 판매자 입장: 반드시 other_user_id(buyer)가 있어야 1:1 구분 가능
         if not other_user_id:
-            return jsonify({"error": "Missing other_user_id for seller chat"}), 400
-        user_ids = sorted([item_owner_id, other_user_id])
+            return jsonify({"error": "Missing other_user_id"}), 400
+        user_ids = sorted([seller_id, other_user_id])
         other_for_link = other_user_id
 
     conversation_id = f"{user_ids[0]}_{user_ids[1]}_{item_name}"
+    
+    success = DB.add_message(conversation_id, current_user_id, text)
+    
+    if success:
+        DB.link_user_to_conversation(current_user_id, conversation_id, item_name, other_for_link)
+        DB.link_user_to_conversation(other_for_link, conversation_id, item_name, current_user_id)
+        return jsonify({"status": "success"})
+    
+    return jsonify({"error": "Failed"}), 500
 
-    # 메시지 저장
-    success = DB.add_message(
-        conversation_id=conversation_id,
-        sender_id=current_user_id,
-        text=text
-    )
-
-    if not success:
-        return jsonify({"error": "Failed to send message"}), 500
-
-    # 양쪽 인박스(user_chats)에 대화방 링크
-    try:
-        DB.link_user_to_conversation(
-            user_id=current_user_id,
-            conversation_id=conversation_id,
-            item_name=item_name,
-            other_user_id=other_for_link
-        )
-        DB.link_user_to_conversation(
-            user_id=other_for_link,
-            conversation_id=conversation_id,
-            item_name=item_name,
-            other_user_id=current_user_id
-        )
-    except Exception as e:
-        print(f"⚠️ Error linking chats: {e}")
-
-    return jsonify({"status": "success", "message": "Message sent"})
 @app.route("/api/chat/send_with_image/<item_name>", methods=["POST"])
 def send_chat_with_image(item_name):
     if 'id' not in session:
@@ -549,14 +562,51 @@ def my_messages():
     
     return render_template("my_messages.html", conversations=conversations_list)
 
-@app.route('/mypage')
+
+
+@app.route("/mypage")
 def mypage():
-    if 'id' not in session:
-        return redirect(url_for('login'))
+    if "id" not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for("login"))
 
-    user_id = session['id']
+    user_id = session["id"]
 
-    return render_template("mypage.html", user_id=user_id)
+    all_my_uploads = DB.get_items_by_seller(user_id)
+
+    history = DB.get_transactions_by_user(user_id)
+
+    sold_items = {}
+    bought_items = {}
+    my_active_items = {}
+
+    for name, info in history.items():
+        # Items I sold 
+        if info.get("seller") == user_id:
+            sold_items[name] = info
+        # Items I bought
+        elif info.get("buyer") == user_id:
+            bought_items[name] = info
+
+    for name, info in all_my_uploads.items():
+        
+        # Active Items or Not sold yet
+        if info.get("status") != "sold":
+            if name not in sold_items:
+                my_active_items[name] = info
+
+        #  Sold Items 
+        elif info.get("status") == "sold":
+            if name not in sold_items:
+                sold_items[name] = info
+
+    return render_template(
+        "mypage.html",
+        my_items=my_active_items,
+        sold_items=sold_items,
+        bought_items=bought_items,
+        user_id=user_id
+    )
 
 @app.route("/api/chat/typing/<item_name>", methods=['POST'])
 def toggle_typing_status(item_name):
@@ -619,7 +669,6 @@ def reg_review_init(name):
     data = DB.get_item_byname(name)   
     return render_template("reg_reviews.html", name=name, data=data)
 
-
 @app.route("/reg_review", methods=['POST'])
 def reg_review():
     data = request.form
@@ -663,14 +712,64 @@ def view_review_detail(name):
     
 @app.route("/review", strict_slashes=False)
 def view_review():
+    # --- 쿼리 파라미터 ---
     page = request.args.get("page", 1, type=int)
+    q = request.args.get("q", "").strip()
+    sort = request.args.get("sort", "")
 
     per_page = 15  
 
+    # DB에서 전체 리뷰 가져오기: { item_name: review_info, ... }
     raw = DB.get_reviews() or {}
-    items = list(raw.items())
-    item_counts = len(items)
+    items = list(raw.items())   # [(item_name, review_dict), ...]
 
+    # --- 검색 필터링 ---
+    filtered = []
+    for item_name, rv in items:
+        rv = rv or {}
+        user = rv.get("user", "")
+        title = rv.get("title", "")
+
+        if q:
+            q_lower = q.lower()
+            # 상품명(item_name), 리뷰 작성자(user), 리뷰 제목(title)에서 검색
+            if (
+                q_lower not in item_name.lower()
+                and q_lower not in user.lower()
+                and q_lower not in title.lower()
+            ):
+                continue
+
+        filtered.append((item_name, rv))
+
+    # --- 정렬 ---
+    from datetime import datetime
+
+    def to_datetime_safe(s):
+        if not s:
+            return datetime.min
+        for fmt in ("%Y-%m-%d", "%Y.%m.%d"):
+            try:
+                return datetime.strptime(s, fmt)
+            except ValueError:
+                continue
+        return datetime.min
+
+    if sort == "star_asc":
+        # 별점 낮은 순
+        filtered.sort(key=lambda kv: safe_int(kv[1].get("rate")))
+    elif sort == "star_desc":
+        # 별점 높은 순
+        filtered.sort(key=lambda kv: safe_int(kv[1].get("rate")), reverse=True)
+    else:
+        # 최신순: date 기준 내림차순
+        filtered.sort(
+            key=lambda kv: to_datetime_safe(kv[1].get("date")),
+            reverse=True,
+        )
+
+    # --- 페이지네이션 ---
+    item_counts = len(filtered)
     page_count = (item_counts + per_page - 1) // per_page or 1
 
     if page < 1:
@@ -679,15 +778,16 @@ def view_review():
         page = page_count
 
     start_idx = (page - 1) * per_page
-    page_items = items[start_idx : start_idx + per_page]
+    page_items = filtered[start_idx : start_idx + per_page]
 
+    # --- 템플릿에 넘길 데이터 변환 ---
     converted = []
     for key, rv in page_items:
         rv = rv or {}
 
         converted.append(
             (
-                key,
+                key,  # item_name (리뷰/상품의 이름)
                 {
                     "img_path": rv.get("img_path") or "no_image.png",
                     "rate": rv.get("rate") or 0,
@@ -695,13 +795,10 @@ def view_review():
                     "user": rv.get("user") or "ewha_user",
                     "title": rv.get("title") or "제목 없음",
                     "profile_img": rv.get("profile_img") or "fake_profile.png",
-
-                    # ⭐⭐⭐ 해시태그 추가!!
-                    "pros": rv.get("pros") or "",
-
+                    "pros": rv.get("pros") or "",       # 해시태그
                     "helpful": rv.get("helpful") or 0,
                     "date": rv.get("date") or "2025.01.01",
-                }
+                },
             )
         )
 
@@ -711,10 +808,11 @@ def view_review():
         page=page,
         page_count=page_count,
         total=item_counts,
+        q=q,
+        sort=sort,
     )
 
 
-# app.py
 
 @app.route("/api/item/status/<item_name>")
 def get_item_status(item_name):
@@ -768,6 +866,22 @@ def confirm_transaction_route():
     DB.update_transaction_status(item_name, "sold", session['id'])
     
     return jsonify({"status": "success", "new_state": "sold"})
+
+@app.route("/reg_review_able")
+def reg_review_able():
+    if "id" not in session:
+        flash("로그인 후 이용해주세요.")
+        return redirect(url_for("login"))
+
+    buyer_id = session["id"]
+    # 현재 로그인한 유저가 구매했고, 아직 리뷰가 없는 상품들
+    items_for_review = DB.get_items_for_review(buyer_id)
+
+    return render_template(
+        "reg_review_able.html",
+        items=items_for_review
+    )
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)

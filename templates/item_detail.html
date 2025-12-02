@@ -37,12 +37,24 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     </aside>
 
     <aside class="item-info-container-box">
+      {% if session.get('id', '') == data.seller %}
+      <div class="item-more-menu">
+        <button type="button" class="item-more-btn" id="item-more-btn">
+          <i class="fa-solid fa-ellipsis"></i>
+        </button>
+        <div class="item-more-dropdown" id="item-more-dropdown">
+          <button type="button" onclick="deleteItem('{{ name }}')">삭제</button>
+          <button type="button" onclick="completeItem('{{ name }}')">거래완료</button>
+        </div>
+      </div>
+      {% endif %}
+
       <div class="item-title-conditon-box">
         <h2>{{ name }}</h2>
         <small class="item-condition">
           {% if data.status == 'new' %} 새상품(미사용) {% elif data.status ==
           'almost_new' %} 거의 새상품 {% elif data.status == 'used' %} 사용감
-          있음 {% else %} 상태 미정 {% endif %}
+          있음 {% elif data.status == 'sold' %} 거래완료 {% else %} 상태 미정 {% endif %}
         </small>
       </div>
 
@@ -55,23 +67,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
       </div>
 
       <div class="item-seller-info-box">
-        <div
-          class="seller-thumb-avatar"
-          style="
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: #fee9e7;
-            color: #00462a;
-            border: 1px solid #00462a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 20px;
-          "
-        >
-          {{ seller_initial }}
+        <div class="seller-thumb-avatar">
+          <div class="profile-img profile-img--seller"></div>
         </div>
 
         <div class="item-detail-seller-info">
@@ -395,5 +392,34 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     });
   });
 </script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const moreBtn = document.getElementById("item-more-btn");
+    const dropdown = document.getElementById("item-more-dropdown");
+
+    if (!moreBtn || !dropdown) {
+      return; // 이 페이지에 메뉴 없으면 그냥 끝
+    }
+
+    // 점세개 클릭하면 열기/닫기 토글
+    moreBtn.addEventListener("click", function (e) {
+      e.stopPropagation();  // 바깥 클릭 이벤트로 바로 닫히는 거 방지
+      dropdown.classList.toggle("is-open");
+    });
+
+    // 메뉴 안쪽 클릭은 닫히지 않게
+    dropdown.addEventListener("click", function (e) {
+      e.stopPropagation();
+    });
+
+    // 화면 아무 데나 클릭하면 닫기
+    document.addEventListener("click", function () {
+      dropdown.classList.remove("is-open");
+    });
+  });
+</script>
+
+
 
 {%endblock%}

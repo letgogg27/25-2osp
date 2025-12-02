@@ -1,0 +1,150 @@
+{% extends "index.html" %}
+{% block title %}리뷰 등록{% endblock %}
+
+{% block content %}
+
+<h2 class="page-title">리뷰 등록</h2>
+
+<div class="mypage-container">
+
+  <div class="section-box">
+    <h3 class="section-title">리뷰를 작성할 수 있는 상품</h3>
+
+    {% if items %}
+    <div class="myitem-list">
+      {% for name, item in items %}
+      <div class="myitem-row">
+
+        <!-- 원래 마이페이지 카드와 동일한 구조 -->
+        <a href="{{ url_for('view_item_detail', name=name) }}" class="myitem-main">
+          <div class="myitem-img">
+            <img
+              src="{{ url_for('static', filename='images/' ~ item.img_path) }}"
+              alt="{{ name }}">
+          </div>
+          <div class="myitem-info">
+            <h4 class="myitem-title">{{ name }}</h4>
+            <p class="myitem-price">{{ item.price }}원</p>
+          </div>
+          <div class="myitem-location">
+            <i class="fa-solid fa-location-dot"></i> {{ item.addr }}
+          </div>
+        </a>
+
+        <!-- 추가된 영역: 리뷰 작성 버튼 -->
+        <div class="myitem-actions">
+          <button
+            class="review-write-btn"
+            onclick="location.href='{{ url_for('reg_review_init', name=name) }}'">
+            리뷰 작성하기
+          </button>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="placeholder-text">리뷰를 작성할 수 있는 거래 내역이 없습니다.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<style>
+/* 전체 박스 정리 */
+.mypage-container {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 24px 28px;
+  box-shadow: 0 0 0 1px #eee;
+}
+
+/* 리스트 한 줄(카드) */
+.myitem-list {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.myitem-row {
+  display: flex;
+  align-items: center;
+  padding: 14px 18px;
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
+  background: #fff;
+}
+
+/* 카드 안에서 이미지+텍스트+위치 영역 */
+.myitem-main {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  min-width: 0;  /* 긴 제목 줄바꿈용 */
+}
+
+.myitem-img img {
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+.myitem-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.myitem-title {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.myitem-price {
+  font-size: 14px;
+  color: #333;
+  margin: 0;
+}
+
+.myitem-location {
+  margin-left: auto;
+  font-size: 14px;
+  color: #555;
+  white-space: nowrap;
+}
+
+/* 버튼 영역 */
+.myitem-actions {
+  margin-left: 16px;
+  flex-shrink: 0;
+}
+
+.review-write-btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #00462a;
+  background: #00462a;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;  /* 버튼 텍스트 줄바꿈 방지 */
+}
+
+.review-write-btn:hover {
+  background: #00311e;
+}
+</style>
+
+{% endblock %}
