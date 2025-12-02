@@ -1,0 +1,56 @@
+{% extends "index.html" %}
+{% block title %}리뷰 등록{% endblock %}
+
+{% block content %}
+
+<h2 class="page-title">리뷰 등록</h2>
+
+<div class="reg-review-nav-page">
+<div class="mypage-container">
+
+  <div class="section-box">
+    <h3 class="section-title">리뷰를 작성할 수 있는 상품</h3>
+
+    {% if items %}
+    <div class="myitem-list">
+      {% for name, item in items %}
+      <div class="myitem-row">
+
+        <!-- 원래 마이페이지 카드와 동일한 구조 -->
+        <a href="{{ url_for('view_item_detail', name=name) }}" class="myitem-main">
+          <div class="myitem-img">
+            <img
+              src="{{ url_for('static', filename='images/' ~ item.img_path) }}"
+              alt="{{ name }}">
+          </div>
+          <div class="myitem-info">
+            <h4 class="myitem-title">{{ name }}</h4>
+            <p class="myitem-price">{{ item.price }}원</p>
+          </div>
+          <div class="myitem-location">
+            <i class="fa-solid fa-location-dot"></i> {{ item.addr }}
+          </div>
+        </a>
+
+        <!-- 추가된 영역: 리뷰 작성 버튼 -->
+        <div class="myitem-actions">
+          <button
+            class="review-write-btn"
+            onclick="location.href='{{ url_for('reg_review_init', name=name) }}'">
+            리뷰 작성하기
+          </button>
+        </div>
+
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+      <p class="placeholder-text">리뷰를 작성할 수 있는 거래 내역이 없습니다.</p>
+    {% endif %}
+  </div>
+
+</div>
+</div>
+
+
+{% endblock %}
