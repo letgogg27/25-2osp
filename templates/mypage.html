@@ -12,7 +12,8 @@
     <div class="profile-text">
       <p class="user-id">@{{ session['id'] }}</p>
       <p class="user-rating">
-        ⭐평균 별점 / 5.0
+        ⭐ {{ avg_rating }} / 5.0
+        <span style="opacity:0.8; margin-left:6px;">({{ review_count }}개)</span>
       </p>
     </div>
   </div>
@@ -50,6 +51,7 @@
 
 </div>
 {% endblock %}
+
 
 
 
