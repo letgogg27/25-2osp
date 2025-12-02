@@ -563,6 +563,20 @@ def my_messages():
     return render_template("my_messages.html", conversations=conversations_list)
 
 
+@app.route("/api/chat/delete/<conversation_id>", methods=['POST'])
+def delete_chat(conversation_id):
+    if 'id' not in session:
+        return jsonify({"error": "Unauthorized"}), 401
+    
+    user_id = session['id']
+    
+    # Call database to remove the link
+    success = DB.delete_chat_link(user_id, conversation_id)
+    
+    if success:
+        return jsonify({"status": "success", "msg": "Chat deleted from inbox"})
+    else:
+        return jsonify({"error": "Failed to delete"}), 500
 
 @app.route("/mypage")
 def mypage():

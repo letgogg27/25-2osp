@@ -200,14 +200,48 @@ class DBhandler:
             return False
 
     #  Get the list of chats for the Inbox page
+    # database.py
+
     def get_user_conversations(self, user_id):
         try:
+            # 1. Get list of chats
             conversations = self.db.child("user_chats").child(user_id).get().val()
-            return conversations or {}
+            if not conversations:
+                return {}
+            
+            # 2. Fetch Status for each item
+            # We need to look up 'transactions/{item_name}/status'
+            all_transactions = self.db.child("transactions").get().val() or {}
+            all_items = self.db.child("item").get().val() or {} # For legacy status
+
+            for conv_id, chat_data in conversations.items():
+                item_name = chat_data.get("item_name")
+                
+                # Check New System (transactions node)
+                trans_info = all_transactions.get(item_name)
+                if trans_info:
+                    chat_data["status"] = trans_info.get("status")
+                else:
+                    # Check Legacy System (item node)
+                    item_info = all_items.get(item_name)
+                    if item_info:
+                        chat_data["status"] = item_info.get("status", "active")
+                    else:
+                        chat_data["status"] = "unknown"
+            
+            return conversations
         except Exception as e:
             print(f"❌ Error fetching user chats: {e}")
-            return {} 
-
+            return {}
+    
+    # Delete a chat from a specific user's inbox
+    def delete_chat_link(self, user_id, conversation_id):
+        try:
+            self.db.child("user_chats").child(user_id).child(conversation_id).remove()
+            return True
+        except Exception as e:
+            print(f"❌ Error deleting chat link: {e}")
+            return False
     # Set typing status for a conversation
     def set_typing_status(self, conversation_id, sender_id, is_typing: bool):
         """

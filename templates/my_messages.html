@@ -1,12 +1,25 @@
 {% extends "index.html" %} {% block title %}My Messages{% endblock %} {% block
 content %}
+
 <div style="max-width: 800px; margin: 40px auto; padding: 20px">
-  <h2>My Messages</h2>
+  <h2 style="display: flex; align-items: center; gap: 10px">
+    My Messages
+    <span style="font-size: 14px; color: #666; font-weight: normal">
+      (Total: {{ conversations|length }})
+    </span>
+  </h2>
   <hr />
 
   {% if conversations|length == 0 %}
-  <p>You have no active conversations.</p>
+  <div style="text-align: center; padding: 40px; color: #888">
+    <i
+      class="fa-regular fa-comments"
+      style="font-size: 48px; margin-bottom: 10px"
+    ></i>
+    <p>대화 내역이 없습니다.</p>
+  </div>
   {% else %}
+
   <div style="display: flex; flex-direction: column; gap: 15px">
     {% for chat in conversations %}
     <div
@@ -15,24 +28,73 @@ content %}
         padding: 15px;
         border-radius: 8px;
         background: white;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: box-shadow 0.2s;
       "
+      onmouseover="this.style.boxShadow='0 2px 8px rgba(0,0,0,0.1)'"
+      onmouseout="this.style.boxShadow='none'"
     >
-      <div
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
-        <div>
-          <h3 style="margin: 0 0 5px 0; font-size: 18px">
-            Item: {{ chat.item_name }}
-          </h3>
-          <p style="margin: 0; color: #666">
-            Chat with: <strong>@{{ chat.with_user }}</strong>
-          </p>
+      <div style="flex: 1">
+        <div
+          style="
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 5px;
+          "
+        >
+          {% if chat.status == 'sold' %}
+          <span
+            style="
+              background: #eee;
+              color: #666;
+              padding: 2px 6px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: bold;
+            "
+          >
+            거래완료
+          </span>
+          {% elif chat.status == 'reserved' %}
+          <span
+            style="
+              background: #fff3cd;
+              color: #856404;
+              padding: 2px 6px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: bold;
+            "
+          >
+            예약중
+          </span>
+          {% else %}
+          <span
+            style="
+              background: #d4edda;
+              color: #155724;
+              padding: 2px 6px;
+              border-radius: 4px;
+              font-size: 12px;
+              font-weight: bold;
+            "
+          >
+            판매중
+          </span>
+          {% endif %}
+
+          <h3 style="margin: 0; font-size: 18px">{{ chat.item_name }}</h3>
         </div>
 
+        <p style="margin: 0; color: #666; font-size: 14px">
+          Chat with: <strong>@{{ chat.with_user }}</strong>
+        </p>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 10px">
         <a
           href="/view_detail/{{ chat.item_name }}/?chat=true&with={{ chat.with_user }}"
           style="
@@ -41,14 +103,62 @@ content %}
             padding: 8px 15px;
             text-decoration: none;
             border-radius: 4px;
+            font-size: 14px;
           "
         >
-          Open Chat
+          채팅방 열기
         </a>
+        <button
+          onclick="deleteChat('{{ chat.conversation_id }}')"
+          style="
+            background: transparent;
+            border: none;
+            outline: none;
+            box-shadow: none;
+            -webkit-tap-highlight-color: transparent;
+            color: #999;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 5px;
+          "
+          title="나가기"
+          onmouseover="this.style.color='red'"
+          onmouseout="this.style.color='#999'"
+        >
+          <i class="fa-solid fa-trash"></i>
+        </button>
       </div>
     </div>
+
     {% endfor %}
   </div>
   {% endif %}
 </div>
+<script>
+  function deleteChat(conversationId) {
+    if (
+      !confirm("정말 이 채팅방을 나가시겠습니까? 내 목록에서만 삭제됩니다.")
+    ) {
+      return;
+    }
+
+    fetch(`/api/chat/delete/${conversationId}`, {
+      method: "POST",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.status === "success") {
+          alert("채팅방에서 나갔습니다.");
+          window.location.reload();
+        } else {
+          alert("오류 발생: " + (data.error || "Unknown error"));
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        alert("서버 통신 오류");
+      });
+  }
+</script>
+
 {% endblock %}
