@@ -31,7 +31,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             alt="{{ name }} {{ loop.index }}"
           />
         </div>
-        {% if loop.index0 < 2 %}
+
+        {% else%} {% if loop.index0 < 2 %}
         <div class="thumbnail-image">
           <img
             class="thumb-img"
@@ -40,6 +41,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             alt="{{ name }} {{ loop.index }}"
           />
         </div>
+
         {% elif loop.index0 == 2 %}
         <div class="thumbnail-image thumbnail-more">
           <img
@@ -408,9 +410,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         }
       });
     });
-</script>
 
-<script>
   document.addEventListener("DOMContentLoaded", function () {
     const moreBtn = document.getElementById("item-more-btn");
     const dropdown = document.getElementById("item-more-dropdown");
