@@ -2384,3 +2384,10 @@ textarea {
   color: #666;
 }
 
+.welcome-message {
+  white-space: nowrap;
+}
+
+.welcome-message * {
+  display: inline !important;
+}
