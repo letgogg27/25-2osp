@@ -152,9 +152,6 @@ class DBhandler:
 
     # Add a message to a conversation
     def add_message(self, conversation_id, sender_id, text, image_url=None):
-        """
-        Saves a new message to a specific conversation node in Firebase.
-        """
         try:
             timestamp = datetime.utcnow().isoformat()
             message_data = {
@@ -173,9 +170,6 @@ class DBhandler:
 
 #  Get all messages for a conversation
     def get_messages(self, conversation_id):
-        """
-        Retrieves all messages for a specific conversation_id.
-        """
         try:
             messages = self.db.child("conversations").child(conversation_id).get().val()
             
@@ -184,7 +178,6 @@ class DBhandler:
             print(f"⚠️ Error fetching messages: {e}")
             return {}
         
-    # Save a link so the user can see this chat in their inbox
     def link_user_to_conversation(self, user_id, conversation_id, item_name, other_user_id):
         try:
             chat_info = {
@@ -199,18 +192,12 @@ class DBhandler:
             print(f"❌ Error linking user to chat: {e}")
             return False
 
-    #  Get the list of chats for the Inbox page
-    # database.py
 
     def get_user_conversations(self, user_id):
         try:
-            # 1. Get list of chats
             conversations = self.db.child("user_chats").child(user_id).get().val()
             if not conversations:
                 return {}
-            
-            # 2. Fetch Status for each item
-            # We need to look up 'transactions/{item_name}/status'
             all_transactions = self.db.child("transactions").get().val() or {}
             all_items = self.db.child("item").get().val() or {} # For legacy status
 
@@ -244,14 +231,8 @@ class DBhandler:
             return False
     # Set typing status for a conversation
     def set_typing_status(self, conversation_id, sender_id, is_typing: bool):
-        """
-        Updates the typing status of a user in the 'typing_status' node.
-        
-        Data structure:
-        typing_status/CONVERSATION_ID/SENDER_ID = True/False
-        """
         try:
-            #  only store the status if it's True. remove if False.
+            #  only store the status if it's True, remove if False.
             if is_typing:
                 self.db.child("typing_status").child(conversation_id).child(sender_id).set(True)
                 print(f"Typing status set to TRUE for user {sender_id} in chat {conversation_id}")
@@ -271,11 +252,8 @@ class DBhandler:
             print(f"⚠️ Error getting typing status: {e}")
             return {} 
     
-    # New: Set user's last activity time
+    # Set user's last activity time
     def set_user_activity(self, user_id,timestamp=None):
-        """
-        Updates a user's 'last_active' timestamp in Firebase.
-        """
         try:
             if timestamp is None:
                 utc_now = datetime.datetime.now(datetime.timezone.utc)
@@ -287,11 +265,8 @@ class DBhandler:
             print(f"⚠️ Error setting user activity: {e}")
             return False
             
-    # New: Get a user's last activity time
+    # Get a user's last activity time
     def get_user_activity(self, user_id):
-        """
-        Retrieves a user's 'last_active' timestamp.
-        """
         try:
             status_data = self.db.child("user_status").child(user_id).get().val()
             return status_data.get("last_active") if status_data else None
@@ -351,10 +326,6 @@ class DBhandler:
         return target_value
 
     def get_seller_review_stats(self, seller_id):
-        """
-        Calculates the average star rating and total count for a seller's reviews.
-        This searches through all 'review' nodes that match the seller_id in 'item' nodes.
-        """
         try:
             all_items = self.db.child("item").get().val() or {}
             seller_items = [
