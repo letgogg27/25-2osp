@@ -20,7 +20,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         {% endif %}
       </div>
 
-      {% set total_imgs = imgs|length %} {% if total_imgs > 1 %}
+      {% set total_imgs = imgs|length %} {% if total_imgs == 1 %} {% else %}
       <div class="thumbnail-image-wrapper">
         {% for img in imgs %} {% if total_imgs <= 3 %}
         <div class="thumbnail-image">
@@ -31,8 +31,7 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             alt="{{ name }} {{ loop.index }}"
           />
         </div>
-
-        {% else%} {% if loop.index0 < 2 %}
+        {% else %} {% if loop.index0 < 2 %}
         <div class="thumbnail-image">
           <img
             class="thumb-img"
@@ -41,7 +40,6 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
             alt="{{ name }} {{ loop.index }}"
           />
         </div>
-
         {% elif loop.index0 == 2 %}
         <div class="thumbnail-image thumbnail-more">
           <img
