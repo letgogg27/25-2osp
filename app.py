@@ -744,7 +744,11 @@ def reg_review():
         "img_path": img_names[0] if img_names else ""
     }
 
-    item_name = data.get("name")   # ★ 반드시 form에서 넘어와야 함
+    item_name = data.get("name")  
+    
+    item_info = DB.get_item_byname(item_name)
+    seller_id = item_info.get("seller") if item_info else None
+    review_info["seller"] = seller_id
 
     DB.db.child("review").child(item_name).set(review_info)
 
