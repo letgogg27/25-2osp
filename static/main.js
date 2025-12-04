@@ -355,6 +355,7 @@ function initChatFeature() {
   // Element Selection
   const openChatButton = document.getElementById("open-chat-btn");
   const chatModal = document.getElementById("chat-modal");
+  const me = chatModal.dataset.currentUserId;
   const closeChatButton = document.getElementById("close-chat-btn");
   const bodyElement = document.body;
 

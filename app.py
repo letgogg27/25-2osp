@@ -412,6 +412,8 @@ def view_item_detail(name):
     if user_id and transaction_status == "sold" and buyer_id == user_id:
         can_review = True
 
+    target_user = request.args.get("with")
+
     return render_template(
         "item_detail.html",
         name=name,
