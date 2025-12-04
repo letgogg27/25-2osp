@@ -48,6 +48,7 @@
   <form class="review-box" method="post" action="/reg_review" enctype="multipart/form-data">
 
     <input type="hidden" name="name" value="{{ name }}">
+    <input type="hidden" name="seller" value="{{ seller_id }}">
 
     <!-- 별점 -->
     <fieldset>
@@ -133,6 +134,14 @@ document.getElementById("images").addEventListener("change", function (event) {
       preview.appendChild(img);
     };
     reader.readAsDataURL(file);
+  });
+});
+document.querySelectorAll('.chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    chip.classList.toggle('selected');
+    const selected = Array.from(document.querySelectorAll('.chip.selected'))
+      .map(el => el.textContent.trim());
+    document.getElementById('pros').value = JSON.stringify(selected);
   });
 });
 </script>
