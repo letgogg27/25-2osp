@@ -136,8 +136,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         {% if not is_owner %}
         <button
           class="item-detail-btn to-chat"
+          id="open-chat-btn"
           type="button"
-          onclick="location.href='/view_detail/{{ name }}/?chat=true&with={{ data.seller }}';"
         >
           채팅하러 가기
         </button>
