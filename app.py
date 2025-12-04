@@ -403,6 +403,7 @@ def view_item_detail(name):
     user_id = session.get("id")
     can_review = False
     transaction_status = None
+    seller_feedback = DB.get_seller_feedback(seller_id)
 
     trans_data = DB.get_transaction_status(name) or {}
     transaction_status = trans_data.get("status")
@@ -418,6 +419,7 @@ def view_item_detail(name):
         review_stats=review_stats,
         transaction_status=transaction_status,
         can_review=can_review,
+        seller_feedback=seller_feedback,
     )
 
 
