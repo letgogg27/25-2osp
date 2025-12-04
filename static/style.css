@@ -461,6 +461,12 @@ button:hover,
   cursor: pointer;
 }
 
+.item-detail-btn--disabled,
+.item-detail-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
 .item-detail-btn.to-chat {
   flex: 1;
   background: #1e4e32;
@@ -827,7 +833,7 @@ body.no-scroll {
   width: 100%;
   max-width: 808px;
   overflow: hidden;
-  font-size: 14px;
+  font-size: 22px;
   line-height: 1.6;
 }
 

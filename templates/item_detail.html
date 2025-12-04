@@ -125,21 +125,70 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         </ul>
       </div>
 
+      {% set is_owner = (session.get('id', '') == data.seller) %}
+      {% set can_review_flag = can_review | default(false) %}
+
       <div class="item-detail-actions-box">
-        <button class="item-detail-btn to-chat" id="open-chat-btn">
+        {# 🔹 채팅 버튼: 내 상품이면 비활성화, 아니면 my_messages로 이동 #}
+        {% if not is_owner %}
+        <button
+          class="item-detail-btn to-chat"
+          type="button"
+          onclick="location.href='/my_messages?item={{ name }}&seller={{ data.seller }}';"
+        >
           채팅하러 가기
         </button>
+        {% else %}
+        <button
+          class="item-detail-btn to-chat item-detail-btn--disabled"
+          type="button"
+          disabled
+          title="본인이 올린 상품에는 채팅을 보낼 수 없어요"
+        >
+          채팅하러 가기
+        </button>
+        {% endif %}
+
+        {# 🔹 리뷰 버튼: 거래완료 + 구매자일 때만 활성화 #}
+        {% if can_review_flag %}
         <button
           class="item-detail-btn to-chat"
           id="reg-riview-btn"
-          onclick="location.href='/reg_review_init/{{name}}/';"
+          type="button"
+          onclick="location.href='/reg_review_init/{{ name }}/';"
         >
           리뷰 등록하기
         </button>
-        <button class="item-detail-btn to-wishlist">
+        {% else %}
+        <button
+          class="item-detail-btn to-chat item-detail-btn--disabled"
+          id="reg-riview-btn"
+          type="button"
+          disabled
+          title="거래를 완료한 구매자만 리뷰를 등록할 수 있어요"
+        >
+          리뷰 등록하기
+        </button>
+        {% endif %}
+
+        {# 🔹 찜 버튼: 내 상품이면 보이기만 하고 비활성화 #}
+        {% if not is_owner %}
+        <button class="item-detail-btn to-wishlist" type="button">
           <i id="heart" class="fa fa-heart"></i>
         </button>
+        {% else %}
+        <button
+          class="item-detail-btn to-wishlist item-detail-btn--disabled"
+          type="button"
+          disabled
+          title="본인이 올린 상품은 찜할 수 없어요"
+        >
+          <i id="heart" class="fa fa-heart"></i>
+        </button>
+        {% endif %}
       </div>
+
+
     </aside>
   </section>
 

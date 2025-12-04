@@ -389,12 +389,36 @@ def DynamicUrl(varible_name):
 @app.route("/view_detail/<name>/")
 def view_item_detail(name):
     data = DB.get_item_byname(str(name))
+    if not data:
+        # 안전하게 404 처리 (선택)
+        from flask import abort
+        abort(404)
+
     seller_id = data.get('seller')
     if seller_id:
         review_stats = DB.get_seller_review_stats(seller_id)
     else:
         review_stats = {"average_rating": 0.0, "total_reviews": 0}
-    return render_template("item_detail.html", name=name, data=data, review_stats=review_stats)
+
+    user_id = session.get("id")
+    can_review = False
+    transaction_status = None
+
+    trans_data = DB.get_transaction_status(name) or {}
+    transaction_status = trans_data.get("status")
+    buyer_id = trans_data.get("buyer")
+
+    if user_id and transaction_status == "sold" and buyer_id == user_id:
+        can_review = True
+
+    return render_template(
+        "item_detail.html",
+        name=name,
+        data=data,
+        review_stats=review_stats,
+        transaction_status=transaction_status,
+        can_review=can_review,
+    )
 
 
 # Gets the message history for a chat
@@ -549,7 +573,7 @@ def send_chat_with_image(item_name):
 @app.route("/my_messages")
 def my_messages():
     if 'id' not in session:
-        flash("Please log in first.")
+        flash(" 로그인을 해주세요!")
         return redirect(url_for('login'))
     
     my_id = session['id']
@@ -680,6 +704,17 @@ def update_user_activity():
 
 @app.route("/reg_review_init/<name>/")
 def reg_review_init(name):
+    user_id = session.get("id")
+    if not user_id:
+        return redirect(url_for("login"))
+    trans_data = DB.get_transaction_status(item_name) or {}
+    status = trans_data.get("status")
+    buyer_id = trans_data.get("buyer")
+
+    if not (status == "sold" and buyer_id == user_id):
+        flash("거래를 완료한 구매자만 리뷰를 등록할 수 있습니다.")
+        return redirect(url_for("view_item_detail", name=item_name))
+
     data = DB.get_item_byname(name)   
     return render_template("reg_reviews.html", name=name, data=data)
 
