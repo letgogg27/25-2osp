@@ -709,7 +709,7 @@ def reg_review_init(name):
     user_id = session.get("id")
     if not user_id:
         return redirect(url_for("login"))
-    trans_data = DB.get_transaction_status(item_name) or {}
+    trans_data = DB.get_transaction_status(name) or {}
     status = trans_data.get("status")
     buyer_id = trans_data.get("buyer")
 
