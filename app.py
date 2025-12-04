@@ -718,6 +718,7 @@ def reg_review_init(name):
         return redirect(url_for("view_item_detail", name=item_name))
 
     data = DB.get_item_byname(name)   
+    seller_id = data.get("seller", "")
     return render_template("reg_reviews.html", name=name, data=data)
 
 @app.route("/reg_review", methods=['POST'])
