@@ -305,10 +305,31 @@ class DBhandler:
             "review": data['content'],
             "img_path": img_path,
             "date": datetime.now().strftime("%Y-%m-%d"),
-            "pros": data.get("pros", ""),
+            "pros": data.get("pros", []),   # ← pros를 리스트로 저장
+            "seller": data.get("seller", "")
         }
+
+        # 1️⃣ 리뷰 저장
         self.db.child("review").child(data['name']).set(review_info)
+
+        # 2️⃣ 판매자 평판 키워드 누적
+        seller_id = data.get("seller")
+        pros_list = data.get("pros", [])
+        if seller_id and pros_list:
+            feedback_ref = self.db.child("seller_feedback").child(seller_id)
+            current_feedback = feedback_ref.get().val() or {}
+            for pros in pros_list:
+                current_feedback[pros] = current_feedback.get(pros, 0) + 1
+            feedback_ref.set(current_feedback)
+
+        print(f" 리뷰 등록 및 판매자 평판 업데이트 완료: {seller_id}")
         return True
+
+    def get_seller_feedback(self, seller_id):
+        feedback = self.db.child("seller_feedback").child(seller_id).get().val() or {}
+        # 많이 선택된 순서로 정렬
+        sorted_feedback = dict(sorted(feedback.items(), key=lambda kv: kv[1], reverse=True))
+        return sorted_feedback
 
     
     def get_reviews(self):
@@ -493,3 +514,4 @@ class DBhandler:
 
         return result
         
+
