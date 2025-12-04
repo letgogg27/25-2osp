@@ -132,12 +132,12 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
       {% set can_review_flag = can_review | default(false) %}
 
       <div class="item-detail-actions-box">
-        {# 🔹 채팅 버튼: 내 상품이면 비활성화, 아니면 my_messages로 이동 #}
+        {# 🔹 채팅 버튼: 내 상품이면 비활성화, 아니면 현재 상세 페이지를 chat=true로 다시 열기 #}
         {% if not is_owner %}
         <button
           class="item-detail-btn to-chat"
           type="button"
-          onclick="location.href='/my_messages?item={{ name }}&seller={{ data.seller }}';"
+          onclick="location.href='/view_detail/{{ name }}/?chat=true&with={{ data.seller }}';"
         >
           채팅하러 가기
         </button>
