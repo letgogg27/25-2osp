@@ -327,6 +327,15 @@ class DBhandler:
 
     def get_seller_feedback(self, seller_id):
         feedback = self.db.child("seller_feedback").child(seller_id).get().val() or {}
+        if not feedback:
+            reviews = self.db.child("review").get().val() or {}
+            temp = {}
+            for _, rv in reviews.items():
+                if rv.get("seller") == seller_id:
+                    pros_text = rv.get("pros", "")
+                    if pros_text:
+                        temp[pros_text] = temp.get(pros_text, 0) + 1
+            feedback = temp
         # 많이 선택된 순서로 정렬
         sorted_feedback = dict(sorted(feedback.items(), key=lambda kv: kv[1], reverse=True))
         return sorted_feedback
@@ -514,4 +523,5 @@ class DBhandler:
 
         return result
         
+
 
