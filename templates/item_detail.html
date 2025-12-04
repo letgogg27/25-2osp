@@ -109,20 +109,22 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         </div>
       </div>
 
-      <div class="item-seller-review">
+     <div class="item-seller-review">
         <h4>이전 거래 후기</h4>
         <hr />
-        <ul class="review-summary">
-          <li>
-            <div><span>응답이 빨라요</span><strong>4명</strong></div>
-          </li>
-          <li>
-            <div><span>친절해요</span><strong>3명</strong></div>
-          </li>
-          <li>
-            <div><span>상품 상태가 좋아요</span><strong>1명</strong></div>
-          </li>
-        </ul>
+        {% if seller_feedback and seller_feedback|length > 0 %}
+          <ul class="review-summary">
+            {% for keyword, count in seller_feedback|dictsort(by='value', reverse=True) %}
+            <li>
+              <div><span>{{ keyword }}</span><strong>{{ count }}명</strong></div>
+            </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p style="color:#666; font-size:14px; margin-top:10px;">
+            아직 이 판매자에 대한 거래 후기가 없습니다.
+          </p>
+        {% endif %}
       </div>
       
 
