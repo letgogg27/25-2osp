@@ -124,6 +124,19 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
           </li>
         </ul>
       </div>
+      <div class="item-seller-keywords">
+        <h4>판매자 평판 키워드</h4>
+        <hr />
+        {% if seller_feedback %}
+          <div class="chips">
+            {% for keyword, count in seller_feedback.items() %}
+              <span class="chip">{{ keyword }} ({{ count }})</span>
+            {% endfor %}
+          </div>
+        {% else %}
+          <p>아직 이 판매자에 대한 키워드 평가가 없습니다.</p>
+        {% endif %}
+      </div>
 
       {% set is_owner = (session.get('id', '') == data.seller) %}
       {% set can_review_flag = can_review | default(false) %}
