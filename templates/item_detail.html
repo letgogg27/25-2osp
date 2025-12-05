@@ -109,39 +109,39 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         </div>
       </div>
 
-     <div class="item-seller-review">
+      <div class="item-seller-review">
         <h4>이전 거래 후기</h4>
         <hr />
         {% if seller_feedback and seller_feedback|length > 0 %}
-          <ul class="review-summary">
-            {% for keyword, count in seller_feedback|dictsort(by='value', reverse=True) %}
-            <li>
-              <div><span>{{ keyword }}</span><strong>{{ count }}명</strong></div>
-            </li>
-            {% endfor %}
-          </ul>
+        <ul class="review-summary">
+          {% for keyword, count in seller_feedback|dictsort(by='value',
+          reverse=True) %}
+          <li>
+            <div><span>{{ keyword }}</span><strong>{{ count }}명</strong></div>
+          </li>
+          {% endfor %}
+        </ul>
         {% else %}
-          <p style="color:#666; font-size:14px; margin-top:10px;">
-            아직 이 판매자에 대한 거래 후기가 없습니다.
-          </p>
+        <p style="color: #666; font-size: 14px; margin-top: 10px">
+          아직 이 판매자에 대한 거래 후기가 없습니다.
+        </p>
         {% endif %}
       </div>
-      
 
-      {% set is_owner = (session.get('id', '') == data.seller) %}
-      {% set can_review_flag = can_review | default(false) %}
+      {% set is_owner = (session.get('id', '') == data.seller) %} {% set
+      can_review_flag = can_review | default(false) %}
 
       <div class="item-detail-actions-box">
-        {# 🔹 채팅 버튼: 내 상품이면 비활성화, 아니면 현재 상세 페이지를 chat=true로 다시 열기 #}
-        {% if not is_owner %}
+        {% if session.get('id') %} {# Case 1: Logged In #} {% if not is_owner %}
+        {# Buyer: Show Active Button #}
         <button
+          id="open-chat-btn"
           class="item-detail-btn to-chat"
           type="button"
-          onclick="location.href='/view_detail/{{ name }}/?chat=true&with={{ data.seller }}';"
         >
           채팅하러 가기
         </button>
-        {% else %}
+        {% else %} {# Seller: Show Disabled Button #}
         <button
           class="item-detail-btn to-chat item-detail-btn--disabled"
           type="button"
@@ -150,10 +150,17 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         >
           채팅하러 가기
         </button>
-        {% endif %}
-
-        {# 🔹 리뷰 버튼: 거래완료 + 구매자일 때만 활성화 #}
-        {% if can_review_flag %}
+        {% endif %} {% else %} {# Case 2: Not Logged In #}
+        <button
+          class="item-detail-btn to-chat item-detail-btn--disabled"
+          type="button"
+          disabled
+          title="로그인 후 채팅을 이용할 수 있어요"
+        >
+          채팅하러 가기
+        </button>
+        {% endif %} {# REVIEW BUTTON (keep your existing logic) #} {% if
+        can_review_flag %}
         <button
           class="item-detail-btn to-chat"
           id="reg-riview-btn"
@@ -172,10 +179,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         >
           리뷰 등록하기
         </button>
-        {% endif %}
-
-        {# 🔹 찜 버튼: 내 상품이면 보이기만 하고 비활성화 #}
-        {% if not is_owner %}
+        {% endif %} {# WISHLIST BUTTON (as you already have) #} {% if not
+        is_owner %}
         <button class="item-detail-btn to-wishlist" type="button">
           <i id="heart" class="fa fa-heart"></i>
         </button>
@@ -190,8 +195,6 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         </button>
         {% endif %}
       </div>
-
-
     </aside>
   </section>
 
@@ -212,8 +215,9 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     style="display: none"
     data-item-name="{{ name }}"
     data-seller-id="{{ data.seller }}"
-    data-current-user-id="{{ session['id'] }}"
-    data-partner-id="{{ partner_id }}"
+    data-current-user-id="{{ session.get('id', '') }}"
+    data-partner-id="{{ partner_id | default('', true) }}"
+    data-item-status="{{ data.status }}"
   >
     <div class="chat-window">
       <!-- Header -->
