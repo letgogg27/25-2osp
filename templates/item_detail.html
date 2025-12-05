@@ -132,15 +132,16 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
       can_review_flag = can_review | default(false) %}
 
       <div class="item-detail-actions-box">
-        {% if not is_owner %}
+        {% if session.get('id') %} {# Case 1: Logged In #} {% if not is_owner %}
+        {# Buyer: Show Active Button #}
         <button
+          id="open-chat-btn"
           class="item-detail-btn to-chat"
           type="button"
-          onclick="location.href='/view_detail/{{ name }}/?chat=true&with={{ data.seller }}';"
         >
           채팅하러 가기
         </button>
-        {% else %}
+        {% else %} {# Seller: Show Disabled Button #}
         <button
           class="item-detail-btn to-chat item-detail-btn--disabled"
           type="button"
@@ -149,7 +150,17 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         >
           채팅하러 가기
         </button>
-        {% endif %} {% if can_review_flag %}
+        {% endif %} {% else %} {# Case 2: Not Logged In #}
+        <button
+          class="item-detail-btn to-chat item-detail-btn--disabled"
+          type="button"
+          disabled
+          title="로그인 후 채팅을 이용할 수 있어요"
+        >
+          채팅하러 가기
+        </button>
+        {% endif %} {# REVIEW BUTTON (keep your existing logic) #} {% if
+        can_review_flag %}
         <button
           class="item-detail-btn to-chat"
           id="reg-riview-btn"
@@ -168,7 +179,8 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
         >
           리뷰 등록하기
         </button>
-        {% endif %} {% if not is_owner %}
+        {% endif %} {# WISHLIST BUTTON (as you already have) #} {% if not
+        is_owner %}
         <button class="item-detail-btn to-wishlist" type="button">
           <i id="heart" class="fa fa-heart"></i>
         </button>
@@ -203,8 +215,9 @@ set seller_initial = data.seller[0]|upper %} {% else %} {% set seller_initial =
     style="display: none"
     data-item-name="{{ name }}"
     data-seller-id="{{ data.seller }}"
-    data-current-user-id="{{ session['id'] }}"
-    data-partner-id="{{ partner_id }}"
+    data-current-user-id="{{ session.get('id', '') }}"
+    data-partner-id="{{ partner_id | default('', true) }}"
+    data-item-status="{{ data.status }}"
   >
     <div class="chat-window">
       <!-- Header -->
