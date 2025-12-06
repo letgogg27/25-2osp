@@ -653,6 +653,7 @@ def mypage():
         sold_items=sold_items,
         bought_items=bought_items,
         user_id=user_id
+        avg_rating=avg_rating
     )
 
 @app.route("/api/chat/typing/<item_name>", methods=['POST'])
