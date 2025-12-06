@@ -652,7 +652,7 @@ def mypage():
         my_items=my_active_items,
         sold_items=sold_items,
         bought_items=bought_items,
-        user_id=user_id
+        user_id=user_id,
         avg_rating=avg_rating
     )
 
