@@ -446,7 +446,7 @@ function initChatFeature() {
         ) {
           if (isMeSeller && RECEIVER_ID) {
             const btn = document.createElement("button");
-            btn.innerText = "거래 완료 요청";
+            btn.innerText = "거래 진행 요청";
             btn.className = "item-detail-btn";
             btn.style.cssText =
               "padding: 5px 10px; font-size: 12px; background: #00462A; color: white; border:none; border-radius:4px; cursor:pointer;";
@@ -460,7 +460,7 @@ function initChatFeature() {
         } else if (status === "reserved") {
           if (isMeBuyer) {
             const btn = document.createElement("button");
-            btn.innerText = "거래 확정 하기";
+            btn.innerText = "거래 완료";
             btn.className = "item-detail-btn";
             btn.style.cssText =
               "padding: 5px 10px; font-size: 12px; background: #d32f2f; color: white; border:none; border-radius:4px; cursor:pointer;";
@@ -493,7 +493,7 @@ function initChatFeature() {
       contentType: "application/json",
       data: JSON.stringify({ item_name: ITEM_NAME, buyer_id: buyerId }),
       success: function () {
-        alert("거래 완료 요청을 보냈습니다.");
+        alert("거래 진행 요청을 보냈습니다.");
         checkTransactionStatus();
       },
     });
@@ -506,7 +506,7 @@ function initChatFeature() {
       contentType: "application/json",
       data: JSON.stringify({ item_name: ITEM_NAME }),
       success: function () {
-        alert("거래가 확정되었습니다!");
+        alert("거래가 완료되었습니다!");
         checkTransactionStatus();
       },
     });
