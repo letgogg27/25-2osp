@@ -614,6 +614,11 @@ def mypage():
 
     user_id = session["id"]
 
+    stats = DB.get_seller_review_stats(user_id)
+    avg_rating = stats["average_rating"]
+    review_count = stats["total_reviews"]
+
+
     all_my_uploads = DB.get_items_by_seller(user_id)
 
     history = DB.get_transactions_by_user(user_id)
